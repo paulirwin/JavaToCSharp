@@ -459,7 +459,7 @@ namespace JavaToCSharp
             var statements = block.getStmts().ToList<Statement>();
 
             // handle special case for constructor invocation
-            if (statements.Count > 0 && statements[0] is ExplicitConstructorInvocationStmt)
+            if (statements != null && statements.Count > 0 && statements[0] is ExplicitConstructorInvocationStmt)
             {
                 var ctorInvStmt = (ExplicitConstructorInvocationStmt)statements[0];
                 statements.RemoveAt(0);
@@ -501,6 +501,9 @@ namespace JavaToCSharp
 
         private static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement> statements)
         {
+            if (statements == null)
+                return new List<StatementSyntax>();
+
             var syntaxes = new List<StatementSyntax>();
 
             foreach (var statement in statements)
@@ -576,11 +579,28 @@ namespace JavaToCSharp
             {
                 syntax = VisitSynchronizedStatement(context, (SynchronizedStmt)statement);
             }
+            else if (statement is AssertStmt)
+            {
+                // TODO: give an option for implementing Debug.Assert here
+                syntax = Syntax.EmptyStatement();
+            }
+            else if (statement is LabeledStmt)
+            {
+                syntax = VisitLabeledStatement(context, (LabeledStmt)statement);
+            }
 
             if (syntax == null)
                 throw new NotImplementedException("Statement translation not implemented for " + statement.GetType().Name);
 
             return syntax;
+        }
+
+        private static StatementSyntax VisitLabeledStatement(ConversionContext context, LabeledStmt labeledStmt)
+        {
+            var statement = labeledStmt.getStmt();
+            var syntax = VisitStatement(context, statement);
+
+            return Syntax.LabeledStatement(labeledStmt.getLabel(), syntax);
         }
 
         private static StatementSyntax VisitSynchronizedStatement(ConversionContext context, SynchronizedStmt synchronizedStmt)
@@ -748,7 +768,38 @@ namespace JavaToCSharp
             var right = assignExpr.getValue();
             var rightSyntax = VisitExpression(context, right);
 
-            return Syntax.BinaryExpression(SyntaxKind.AssignExpression, leftSyntax, rightSyntax);
+            var op = assignExpr.getOperator();
+            var kind = SyntaxKind.None;
+
+            if (op == AssignExpr.Operator.and)
+                kind = SyntaxKind.AndAssignExpression;
+            else if (op == AssignExpr.Operator.assign)
+                kind = SyntaxKind.AssignExpression;
+            else if (op == AssignExpr.Operator.lShift)
+                kind = SyntaxKind.LeftShiftAssignExpression;
+            else if (op == AssignExpr.Operator.minus)
+                kind = SyntaxKind.SubtractAssignExpression;
+            else if (op == AssignExpr.Operator.or)
+                kind = SyntaxKind.OrAssignExpression;
+            else if (op == AssignExpr.Operator.plus)
+                kind = SyntaxKind.AddAssignExpression;
+            else if (op == AssignExpr.Operator.rem)
+                kind = SyntaxKind.ModuloAssignExpression;
+            else if (op == AssignExpr.Operator.rSignedShift)
+                kind = SyntaxKind.RightShiftAssignExpression;
+            else if (op == AssignExpr.Operator.rUnsignedShift)
+            {
+                context.Options.Warning("Use of unsigned right shift. Using signed right shift instead. Check for correctness.", assignExpr.getBeginLine());
+                kind = SyntaxKind.RightShiftAssignExpression;
+            }
+            else if (op == AssignExpr.Operator.slash)
+                kind = SyntaxKind.DivideAssignExpression;
+            else if (op == AssignExpr.Operator.star)
+                kind = SyntaxKind.MultiplyAssignExpression;
+            else if (op == AssignExpr.Operator.xor)
+                kind = SyntaxKind.ExclusiveOrAssignExpression;
+
+            return Syntax.BinaryExpression(kind, leftSyntax, rightSyntax);
         }
 
         private static ExpressionSyntax VisitExpression(ConversionContext context, Expression expr)
@@ -863,10 +914,13 @@ namespace JavaToCSharp
 
             var rankSyntaxes = new List<ExpressionSyntax>();
 
-            foreach (var dimension in rankDimensions)
+            if (rankDimensions != null)
             {
-                var rankSyntax = VisitExpression(context, dimension);
-                rankSyntaxes.Add(rankSyntax);
+                foreach (var dimension in rankDimensions)
+                {
+                    var rankSyntax = VisitExpression(context, dimension);
+                    rankSyntaxes.Add(rankSyntax);
+                }
             }
 
             if (initializer == null)
