@@ -244,7 +244,7 @@ namespace JavaToCSharp
             {
                 if (member is FieldDeclaration)
                 {
-                    classSyntax = VisitFieldDeclaration(classSyntax, (FieldDeclaration)member);
+                    classSyntax = VisitFieldDeclaration(context, classSyntax, (FieldDeclaration)member);
                 }
                 else if (member is ConstructorDeclaration)
                 {
@@ -350,7 +350,9 @@ namespace JavaToCSharp
             var annotations = methodDecl.getAnnotations().ToList<AnnotationExpr>();
             bool isOverride = false;
 
-            if (annotations != null && annotations.Count > 0)
+            // TODO: figure out how to check for a non-interface base type
+            if (annotations != null 
+                && annotations.Count > 0)
             {
                 foreach (var annotation in annotations)
                 {
@@ -367,23 +369,34 @@ namespace JavaToCSharp
                 && !mods.HasFlag(Modifier.ABSTRACT) 
                 && !mods.HasFlag(Modifier.STATIC) 
                 && !mods.HasFlag(Modifier.PRIVATE)
-                && !isOverride)
+                && !isOverride
+                && !classSyntax.Modifiers.Any(i => i.Kind == SyntaxKind.SealedKeyword))
                 methodSyntax = methodSyntax.AddModifiers(Syntax.Token(SyntaxKind.VirtualKeyword));
 
             var parameters = methodDecl.getParameters().ToList<Parameter>();
 
             if (parameters != null && parameters.Count > 0)
             {
-                var paramSyntax = parameters.Select(i =>
-                    Syntax.Parameter(
-                        attributeLists: null,
-                        modifiers: Syntax.TokenList(),
-                        type: Syntax.ParseTypeName(ConvertType(i.getType().toString())),
-                        identifier: Syntax.ParseToken(ConvertIdentifierName(i.getId().toString())),
-                        @default: null))
-                    .ToArray();
+                var paramSyntaxes = new List<ParameterSyntax>();
 
-                methodSyntax = methodSyntax.AddParameterListParameters(paramSyntax.ToArray());
+                foreach (var param in parameters)
+                {
+                    string typeName = ConvertType(param.getType().toString());
+                    string identifier = ConvertIdentifierName(param.getId().getName());
+
+                    if (param.getId().getArrayCount() > 0 && !typeName.EndsWith("[]"))
+                        typeName += "[]";
+
+                    var paramSyntax = Syntax.Parameter(attributeLists: null,
+                        modifiers: Syntax.TokenList(),
+                        type: Syntax.ParseTypeName(typeName),
+                        identifier: Syntax.ParseToken(identifier),
+                        @default: null);
+
+                    paramSyntaxes.Add(paramSyntax);
+                }
+
+                methodSyntax = methodSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
             }
 
             var block = methodDecl.getBody();
@@ -588,11 +601,52 @@ namespace JavaToCSharp
             {
                 syntax = VisitLabeledStatement(context, (LabeledStmt)statement);
             }
+            else if (statement is SwitchStmt)
+            {
+                syntax = VisitSwitchStatement(context, (SwitchStmt)statement);
+            }
 
             if (syntax == null)
                 throw new NotImplementedException("Statement translation not implemented for " + statement.GetType().Name);
 
             return syntax;
+        }
+
+        private static StatementSyntax VisitSwitchStatement(ConversionContext context, SwitchStmt switchStmt)
+        {
+            var selector = switchStmt.getSelector();
+            var selectorSyntax = VisitExpression(context, selector);
+
+            var cases = switchStmt.getEntries().ToList<SwitchEntryStmt>();
+
+            if (cases == null)
+                return Syntax.SwitchStatement(selectorSyntax, Syntax.List<SwitchSectionSyntax>());
+
+            var caseSyntaxes = new List<SwitchSectionSyntax>();
+
+            foreach (var cs in cases)
+            {
+                var label = cs.getLabel();
+
+                var statements = cs.getStmts().ToList<Statement>();
+                var syntaxes = VisitStatements(context, statements);
+
+                if (label == null)
+                {
+                    // default case
+                    var defaultSyntax = Syntax.SwitchSection(Syntax.List(Syntax.SwitchLabel(SyntaxKind.DefaultSwitchLabel)), Syntax.List(syntaxes.AsEnumerable()));
+                    caseSyntaxes.Add(defaultSyntax);
+                }
+                else
+                {
+                    var labelSyntax = VisitExpression(context, label);
+
+                    var caseSyntax = Syntax.SwitchSection(Syntax.List(Syntax.SwitchLabel(SyntaxKind.CaseSwitchLabel, labelSyntax)), Syntax.List(syntaxes.AsEnumerable()));
+                    caseSyntaxes.Add(caseSyntax);
+                }
+            }
+
+            return Syntax.SwitchStatement(selectorSyntax, Syntax.List<SwitchSectionSyntax>(caseSyntaxes));
         }
 
         private static StatementSyntax VisitLabeledStatement(ConversionContext context, LabeledStmt labeledStmt)
@@ -753,7 +807,7 @@ namespace JavaToCSharp
 
             // handle special case where AST is different
             if (expression is VariableDeclarationExpr)
-                return VisitVariableDeclarationStatement((VariableDeclarationExpr)expression);
+                return VisitVariableDeclarationStatement(context, (VariableDeclarationExpr)expression);
 
             var expressionSyntax = VisitExpression(context, expression);
 
@@ -863,6 +917,16 @@ namespace JavaToCSharp
                     return Syntax.LiteralExpression(SyntaxKind.TrueLiteralExpression);
                 else
                     return Syntax.LiteralExpression(SyntaxKind.FalseLiteralExpression);
+            }
+            else if (expr is DoubleLiteralExpr)
+            {
+                // note: this must come before the check for StringLiteralExpr because DoubleLiteralExpr : StringLiteralExpr
+                var dbl = (DoubleLiteralExpr)expr;
+
+                if (dbl.getValue().EndsWith("f", StringComparison.OrdinalIgnoreCase))
+                    return Syntax.LiteralExpression(SyntaxKind.NumericLiteralExpression, Syntax.Literal(float.Parse(dbl.getValue().TrimEnd('f', 'F'))));
+                else
+                    return Syntax.LiteralExpression(SyntaxKind.NumericLiteralExpression, Syntax.Literal(double.Parse(dbl.getValue().TrimEnd('d', 'D'))));
             }
             else if (expr is StringLiteralExpr)
             {
@@ -1028,19 +1092,39 @@ namespace JavaToCSharp
                 return Syntax.PrefixUnaryExpression(kind, exprSyntax);
         }
 
-        private static StatementSyntax VisitVariableDeclarationStatement(VariableDeclarationExpr varExpr)
+        private static StatementSyntax VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
         {
             var type = ConvertType(varExpr.getType().toString());
 
-            var vars = varExpr.getVars()
-                .ToList<VariableDeclarator>()
-                .Select(i => Syntax.VariableDeclarator(i.toString()))
-                .ToArray();
+            var variables = new List<VariableDeclaratorSyntax>();
 
-            // todo: handle variable declarators better
+            foreach (var item in varExpr.getVars().ToList<VariableDeclarator>())
+            {
+                var id = item.getId();
+                string name = id.getName();
+
+                if (id.getArrayCount() > 0)
+                {
+                    if (!type.EndsWith("[]"))
+                        type += "[]";
+                    if (name.EndsWith("[]"))
+                        name = name.Substring(0, name.Length - 2);
+                }
+
+                var initexpr = item.getInit();
+
+                if (initexpr != null)
+                {
+                    var initsyn = VisitExpression(context, initexpr);
+                    var vardeclsyn = Syntax.VariableDeclarator(name).WithInitializer(Syntax.EqualsValueClause(initsyn));
+                    variables.Add(vardeclsyn);
+                }
+                else
+                    variables.Add(Syntax.VariableDeclarator(name));
+            }
 
             return Syntax.LocalDeclarationStatement(
-                Syntax.VariableDeclaration(Syntax.ParseTypeName(type), Syntax.SeparatedList(vars, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), vars.Length - 1))));
+                Syntax.VariableDeclaration(Syntax.ParseTypeName(type), Syntax.SeparatedList(variables, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), variables.Count - 1))));
         }
 
         private static ExpressionSyntax VisitBinaryExpression(ConversionContext context, BinaryExpr binaryExpr)
@@ -1139,7 +1223,7 @@ namespace JavaToCSharp
             var args = newExpr.getArgs().ToList<Expression>();            
 
             if (args == null || args.Count == 0)
-                return Syntax.ObjectCreationExpression(typeSyntax);
+                return Syntax.ObjectCreationExpression(typeSyntax).WithArgumentList(Syntax.ArgumentList());
 
             var argSyntaxes = new List<ArgumentSyntax>();
 
@@ -1192,7 +1276,7 @@ namespace JavaToCSharp
             {
                 if (member is FieldDeclaration)
                 {
-                    classSyntax = VisitFieldDeclaration(classSyntax, (FieldDeclaration)member);
+                    classSyntax = VisitFieldDeclaration(context, classSyntax, (FieldDeclaration)member);
                 }
                 else if (member is MethodDeclaration)
                 {
@@ -1320,23 +1404,43 @@ namespace JavaToCSharp
             return trySyn;
         }
 
-        private static ClassDeclarationSyntax VisitFieldDeclaration(ClassDeclarationSyntax classSyntax, FieldDeclaration fieldDecl)
+        private static ClassDeclarationSyntax VisitFieldDeclaration(ConversionContext context, ClassDeclarationSyntax classSyntax, FieldDeclaration fieldDecl)
         {
-            var variables = fieldDecl.getVariables()
-                .ToList<VariableDeclarator>()
-                .Select(i => Syntax.VariableDeclarator(i.toString()))
-                .ToArray();
-
-            // todo: handle variable declarators better
-
+            var variables = new List<VariableDeclaratorSyntax>();
+                        
             string typeName = fieldDecl.getType().toString();
+
+            foreach (var item in fieldDecl.getVariables().ToList<VariableDeclarator>())
+            {
+                var id = item.getId();
+                string name = id.getName();
+
+                if (id.getArrayCount() > 0)
+                {
+                    if (!typeName.EndsWith("[]"))
+                        typeName += "[]";
+                    if (name.EndsWith("[]"))
+                        name = name.Substring(0, name.Length - 2);
+                }
+
+                var initexpr = item.getInit();
+
+                if (initexpr != null)
+                {
+                    var initsyn = VisitExpression(context, initexpr);
+                    var vardeclsyn = Syntax.VariableDeclarator(name).WithInitializer(Syntax.EqualsValueClause(initsyn));
+                    variables.Add(vardeclsyn);
+                }
+                else
+                    variables.Add(Syntax.VariableDeclarator(name));
+            }
 
             typeName = ConvertType(typeName);
 
             var fieldSyntax = Syntax.FieldDeclaration(
                 Syntax.VariableDeclaration(
                     Syntax.ParseTypeName(typeName),
-                    Syntax.SeparatedList(variables, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), variables.Length - 1))));
+                    Syntax.SeparatedList(variables, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), variables.Count - 1))));
 
             var mods = fieldDecl.getModifiers();
 
