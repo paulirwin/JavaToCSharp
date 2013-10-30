@@ -19,6 +19,9 @@ namespace JavaToCSharpGui
         private string _csharpText;
         private string _openPath;
         private string _savePath;
+        private bool _includeUsings = true;
+        private bool _includeNamespace = true;
+        private bool _useDebugAssertForAsserts = false;
 
         public ShellViewModel()
         {
@@ -70,6 +73,42 @@ namespace JavaToCSharpGui
             }
         }
 
+        public bool IncludeUsings
+        {
+            get { return _includeUsings; }
+            set
+            {
+                _includeUsings = value;
+                NotifyOfPropertyChange(() => IncludeUsings);
+            }
+        }
+
+        public bool IncludeNamespace
+        {
+            get { return _includeNamespace; }
+            set
+            {
+                _includeNamespace = value;
+                NotifyOfPropertyChange(() => IncludeNamespace);
+            }
+        }
+
+        public bool UseDebugAssertForAsserts
+        {
+            get { return _useDebugAssertForAsserts; }
+            set
+            {
+                _useDebugAssertForAsserts = value;
+                NotifyOfPropertyChange(() => UseDebugAssertForAsserts);
+
+                if (value && !_usings.Contains("System.Diagnostics"))
+                {
+                    _addUsingInput = "System.Diagnostics";
+                    AddUsing();
+                }
+            }
+        }
+
         public void AddUsing()
         {
             _usings.Add(_addUsingInput);
@@ -90,6 +129,10 @@ namespace JavaToCSharpGui
             {
                 options.AddUsing(ns);
             }
+
+            options.IncludeUsings = _includeUsings;
+            options.IncludeNamespace = _includeNamespace;
+            options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
 
             options.WarningEncountered += options_WarningEncountered;
 

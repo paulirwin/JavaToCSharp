@@ -38,6 +38,12 @@
                              Micro:Message.Attach="[MouseDoubleClick]=[Action RemoveUsing(Usings.SelectedItem)]">                        
                     </ListBox>
                 </StackPanel>
+                
+                <StackPanel Orientation="Vertical" Grid.Column="1">
+                    <CheckBox Margin="5" x:Name="IncludeUsings">Include Usings in Output</CheckBox>
+                    <CheckBox Margin="5" x:Name="IncludeNamespace">Include Namespace in Output</CheckBox>
+                    <CheckBox Margin="5" x:Name="UseDebugAssertForAsserts">Use Debug.Assert() for asserts</CheckBox>
+                </StackPanel>
             </Grid>
         </GroupBox>
         <Grid Grid.Row="2">

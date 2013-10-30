@@ -50,22 +50,31 @@ namespace JavaToCSharp
                 //    usings.Add(usingSyntax);
                 //}
 
-                foreach (var ns in options.Usings)
+                if (options.IncludeUsings)
                 {
-                    var usingSyntax = Syntax.UsingDirective(Syntax.ParseName(ns));
-                    usings.Add(usingSyntax);
+                    foreach (var ns in options.Usings)
+                    {
+                        var usingSyntax = Syntax.UsingDirective(Syntax.ParseName(ns));
+                        usings.Add(usingSyntax);
+                    }
                 }
 
-                string packageName = package.getName().toString();
+                var rootMembers = new List<MemberDeclarationSyntax>();
+                NamespaceDeclarationSyntax namespaceSyntax = null;
 
-                foreach (var packageReplacement in options.PackageReplacements)
+                if (options.IncludeNamespace)
                 {
-                    packageName = packageReplacement.Replace(packageName);
-                }
-                
-                packageName = Capitalize(packageName);
+                    string packageName = package.getName().toString();
 
-                var namespaceSyntax = Syntax.NamespaceDeclaration(Syntax.ParseName(packageName));
+                    foreach (var packageReplacement in options.PackageReplacements)
+                    {
+                        packageName = packageReplacement.Replace(packageName);
+                    }
+
+                    packageName = Capitalize(packageName);
+
+                    namespaceSyntax = Syntax.NamespaceDeclaration(Syntax.ParseName(packageName));
+                }
 
                 foreach (var type in types)
                 {
@@ -77,22 +86,31 @@ namespace JavaToCSharp
                         {
                             var interfaceSyntax = VisitInterfaceDeclaration(context, classOrIntType, false);
 
-                            namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
+                            if (options.IncludeNamespace)
+                                namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
+                            else
+                                rootMembers.Add(interfaceSyntax);
                         }
                         else
                         {
                             var classSyntax = VisitClassDeclaration(context, classOrIntType, false);
 
-                            namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
+                            if (options.IncludeNamespace)
+                                namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
+                            else
+                                rootMembers.Add(classSyntax);
                         }
                     }
                 }
+
+                if (options.IncludeNamespace)
+                    rootMembers.Add(namespaceSyntax);
 
                 var root = Syntax.CompilationUnit(
                     externs: null,
                     usings: Syntax.List(usings.ToArray()),
                     attributeLists: null,
-                    members: Syntax.List<MemberDeclarationSyntax>(namespaceSyntax))
+                    members: Syntax.List<MemberDeclarationSyntax>(rootMembers))
                     .NormalizeWhitespace();
 
                 var tree = SyntaxTree.Create(root);
@@ -532,43 +550,41 @@ namespace JavaToCSharp
 
         private static StatementSyntax VisitStatement(ConversionContext context, Statement statement)
         {
-            StatementSyntax syntax = null;
-
             if (statement is TryStmt)
             {
-                syntax = VisitTryStatement(context, (TryStmt)statement);
+                return VisitTryStatement(context, (TryStmt)statement);
             }
             else if (statement is ExpressionStmt)
             {
-                syntax = VisitExpressionStatement(context, (ExpressionStmt)statement);
+                return VisitExpressionStatement(context, (ExpressionStmt)statement);
             }
             else if (statement is ThrowStmt)
             {
-                syntax = VisitThrowStatement(context, (ThrowStmt)statement);
+                return VisitThrowStatement(context, (ThrowStmt)statement);
             }
             else if (statement is ReturnStmt)
             {
-                syntax = VisitReturnStatement(context, (ReturnStmt)statement);
+                return VisitReturnStatement(context, (ReturnStmt)statement);
             }
             else if (statement is IfStmt)
             {
-                syntax = VisitIfStatement(context, (IfStmt)statement);
+                return VisitIfStatement(context, (IfStmt)statement);
             }
             else if (statement is BlockStmt)
             {
-                syntax = VisitBlockStatement(context, (BlockStmt)statement);
+                return VisitBlockStatement(context, (BlockStmt)statement);
             }
             else if (statement is ForStmt)
             {
-                syntax = VisitForStatement(context, (ForStmt)statement);
+                return VisitForStatement(context, (ForStmt)statement);
             }
             else if (statement is ForeachStmt)
             {
-                syntax = VisitForEachStatement(context, (ForeachStmt)statement);
+                return VisitForEachStatement(context, (ForeachStmt)statement);
             }
             else if (statement is WhileStmt)
             {
-                syntax = VisitWhileStatement(context, (WhileStmt)statement);
+                return VisitWhileStatement(context, (WhileStmt)statement);
             }
             else if (statement is ContinueStmt)
             {
@@ -577,7 +593,7 @@ namespace JavaToCSharp
                 if (!string.IsNullOrEmpty(cnt.getId()))
                     context.Options.Warning("Continue with label detected, using plain continue instead. Check for correctness.", cnt.getBeginLine());
 
-                syntax = Syntax.ContinueStatement();
+                return Syntax.ContinueStatement();
             }
             else if (statement is BreakStmt)
             {
@@ -586,30 +602,54 @@ namespace JavaToCSharp
                 if (!string.IsNullOrEmpty(brk.getId()))
                     context.Options.Warning("Break with label detected, using plain break instead. Check for correctness.", brk.getBeginLine());
 
-                syntax = Syntax.BreakStatement();
+                return Syntax.BreakStatement();
             }
             else if (statement is SynchronizedStmt)
             {
-                syntax = VisitSynchronizedStatement(context, (SynchronizedStmt)statement);
+                return VisitSynchronizedStatement(context, (SynchronizedStmt)statement);
             }
             else if (statement is AssertStmt)
             {
-                // TODO: give an option for implementing Debug.Assert here
-                syntax = Syntax.EmptyStatement();
+                if (context.Options.UseDebugAssertForAsserts)
+                {
+                    return VisitAssertStatement(context, (AssertStmt)statement);
+                }
+                else
+                {
+                    return null; // no statement
+                }
             }
             else if (statement is LabeledStmt)
             {
-                syntax = VisitLabeledStatement(context, (LabeledStmt)statement);
+                return VisitLabeledStatement(context, (LabeledStmt)statement);
             }
             else if (statement is SwitchStmt)
             {
-                syntax = VisitSwitchStatement(context, (SwitchStmt)statement);
+                return VisitSwitchStatement(context, (SwitchStmt)statement);
             }
 
-            if (syntax == null)
-                throw new NotImplementedException("Statement translation not implemented for " + statement.GetType().Name);
+            throw new NotImplementedException("Statement translation not implemented for " + statement.GetType().Name);
+        }
+        
+        private static StatementSyntax VisitAssertStatement(ConversionContext context, AssertStmt assertStmt)
+        {
+            var check = assertStmt.getCheck();
+            var checkSyntax = VisitExpression(context, check);
 
-            return syntax;
+            var message = assertStmt.getMessage();
+
+            if (message == null)
+                return Syntax.ExpressionStatement(
+                    Syntax.InvocationExpression(
+                        Syntax.IdentifierName("Debug.Assert"), 
+                        Syntax.ArgumentList(Syntax.SeparatedList(Syntax.Argument(checkSyntax)))));
+
+            var messageSyntax = VisitExpression(context, message);
+
+            return Syntax.ExpressionStatement(
+                    Syntax.InvocationExpression(
+                        Syntax.IdentifierName("Debug.Assert"),
+                        Syntax.ArgumentList(Syntax.SeparatedList(new[] { Syntax.Argument(checkSyntax), Syntax.Argument(messageSyntax) }, new[] { Syntax.Token(SyntaxKind.CommaToken) }))));
         }
 
         private static StatementSyntax VisitSwitchStatement(ConversionContext context, SwitchStmt switchStmt)
@@ -654,6 +694,9 @@ namespace JavaToCSharp
             var statement = labeledStmt.getStmt();
             var syntax = VisitStatement(context, statement);
 
+            if (syntax == null)
+                return null;
+
             return Syntax.LabeledStatement(labeledStmt.getLabel(), syntax);
         }
 
@@ -665,6 +708,9 @@ namespace JavaToCSharp
             var body = synchronizedStmt.getBlock();
             var bodySyntax = VisitBlockStatement(context, body);
 
+            if (bodySyntax == null)
+                return null;
+
             return Syntax.LockStatement(lockSyntax, bodySyntax);
         }
 
@@ -675,6 +721,9 @@ namespace JavaToCSharp
 
             var body = whileStmt.getBody();
             var bodySyntax = VisitStatement(context, body);
+
+            if (bodySyntax == null)
+                return null;
 
             return Syntax.WhileStatement(syntax, bodySyntax);
         }
@@ -694,6 +743,9 @@ namespace JavaToCSharp
 
             var body = foreachStmt.getBody();
             var bodySyntax = VisitStatement(context, body);
+
+            if (bodySyntax == null)
+                return null;
 
             return Syntax.ForEachStatement(Syntax.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
         }
@@ -745,6 +797,9 @@ namespace JavaToCSharp
             var body = forStmt.getBody();
             var bodySyntax = VisitStatement(context, body);
 
+            if (bodySyntax == null)
+                return null;
+
             return Syntax.ForStatement(bodySyntax)
                 .WithDeclaration(varSyntax)
                 .AddInitializers(initSyntaxes.ToArray())
@@ -769,6 +824,9 @@ namespace JavaToCSharp
             var thenStmt = ifStmt.getThenStmt();
             var thenSyntax = VisitStatement(context, thenStmt);
 
+            if (thenSyntax == null)
+                return null;
+
             var elseStmt = ifStmt.getElseStmt();
 
             if (elseStmt == null)
@@ -776,6 +834,9 @@ namespace JavaToCSharp
 
             var elseStatementSyntax = VisitStatement(context, elseStmt);
             var elseSyntax = Syntax.ElseClause(elseStatementSyntax);
+
+            if (elseSyntax == null)
+                return Syntax.IfStatement(conditionSyntax, thenSyntax);
 
             return Syntax.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
         }
@@ -1377,17 +1438,20 @@ namespace JavaToCSharp
             var trySyn = Syntax.TryStatement()
                 .AddBlockStatements(tryConverted.ToArray());
 
-            foreach (var ctch in catches)
+            if (catches != null)
             {
-                var types = ctch.getExcept().getTypes().ToList<ReferenceType>();
-                var block = ctch.getCatchBlock();
-                var catchStatements = block.getStmts().ToList<Statement>();
-                var catchConverted = VisitStatements(context, catchStatements);
-                var catchBlockSyntax = Syntax.Block(catchConverted);
+                foreach (var ctch in catches)
+                {
+                    var types = ctch.getExcept().getTypes().ToList<ReferenceType>();
+                    var block = ctch.getCatchBlock();
+                    var catchStatements = block.getStmts().ToList<Statement>();
+                    var catchConverted = VisitStatements(context, catchStatements);
+                    var catchBlockSyntax = Syntax.Block(catchConverted);
 
-                var type = ConvertType(types[0].getType().ToString());
+                    var type = ConvertType(types[0].getType().ToString());
 
-                trySyn = trySyn.AddCatches(Syntax.CatchClause(Syntax.CatchDeclaration(Syntax.ParseTypeName(type), Syntax.ParseToken(ctch.getExcept().getId().toString())), catchBlockSyntax));
+                    trySyn = trySyn.AddCatches(Syntax.CatchClause(Syntax.CatchDeclaration(Syntax.ParseTypeName(type), Syntax.ParseToken(ctch.getExcept().getId().toString())), catchBlockSyntax));
+                }
             }
 
             var finallyBlock = tryStmt.getFinallyBlock();
@@ -1477,6 +1541,14 @@ namespace JavaToCSharp
                     return "string";
                 case "UnsupportedOperationException":
                     return "NotSupportedException";
+                case "IllegalArgumentException":
+                    return "ArgumentException";
+                case "ICloseable":
+                    return "IDisposable";
+                case "AlreadyClosedException":
+                    return "ObjectDisposedException";
+                case "IllegalStateException":
+                    return "InvalidOperationException";
                 default:
                     return typeName;
             }
@@ -1534,11 +1606,13 @@ namespace JavaToCSharp
 
         private static TypeSyntax GetSyntaxFromType(ClassOrInterfaceType type, bool addI = false)
         {
-            var typeName = ConvertType(type.getName());
+            string typeName = type.getName();
 
             if (addI)
                 typeName = "I" + typeName;
 
+            typeName = ConvertType(typeName);
+            
             var typeArgs = type.getTypeArgs().ToList<japa.parser.ast.type.Type>();
 
             TypeSyntax typeSyntax;
