@@ -402,11 +402,16 @@ namespace JavaToCSharp
                     string typeName = ConvertType(param.getType().toString());
                     string identifier = ConvertIdentifierName(param.getId().getName());
 
-                    if (param.getId().getArrayCount() > 0 && !typeName.EndsWith("[]"))
+                    if ((param.getId().getArrayCount() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
                         typeName += "[]";
 
+                    SyntaxTokenList modifiers = Syntax.TokenList();
+
+                    if (param.isVarArgs())
+                        modifiers = Syntax.TokenList(Syntax.Token(SyntaxKind.ParamsKeyword));
+
                     var paramSyntax = Syntax.Parameter(attributeLists: null,
-                        modifiers: Syntax.TokenList(),
+                        modifiers: modifiers,
                         type: Syntax.ParseTypeName(typeName),
                         identifier: Syntax.ParseToken(identifier),
                         @default: null);
@@ -474,16 +479,26 @@ namespace JavaToCSharp
 
             if (parameters != null && parameters.Count > 0)
             {
-                var paramSyntax = parameters.Select(i =>
-                    Syntax.Parameter(
-                        attributeLists: null,
-                        modifiers: Syntax.TokenList(),
-                        type: Syntax.ParseTypeName(ConvertType(i.getType().toString())),
-                        identifier: Syntax.ParseToken(ConvertIdentifierName(i.getId().toString())),
-                        @default: null))
-                    .ToArray();
+                var paramSyntaxes = new List<ParameterSyntax>();
 
-                ctorSyntax = ctorSyntax.AddParameterListParameters(paramSyntax.ToArray());
+                foreach (var param in parameters)
+                {
+                    var paramSyntax = Syntax.Parameter(Syntax.ParseToken(ConvertIdentifierName(param.getId().toString())));
+
+                    if (param.isVarArgs())
+                    {
+                        paramSyntax = paramSyntax.WithType(Syntax.ParseTypeName(ConvertType(param.getType().toString()) + "[]"))
+                            .WithModifiers(Syntax.TokenList(Syntax.Token(SyntaxKind.ParamsKeyword)));
+                    }
+                    else
+                    {
+                        paramSyntax = paramSyntax.WithType(Syntax.ParseTypeName(ConvertType(param.getType().toString())));
+                    }
+
+                    paramSyntaxes.Add(paramSyntax);
+                }
+
+                ctorSyntax = ctorSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
             }
 
             var block = ctorDecl.getBlock();
