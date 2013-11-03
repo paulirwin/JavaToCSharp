@@ -627,8 +627,23 @@ namespace JavaToCSharp
             {
                 return VisitSwitchStatement(context, (SwitchStmt)statement);
             }
+            else if (statement is DoStmt)
+            {
+                return VisitDoStatement(context, (DoStmt)statement);
+            }
 
             throw new NotImplementedException("Statement translation not implemented for " + statement.GetType().Name);
+        }
+
+        private static StatementSyntax VisitDoStatement(ConversionContext context, DoStmt doStmt)
+        {
+            var condition = doStmt.getCondition();
+            var conditionSyntax = VisitExpression(context, condition);
+
+            var body = doStmt.getBody();
+            var bodySyntax = VisitStatement(context, body);
+
+            return Syntax.DoStatement(bodySyntax, conditionSyntax);
         }
         
         private static StatementSyntax VisitAssertStatement(ConversionContext context, AssertStmt assertStmt)
