@@ -1616,6 +1616,7 @@ namespace JavaToCSharp
                 case "byte":
                 case "class":
                 case "delegate":
+                case "params":
                     return name + "_renamed";
                 default:
                     return name;
