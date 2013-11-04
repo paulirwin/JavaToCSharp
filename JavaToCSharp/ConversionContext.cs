@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace JavaToCSharp
 {
-    internal class ConversionContext
+    public class ConversionContext
     {
         public ConversionContext(JavaConversionOptions options)
         {
