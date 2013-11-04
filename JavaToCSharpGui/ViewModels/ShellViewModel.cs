@@ -192,5 +192,10 @@ namespace JavaToCSharpGui
                 CopiedText = null;
             });
         }
+
+        public void ForkMeOnGitHub()
+        {
+            UrlLauncher.UrlLauncher.LaunchUrl("http://www.github.com/paulirwin/javatocsharp");
+        }
     }
 }

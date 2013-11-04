@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaToCSharpCli", "JavaToCS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaToCSharpGui", "JavaToCSharpGui\JavaToCSharpGui.csproj", "{DAA3F412-0460-40C3-98F7-3244649820F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebPageLauncher", "WebPageLauncher\WebPageLauncher.csproj", "{8C687DDF-1458-4918-B21E-E703DD971334}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{DAA3F412-0460-40C3-98F7-3244649820F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAA3F412-0460-40C3-98F7-3244649820F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAA3F412-0460-40C3-98F7-3244649820F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C687DDF-1458-4918-B21E-E703DD971334}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C687DDF-1458-4918-B21E-E703DD971334}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C687DDF-1458-4918-B21E-E703DD971334}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C687DDF-1458-4918-B21E-E703DD971334}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
