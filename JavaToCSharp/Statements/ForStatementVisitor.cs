@@ -20,25 +20,28 @@ namespace JavaToCSharp.Statements
             var initSyntaxes = new List<ExpressionSyntax>();
             VariableDeclarationSyntax varSyntax = null;
 
-            foreach (var init in inits)
+            if (inits != null)
             {
-                if (init is VariableDeclarationExpr)
+                foreach (var init in inits)
                 {
-                    var varExpr = init as VariableDeclarationExpr;
+                    if (init is VariableDeclarationExpr)
+                    {
+                        var varExpr = init as VariableDeclarationExpr;
 
-                    var type = TypeHelper.ConvertType(varExpr.getType().toString());
+                        var type = TypeHelper.ConvertType(varExpr.getType().toString());
 
-                    var vars = varExpr.getVars()
-                        .ToList<VariableDeclarator>()
-                        .Select(i => Syntax.VariableDeclarator(i.toString()))
-                        .ToArray();
+                        var vars = varExpr.getVars()
+                            .ToList<VariableDeclarator>()
+                            .Select(i => Syntax.VariableDeclarator(i.toString()))
+                            .ToArray();
 
-                    varSyntax = Syntax.VariableDeclaration(Syntax.ParseTypeName(type), Syntax.SeparatedList(vars, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), vars.Length - 1)));
-                }
-                else
-                {
-                    var initSyntax = ExpressionVisitor.VisitExpression(context, init);
-                    initSyntaxes.Add(initSyntax);
+                        varSyntax = Syntax.VariableDeclaration(Syntax.ParseTypeName(type), Syntax.SeparatedList(vars, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), vars.Length - 1)));
+                    }
+                    else
+                    {
+                        var initSyntax = ExpressionVisitor.VisitExpression(context, init);
+                        initSyntaxes.Add(initSyntax);
+                    }
                 }
             }
 
