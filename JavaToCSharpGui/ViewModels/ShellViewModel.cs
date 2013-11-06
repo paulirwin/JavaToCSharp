@@ -30,6 +30,10 @@ namespace JavaToCSharpGui
         public ShellViewModel()
         {
             base.DisplayName = "Java to C# Converter";
+
+            _includeUsings = Properties.Settings.Default.UseUsingsPreference;
+            _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
+            _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         }
 
         public ObservableCollection<string> Usings
@@ -94,6 +98,8 @@ namespace JavaToCSharpGui
             {
                 _includeUsings = value;
                 NotifyOfPropertyChange(() => IncludeUsings);
+                Properties.Settings.Default.UseUsingsPreference = value;
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -104,6 +110,8 @@ namespace JavaToCSharpGui
             {
                 _includeNamespace = value;
                 NotifyOfPropertyChange(() => IncludeNamespace);
+                Properties.Settings.Default.UseNamespacePreference = value;
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -114,6 +122,8 @@ namespace JavaToCSharpGui
             {
                 _useDebugAssertForAsserts = value;
                 NotifyOfPropertyChange(() => UseDebugAssertForAsserts);
+                Properties.Settings.Default.UseDebugAssertPreference = value;
+                Properties.Settings.Default.Save();
 
                 if (value && !_usings.Contains("System.Diagnostics"))
                 {
