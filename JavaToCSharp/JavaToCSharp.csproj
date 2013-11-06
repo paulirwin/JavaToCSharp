@@ -169,6 +169,7 @@
     <Compile Include="Declarations\ConstructorDeclarationVisitor.cs" />
     <Compile Include="Declarations\EnumDeclarationVisitor.cs" />
     <Compile Include="Declarations\FieldDeclarationVisitor.cs" />
+    <Compile Include="Declarations\InitializerDeclarationVisitor.cs" />
     <Compile Include="Declarations\MethodDeclarationVisitor.cs" />
     <Compile Include="Expressions\ArrayAccessExpressionVisitor.cs" />
     <Compile Include="Expressions\ArrayCreationExpressionVisitor.cs" />

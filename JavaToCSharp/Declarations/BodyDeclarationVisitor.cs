@@ -38,6 +38,7 @@ namespace JavaToCSharp.Declarations
                 { typeof(EnumDeclaration), new EnumDeclarationVisitor() },
                 { typeof(FieldDeclaration), new FieldDeclarationVisitor() },
                 { typeof(MethodDeclaration), new MethodDeclarationVisitor() },
+                { typeof(InitializerDeclaration), new InitializerDeclarationVisitor() },
             };
         }
 

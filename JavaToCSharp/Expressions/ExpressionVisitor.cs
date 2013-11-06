@@ -56,6 +56,9 @@ namespace JavaToCSharp.Expressions
 
         public static ExpressionSyntax VisitExpression(ConversionContext context, Expression expr)
         {
+            if (expr == null)
+                return null;
+
             ExpressionVisitor visitor = null;
             Type t = expr.GetType();
 
