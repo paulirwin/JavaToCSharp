@@ -164,6 +164,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConversionContext.cs" />
+    <Compile Include="ConversionState.cs" />
+    <Compile Include="ConversionStateChangedEventArgs.cs" />
     <Compile Include="ConversionWarningEventArgs.cs" />
     <Compile Include="Declarations\BodyDeclarationVisitor.cs" />
     <Compile Include="Declarations\ConstructorDeclarationVisitor.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="Declarations\MethodDeclarationVisitor.cs" />
     <Compile Include="Expressions\ArrayAccessExpressionVisitor.cs" />
     <Compile Include="Expressions\ArrayCreationExpressionVisitor.cs" />
+    <Compile Include="Expressions\ArrayInitializerExpressionVisitor.cs" />
     <Compile Include="Expressions\AssignmentExpressionVisitor.cs" />
     <Compile Include="Expressions\BinaryExpressionVisitor.cs" />
     <Compile Include="Expressions\BooleanLiteralExpressionVisitor.cs" />

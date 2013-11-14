@@ -72,6 +72,8 @@ namespace JavaToCSharp
                 case "class":
                 case "delegate":
                 case "params":
+                case "is":
+                case "as":
                     return name + "_renamed";
                 default:
                     return name;

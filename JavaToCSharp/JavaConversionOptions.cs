@@ -17,6 +17,8 @@ namespace JavaToCSharp
         private readonly IList<Replacement> _packageReplacements = new List<Replacement>();
 
         public event EventHandler<ConversionWarningEventArgs> WarningEncountered;
+
+        public event EventHandler<ConversionStateChangedEventArgs> StateChanged;
         
         private readonly IList<string> _usings = new List<string>
         {
@@ -41,6 +43,8 @@ namespace JavaToCSharp
         public bool IncludeNamespace { get; set; }
 
         public bool UseDebugAssertForAsserts { get; set; }
+
+        public ConversionState ConversionState { get; set; }
 
         public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
         {
@@ -70,6 +74,18 @@ namespace JavaToCSharp
             if (e != null)
             {
                 e(this, new ConversionWarningEventArgs(message, javaLineNumber));
+            }
+        }
+
+        internal void ConversionStateChanged(ConversionState newState)
+        {
+            this.ConversionState = newState;
+
+            var e = StateChanged;
+
+            if (e != null)
+            {
+                e(this, new ConversionStateChangedEventArgs(newState));
             }
         }
     }

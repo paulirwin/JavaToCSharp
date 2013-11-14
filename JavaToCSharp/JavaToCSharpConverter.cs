@@ -30,6 +30,8 @@ namespace JavaToCSharp
             if (options == null)
                 options = new JavaConversionOptions();
 
+            options.ConversionStateChanged(ConversionState.Starting);
+
             var context = new ConversionContext(options);
 
             var textBytes = Encoding.UTF8.GetBytes(javaText ?? string.Empty);
@@ -37,7 +39,11 @@ namespace JavaToCSharp
             using (var stringreader = new MemoryStream(textBytes))
             using (var wrapper = new ikvm.io.InputStreamWrapper(stringreader))
             {
+                options.ConversionStateChanged(ConversionState.ParsingJavaAST);
+
                 var parsed = JavaParser.parse(wrapper);
+
+                options.ConversionStateChanged(ConversionState.BuildingCSharpAST);
 
                 var types = parsed.getTypes().ToList<TypeDeclaration>();
                 var imports = parsed.getImports().ToList<ImportDeclaration>();
@@ -115,6 +121,8 @@ namespace JavaToCSharp
                     .NormalizeWhitespace();
 
                 var tree = SyntaxTree.Create(root);
+
+                options.ConversionStateChanged(ConversionState.Done);
 
                 return tree.GetText().ToString();
             }

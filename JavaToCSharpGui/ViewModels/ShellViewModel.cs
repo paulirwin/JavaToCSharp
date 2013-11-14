@@ -23,6 +23,7 @@ namespace JavaToCSharpGui
         private string _openPath;
         private string _savePath;
         private string _copiedText;
+        private string _conversionState;
         private bool _includeUsings = true;
         private bool _includeNamespace = true;
         private bool _useDebugAssertForAsserts = false;
@@ -88,6 +89,16 @@ namespace JavaToCSharpGui
             {
                 _copiedText = value;
                 NotifyOfPropertyChange(() => CopiedText);
+            }
+        }
+
+        public string ConversionStateLabel
+        {
+            get { return _conversionState; }
+            set
+            {
+                _conversionState = value;
+                NotifyOfPropertyChange(() => ConversionStateLabel);
             }
         }
 
@@ -159,14 +170,44 @@ namespace JavaToCSharpGui
             options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
 
             options.WarningEncountered += options_WarningEncountered;
+            options.StateChanged += options_StateChanged;
 
-            try
+            Task.Run(() =>
             {
-                CSharpText = JavaToCSharpConverter.ConvertText(JavaText, options);
-            }
-            catch (Exception ex)
+                try
+                {
+                    var csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
+
+                    Dispatcher.CurrentDispatcher.Invoke(() => this.CSharpText = csharp);
+                }
+                catch (Exception ex)
+                {
+                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("There was an error converting the text to C#: " + ex.Message);
+                    });
+                }
+            });
+        }
+
+        void options_StateChanged(object sender, ConversionStateChangedEventArgs e)
+        {
+            switch (e.NewState)
             {
-                MessageBox.Show("There was an error converting the text to C#: " + ex.Message);
+                case ConversionState.Starting:
+                    ConversionStateLabel = "Starting...";
+                    break;
+                case ConversionState.ParsingJavaAST:
+                    ConversionStateLabel = "Parsing Java code...";
+                    break;
+                case ConversionState.BuildingCSharpAST:
+                    ConversionStateLabel = "Building C# AST...";
+                    break;
+                case ConversionState.Done:
+                    ConversionStateLabel = "Done!";
+                    break;
+                default:
+                    break;
             }
         }
 

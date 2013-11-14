@@ -29,6 +29,7 @@ namespace JavaToCSharp.Expressions
             {
                 { typeof(ArrayAccessExpr), new ArrayAccessExpressionVisitor() },
                 { typeof(ArrayCreationExpr), new ArrayCreationExpressionVisitor() },
+                { typeof(ArrayInitializerExpr), new ArrayInitializerExpressionVisitor() },
                 { typeof(AssignExpr), new AssignmentExpressionVisitor() },
                 { typeof(BinaryExpr), new BinaryExpressionVisitor() },
                 { typeof(BooleanLiteralExpr), new BooleanLiteralExpressionVisitor() },
