@@ -12,7 +12,7 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, NameExpr nameExpr)
         {
-            return Syntax.IdentifierName(nameExpr.getName());
+            return Syntax.IdentifierName(TypeHelper.ConvertIdentifierName(nameExpr.getName()));
         }
     }
 }

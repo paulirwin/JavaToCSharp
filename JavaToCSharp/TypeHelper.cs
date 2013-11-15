@@ -74,6 +74,7 @@ namespace JavaToCSharp
                 case "params":
                 case "is":
                 case "as":
+                case "base":
                     return name + "_renamed";
                 default:
                     return name;
