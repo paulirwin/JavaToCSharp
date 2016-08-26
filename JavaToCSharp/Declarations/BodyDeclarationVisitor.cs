@@ -1,14 +1,11 @@
-﻿using japa.parser.ast.body;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.body;
+using Roslyn.Compilers.CSharp;
 
 namespace JavaToCSharp.Declarations
 {
-    public abstract class BodyDeclarationVisitor<T> : BodyDeclarationVisitor
+	public abstract class BodyDeclarationVisitor<T> : BodyDeclarationVisitor
         where T : BodyDeclaration
     {
         public abstract MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, T declaration);

@@ -1,29 +1,18 @@
-﻿using japa.parser;
-using japa.parser.ast;
-using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
-using japa.parser.ast.type;
-using japa.parser.ast.visitor;
-using java.io;
-using java.lang.reflect;
-using JavaToCSharp.Declarations;
-using Roslyn.Compilers.Common;
-using Roslyn.Compilers.CSharp;
-using Roslyn.Services;
-using Roslyn.Services.Formatting;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.type;
+using JavaToCSharp.Declarations;
+using Roslyn.Compilers.CSharp;
+using Modifier = java.lang.reflect.Modifier;
 
 namespace JavaToCSharp
 {
-    public static class JavaToCSharpConverter
+	public static class JavaToCSharpConverter
     {
         public static string ConvertText(string javaText, JavaConversionOptions options = null)
         {

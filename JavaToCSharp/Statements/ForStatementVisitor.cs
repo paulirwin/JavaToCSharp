@@ -1,6 +1,6 @@
-﻿using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
+﻿using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
 using Roslyn.Compilers.CSharp;
 using System;

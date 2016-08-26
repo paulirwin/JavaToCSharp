@@ -1,19 +1,18 @@
-﻿using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.stmt;
 using java.lang.reflect;
 using JavaToCSharp.Expressions;
 using JavaToCSharp.Statements;
 using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Parameter = com.github.javaparser.ast.body.Parameter;
 
 namespace JavaToCSharp.Declarations
 {
-    public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorDeclaration>
+	public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, ConstructorDeclaration ctorDecl)
         {
@@ -21,8 +20,8 @@ namespace JavaToCSharp.Declarations
                 .WithLeadingTrivia(Syntax.CarriageReturnLineFeed);
 
             var mods = ctorDecl.getModifiers();
-
-            if (mods.HasFlag(Modifier.PUBLIC))
+			
+			if (mods.HasFlag(Modifier.PUBLIC))
                 ctorSyntax = ctorSyntax.AddModifiers(Syntax.Token(SyntaxKind.PublicKeyword));
             if (mods.HasFlag(Modifier.PROTECTED))
                 ctorSyntax = ctorSyntax.AddModifiers(Syntax.Token(SyntaxKind.ProtectedKeyword));
@@ -55,8 +54,9 @@ namespace JavaToCSharp.Declarations
                 ctorSyntax = ctorSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
             }
 
-            var block = ctorDecl.getBlock();
-            var statements = block.getStmts().ToList<Statement>();
+			//chaws: var block = ctorDecl.getBlock();
+			var block = ctorDecl.getBody();
+			var statements = block.getStmts().ToList<Statement>();
 
             // handle special case for constructor invocation
             if (statements != null && statements.Count > 0 && statements[0] is ExplicitConstructorInvocationStmt)

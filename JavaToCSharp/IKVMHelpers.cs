@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using java.util;
 
 namespace JavaToCSharp
 {
-    public static class IKVMHelpers
+	public static class IKVMHelpers
     {
         public static List<T> ToList<T>(this java.util.List list)
         {
@@ -26,6 +23,11 @@ namespace JavaToCSharp
         public static bool HasFlag(this int value, int flag)
         {
             return (value & flag) != 0;
-        }
-    }
+		}
+
+		public static bool HasFlag(this EnumSet value, int flag)
+		{
+			return value.contains(flag);
+		}
+	}
 }
