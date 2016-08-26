@@ -13,7 +13,7 @@ namespace JavaToCSharp.Statements
         public override StatementSyntax Visit(ConversionContext context, BreakStmt brk)
         {
             if (!string.IsNullOrEmpty(brk.getId()))
-                context.Options.Warning("Break with label detected, using plain break instead. Check for correctness.", brk.getBeginLine());
+                context.Options.Warning("Break with label detected, using plain break instead. Check for correctness.", brk.getBegin().line);
 
             return Syntax.BreakStatement();
         }

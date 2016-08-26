@@ -39,7 +39,7 @@ namespace JavaToCSharp.Expressions
                 kind = SyntaxKind.RightShiftAssignExpression;
             else if (op == AssignExpr.Operator.rUnsignedShift)
             {
-                context.Options.Warning("Use of unsigned right shift assignment. Using signed right shift assignment instead. Check for correctness.", assignExpr.getBeginLine());
+                context.Options.Warning("Use of unsigned right shift assignment. Using signed right shift assignment instead. Check for correctness.", assignExpr.getBegin().line);
                 kind = SyntaxKind.RightShiftAssignExpression;
             }
             else if (op == AssignExpr.Operator.slash)

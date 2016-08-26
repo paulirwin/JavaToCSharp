@@ -13,7 +13,7 @@ namespace JavaToCSharp.Statements
         public override StatementSyntax Visit(ConversionContext context, ContinueStmt cnt)
         {
             if (!string.IsNullOrEmpty(cnt.getId()))
-                context.Options.Warning("Continue with label detected, using plain continue instead. Check for correctness.", cnt.getBeginLine());
+                context.Options.Warning("Continue with label detected, using plain continue instead. Check for correctness.", cnt.getBegin().line);
 
             return Syntax.ContinueStatement();
         }

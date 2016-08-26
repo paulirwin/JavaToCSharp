@@ -56,7 +56,7 @@ namespace JavaToCSharp.Expressions
             else if (op == BinaryExpr.Operator.rUnsignedShift)
             {
                 kind = SyntaxKind.RightShiftExpression;
-                context.Options.Warning("Use of unsigned right shift in original code; verify correctness.", binaryExpr.getBeginLine());
+                context.Options.Warning("Use of unsigned right shift in original code; verify correctness.", binaryExpr.getBegin().line);
             }
             else if (op == BinaryExpr.Operator.times)
                 kind = SyntaxKind.MultiplyExpression;
