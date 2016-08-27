@@ -1,14 +1,10 @@
 ﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
+	public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, AssignExpr assignExpr)
         {
@@ -22,34 +18,35 @@ namespace JavaToCSharp.Expressions
             var kind = SyntaxKind.None;
 
             if (op == AssignExpr.Operator.and)
-                kind = SyntaxKind.AndAssignExpression;
+                kind = SyntaxKind.AndAssignmentExpression;
             else if (op == AssignExpr.Operator.assign)
-                kind = SyntaxKind.AssignExpression;
+                kind = SyntaxKind.SimpleAssignmentExpression;
             else if (op == AssignExpr.Operator.lShift)
-                kind = SyntaxKind.LeftShiftAssignExpression;
+                kind = SyntaxKind.LeftShiftAssignmentExpression;
             else if (op == AssignExpr.Operator.minus)
-                kind = SyntaxKind.SubtractAssignExpression;
+                kind = SyntaxKind.SubtractAssignmentExpression;
             else if (op == AssignExpr.Operator.or)
-                kind = SyntaxKind.OrAssignExpression;
+                kind = SyntaxKind.OrAssignmentExpression;
             else if (op == AssignExpr.Operator.plus)
-                kind = SyntaxKind.AddAssignExpression;
+                kind = SyntaxKind.AddAssignmentExpression;
             else if (op == AssignExpr.Operator.rem)
-                kind = SyntaxKind.ModuloAssignExpression;
+                kind = SyntaxKind.ModuloAssignmentExpression;
             else if (op == AssignExpr.Operator.rSignedShift)
-                kind = SyntaxKind.RightShiftAssignExpression;
+                kind = SyntaxKind.RightShiftAssignmentExpression;
             else if (op == AssignExpr.Operator.rUnsignedShift)
             {
                 context.Options.Warning("Use of unsigned right shift assignment. Using signed right shift assignment instead. Check for correctness.", assignExpr.getBegin().line);
-                kind = SyntaxKind.RightShiftAssignExpression;
+                kind = SyntaxKind.RightShiftAssignmentExpression;
             }
             else if (op == AssignExpr.Operator.slash)
-                kind = SyntaxKind.DivideAssignExpression;
+                kind = SyntaxKind.DivideAssignmentExpression;
             else if (op == AssignExpr.Operator.star)
-                kind = SyntaxKind.MultiplyAssignExpression;
+                kind = SyntaxKind.MultiplyAssignmentExpression;
             else if (op == AssignExpr.Operator.xor)
-                kind = SyntaxKind.ExclusiveOrAssignExpression;
+                kind = SyntaxKind.ExclusiveOrAssignmentExpression;
 
-            return Syntax.BinaryExpression(kind, leftSyntax, rightSyntax);
-        }
+			//chaws return SyntaxFactory.BinaryExpression(kind, leftSyntax, rightSyntax);
+			return SyntaxFactory.AssignmentExpression(kind, leftSyntax, rightSyntax);
+		}
     }
 }

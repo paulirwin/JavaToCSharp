@@ -1,14 +1,10 @@
 ﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class BinaryExpressionVisitor : ExpressionVisitor<BinaryExpr>
+	public class BinaryExpressionVisitor : ExpressionVisitor<BinaryExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, BinaryExpr binaryExpr)
         {
@@ -63,7 +59,7 @@ namespace JavaToCSharp.Expressions
             else if (op == BinaryExpr.Operator.xor)
                 kind = SyntaxKind.ExclusiveOrExpression;
 
-            return Syntax.BinaryExpression(kind, leftSyntax, rightSyntax);
+            return SyntaxFactory.BinaryExpression(kind, leftSyntax, rightSyntax);
         }
     }
 }

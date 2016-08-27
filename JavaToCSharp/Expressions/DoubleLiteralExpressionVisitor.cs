@@ -1,14 +1,11 @@
-﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using com.github.javaparser.ast.expr;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class DoubleLiteralExpressionVisitor : ExpressionVisitor<DoubleLiteralExpr>
+	public class DoubleLiteralExpressionVisitor : ExpressionVisitor<DoubleLiteralExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, DoubleLiteralExpr expr)
         {
@@ -16,9 +13,9 @@ namespace JavaToCSharp.Expressions
             var dbl = (DoubleLiteralExpr)expr;
 
             if (dbl.getValue().EndsWith("f", StringComparison.OrdinalIgnoreCase))
-                return Syntax.LiteralExpression(SyntaxKind.NumericLiteralExpression, Syntax.Literal(float.Parse(dbl.getValue().TrimEnd('f', 'F'))));
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(float.Parse(dbl.getValue().TrimEnd('f', 'F'))));
             else
-                return Syntax.LiteralExpression(SyntaxKind.NumericLiteralExpression, Syntax.Literal(double.Parse(dbl.getValue().TrimEnd('d', 'D'))));
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(double.Parse(dbl.getValue().TrimEnd('d', 'D'))));
         }
     }
 }

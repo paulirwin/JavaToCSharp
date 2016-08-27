@@ -1,18 +1,14 @@
 ﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class NameExpressionVisitor : ExpressionVisitor<NameExpr>
+	public class NameExpressionVisitor : ExpressionVisitor<NameExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, NameExpr nameExpr)
         {
-            return Syntax.IdentifierName(TypeHelper.ConvertIdentifierName(nameExpr.getName()));
+            return SyntaxFactory.IdentifierName(TypeHelper.ConvertIdentifierName(nameExpr.getName()));
         }
     }
 }

@@ -1,14 +1,12 @@
-﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.expr;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class ArrayInitializerExpressionVisitor : ExpressionVisitor<ArrayInitializerExpr>
+	public class ArrayInitializerExpressionVisitor : ExpressionVisitor<ArrayInitializerExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayInitializerExpr expr)
         {
@@ -22,10 +20,10 @@ namespace JavaToCSharp.Expressions
                 syntaxes.Add(syntax);
 	        }
 
-            return Syntax.ImplicitArrayCreationExpression(
-                Syntax.InitializerExpression(
+            return SyntaxFactory.ImplicitArrayCreationExpression(
+                SyntaxFactory.InitializerExpression(
                     SyntaxKind.ArrayInitializerExpression, 
-                    Syntax.SeparatedList(syntaxes, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), syntaxes.Count - 1))));
+                    SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1))));
         }
     }
 }

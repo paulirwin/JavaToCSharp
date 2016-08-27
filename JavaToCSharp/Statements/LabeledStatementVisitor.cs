@@ -1,14 +1,10 @@
 ﻿using com.github.javaparser.ast.stmt;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-    public class LabeledStatementVisitor : StatementVisitor<LabeledStmt>
+	public class LabeledStatementVisitor : StatementVisitor<LabeledStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, LabeledStmt labeledStmt)
         {
@@ -18,7 +14,7 @@ namespace JavaToCSharp.Statements
             if (syntax == null)
                 return null;
 
-            return Syntax.LabeledStatement(labeledStmt.getLabel(), syntax);
+            return SyntaxFactory.LabeledStatement(labeledStmt.getLabel(), syntax);
         }
     }
 }

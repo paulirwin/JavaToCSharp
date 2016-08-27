@@ -1,14 +1,12 @@
-﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.expr;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExpr>
+	public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
         {
@@ -30,8 +28,8 @@ namespace JavaToCSharp.Expressions
             }
 
             if (initializer == null)
-                return Syntax.ArrayCreationExpression(Syntax.ArrayType(Syntax.ParseTypeName(type)))
-                    .AddTypeRankSpecifiers(Syntax.ArrayRankSpecifier(Syntax.SeparatedList(rankSyntaxes, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), rankSyntaxes.Count - 1))));
+                return SyntaxFactory.ArrayCreationExpression(SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(type)))
+                    .AddTypeRankSpecifiers(SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SeparatedList(rankSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), rankSyntaxes.Count - 1))));
 
             // todo: support multi-dimensional and jagged arrays
 
@@ -45,9 +43,9 @@ namespace JavaToCSharp.Expressions
                 syntaxes.Add(syntax);
             }
 
-            var initSyntax = Syntax.InitializerExpression(SyntaxKind.ArrayInitializerExpression, Syntax.SeparatedList(syntaxes, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), syntaxes.Count - 1)));
+            var initSyntax = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1)));
 
-            return Syntax.ArrayCreationExpression(Syntax.ArrayType(Syntax.ParseTypeName(type)), initSyntax);
+            return SyntaxFactory.ArrayCreationExpression(SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(type)), initSyntax);
         }
     }
 }
