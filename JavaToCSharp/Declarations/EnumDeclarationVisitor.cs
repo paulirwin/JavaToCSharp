@@ -1,15 +1,12 @@
-﻿using japa.parser.ast.body;
-using java.lang.reflect;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using Roslyn.Compilers.CSharp;
 
 namespace JavaToCSharp.Declarations
 {
-    public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
+	public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, EnumDeclaration enumDecl)
         {
@@ -27,7 +24,7 @@ namespace JavaToCSharp.Declarations
             }
 
             if (members != null && members.Count > 0)
-                context.Options.Warning("Members found in enum " + name + " will not be ported. Check for correctness.", enumDecl.getBeginLine());
+                context.Options.Warning("Members found in enum " + name + " will not be ported. Check for correctness.", enumDecl.getBegin().line);
 
             var enumSyntax = Syntax.EnumDeclaration(name)
                 .AddMembers(memberSyntaxes.ToArray());

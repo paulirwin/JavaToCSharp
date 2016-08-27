@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using japa.parser;
-using japa.parser.ast;
-using japa.parser.ast.body;
-using japa.parser.ast.type;
-using java.lang.reflect;
+using com.github.javaparser;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.type;
 using JavaToCSharp.Declarations;
 using Roslyn.Compilers.CSharp;
 
@@ -49,7 +47,7 @@ namespace JavaToCSharp
 
                 if (options.IncludeUsings)
                 {
-                    foreach (var ns in options.Usings.Where(x => !String.IsNullOrWhiteSpace(x)))
+                    foreach (var ns in options.Usings.Where(x => !string.IsNullOrWhiteSpace(x)))
                     {
                         var usingSyntax = Syntax.UsingDirective(Syntax.ParseName(ns));
                         usings.Add(usingSyntax);

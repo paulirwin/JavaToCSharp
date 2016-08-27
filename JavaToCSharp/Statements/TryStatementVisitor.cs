@@ -1,15 +1,10 @@
-﻿using japa.parser.ast.stmt;
-using japa.parser.ast.type;
+﻿using com.github.javaparser.ast.stmt;
+using com.github.javaparser.ast.type;
 using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JavaToCSharp.Statements
 {
-    public class TryStatementVisitor : StatementVisitor<TryStmt>
+	public class TryStatementVisitor : StatementVisitor<TryStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, TryStmt tryStmt)
         {
@@ -27,15 +22,16 @@ namespace JavaToCSharp.Statements
             {
                 foreach (var ctch in catches)
                 {
-                    var types = ctch.getExcept().getTypes().ToList<ReferenceType>();
+					//chaws
+                    var referenceType = (ReferenceType)ctch.getParam().getType();
                     var block = ctch.getCatchBlock();
                     var catchStatements = block.getStmts().ToList<Statement>();
                     var catchConverted = StatementVisitor.VisitStatements(context, catchStatements);
                     var catchBlockSyntax = Syntax.Block(catchConverted);
 
-                    var type = TypeHelper.ConvertType(types[0].getType().ToString());
+                    var type = TypeHelper.ConvertType(referenceType.getType().ToString());
 
-                    trySyn = trySyn.AddCatches(Syntax.CatchClause(Syntax.CatchDeclaration(Syntax.ParseTypeName(type), Syntax.ParseToken(ctch.getExcept().getId().toString())), catchBlockSyntax));
+                    trySyn = trySyn.AddCatches(Syntax.CatchClause(Syntax.CatchDeclaration(Syntax.ParseTypeName(type), Syntax.ParseToken(ctch.getParam().getId().toString())), catchBlockSyntax));
                 }
             }
 

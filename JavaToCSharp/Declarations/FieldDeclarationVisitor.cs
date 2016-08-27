@@ -1,16 +1,14 @@
-﻿using japa.parser.ast.body;
-using java.lang.reflect;
-using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using JavaToCSharp.Expressions;
+using Roslyn.Compilers.CSharp;
 
 namespace JavaToCSharp.Declarations
 {
-    public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
+	public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, FieldDeclaration fieldDecl)
         {

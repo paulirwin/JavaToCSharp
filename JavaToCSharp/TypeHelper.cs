@@ -1,4 +1,4 @@
-﻿using japa.parser.ast.type;
+﻿using com.github.javaparser.ast.type;
 using Roslyn.Compilers.CSharp;
 using System;
 using System.Collections.Generic;
@@ -103,7 +103,7 @@ namespace JavaToCSharp
 
             typeName = ConvertType(typeName);
 
-            var typeArgs = type.getTypeArgs().ToList<japa.parser.ast.type.Type>();
+            var typeArgs = type.getTypeArgs().ToList<com.github.javaparser.ast.type.Type>();
 
             TypeSyntax typeSyntax;
 

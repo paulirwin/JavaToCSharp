@@ -1,18 +1,16 @@
-﻿using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
-using java.lang.reflect;
+﻿using System.Collections.Generic;
+using System.Linq;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Statements;
 using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Parameter = com.github.javaparser.ast.body.Parameter;
 
 namespace JavaToCSharp.Declarations
 {
-    public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
+	public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, MethodDeclaration methodDecl)
         {
