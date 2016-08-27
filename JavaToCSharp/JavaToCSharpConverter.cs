@@ -8,7 +8,6 @@ using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.type;
 using JavaToCSharp.Declarations;
 using Roslyn.Compilers.CSharp;
-using Modifier = java.lang.reflect.Modifier;
 
 namespace JavaToCSharp
 {

@@ -25,9 +25,9 @@ namespace JavaToCSharp
             return (value & flag) != 0;
 		}
 
-		public static bool HasFlag(this EnumSet value, int flag)
+		public static bool HasFlag<T>(this EnumSet values, T flag)
 		{
-			return value.contains(flag);
+			return values.contains(flag);
 		}
 	}
 }

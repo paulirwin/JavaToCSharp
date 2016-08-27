@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
-using java.lang.reflect;
 using JavaToCSharp.Expressions;
 using JavaToCSharp.Statements;
 using Roslyn.Compilers.CSharp;
-using Parameter = com.github.javaparser.ast.body.Parameter;
 
 namespace JavaToCSharp.Declarations
 {
