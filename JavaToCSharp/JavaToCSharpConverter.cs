@@ -1,29 +1,19 @@
-﻿using japa.parser;
-using japa.parser.ast;
-using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
-using japa.parser.ast.type;
-using japa.parser.ast.visitor;
-using java.io;
-using java.lang.reflect;
-using JavaToCSharp.Declarations;
-using Roslyn.Compilers.Common;
-using Roslyn.Compilers.CSharp;
-using Roslyn.Services;
-using Roslyn.Services.Formatting;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using japa.parser;
+using japa.parser.ast;
+using japa.parser.ast.body;
+using japa.parser.ast.type;
+using java.lang.reflect;
+using JavaToCSharp.Declarations;
+using Roslyn.Compilers.CSharp;
 
 namespace JavaToCSharp
 {
-    public static class JavaToCSharpConverter
+	public static class JavaToCSharpConverter
     {
         public static string ConvertText(string javaText, JavaConversionOptions options = null)
         {
@@ -59,7 +49,7 @@ namespace JavaToCSharp
 
                 if (options.IncludeUsings)
                 {
-                    foreach (var ns in options.Usings)
+                    foreach (var ns in options.Usings.Where(x => !String.IsNullOrWhiteSpace(x)))
                     {
                         var usingSyntax = Syntax.UsingDirective(Syntax.ParseName(ns));
                         usings.Add(usingSyntax);
