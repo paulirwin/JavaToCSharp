@@ -1,16 +1,15 @@
-﻿using com.github.javaparser.ast.body;
-using com.github.javaparser.ast.expr;
-using JavaToCSharp.Declarations;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using JavaToCSharp.Declarations;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationExpr>
+	public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ObjectCreationExpr newExpr)
         {
@@ -38,17 +37,17 @@ namespace JavaToCSharp.Expressions
             var args = newExpr.getArgs().ToList<Expression>();
 
             if (args == null || args.Count == 0)
-                return Syntax.ObjectCreationExpression(typeSyntax).WithArgumentList(Syntax.ArgumentList());
+                return SyntaxFactory.ObjectCreationExpression(typeSyntax).WithArgumentList(SyntaxFactory.ArgumentList());
 
             var argSyntaxes = new List<ArgumentSyntax>();
 
             foreach (var arg in args)
             {
                 var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
-                argSyntaxes.Add(Syntax.Argument(argSyntax));
+                argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
             }
 
-            return Syntax.ObjectCreationExpression(typeSyntax, Syntax.ArgumentList(Syntax.SeparatedList(argSyntaxes, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))), null);
+            return SyntaxFactory.ObjectCreationExpression(typeSyntax, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(argSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))), null);
         }
 
         private static ExpressionSyntax VisitAnonymousClassCreationExpression(ConversionContext context, ObjectCreationExpr newExpr, List<BodyDeclaration> anonBody)
@@ -70,20 +69,23 @@ namespace JavaToCSharp.Expressions
                 }
             }
 
-            var classSyntax = Syntax.ClassDeclaration(anonTypeName)
+			var classSyntax = SyntaxFactory.ClassDeclaration(anonTypeName)
                 .AddModifiers(
-                    Syntax.Token(SyntaxKind.PrivateKeyword),
-                    Syntax.Token(SyntaxKind.SealedKeyword))
-                .WithBaseList(Syntax.BaseList(Syntax.SeparatedList(Syntax.ParseTypeName(baseTypeName))));
+                    SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
+                    SyntaxFactory.Token(SyntaxKind.SealedKeyword))
+                .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList(new List<BaseTypeSyntax>
+                {
+	                SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseTypeName))
+                })));
 
-            var parentField = Syntax.FieldDeclaration(
-                Syntax.VariableDeclaration(Syntax.ParseTypeName(context.LastTypeName)).AddVariables(Syntax.VariableDeclarator("parent")))
-                .AddModifiers(Syntax.Token(SyntaxKind.PrivateKeyword), Syntax.Token(SyntaxKind.ReadOnlyKeyword));
+            var parentField = SyntaxFactory.FieldDeclaration(
+                SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(context.LastTypeName)).AddVariables(SyntaxFactory.VariableDeclarator("parent")))
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
 
-            var ctorSyntax = Syntax.ConstructorDeclaration(anonTypeName)
-                .AddModifiers(Syntax.Token(SyntaxKind.PublicKeyword))
-                .AddParameterListParameters(Syntax.Parameter(Syntax.ParseToken("parent")).WithType(Syntax.ParseTypeName(context.LastTypeName)))
-                .AddBodyStatements(Syntax.ExpressionStatement(Syntax.BinaryExpression(SyntaxKind.AssignExpression, Syntax.MemberAccessExpression(SyntaxKind.MemberAccessExpression, Syntax.ThisExpression(), Syntax.IdentifierName("parent")), Syntax.IdentifierName("parent"))));
+            var ctorSyntax = SyntaxFactory.ConstructorDeclaration(anonTypeName)
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .AddParameterListParameters(SyntaxFactory.Parameter(SyntaxFactory.ParseToken("parent")).WithType(SyntaxFactory.ParseTypeName(context.LastTypeName)))
+                .AddBodyStatements(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("parent")), SyntaxFactory.IdentifierName("parent"))));
 
             classSyntax = classSyntax.AddMembers(ctorSyntax, parentField);
 
@@ -98,20 +100,20 @@ namespace JavaToCSharp.Expressions
             var args = newExpr.getArgs().ToList<Expression>();
 
             if (args == null || args.Count == 0)
-                return Syntax.ObjectCreationExpression(Syntax.ParseTypeName(anonTypeName))
-                    .AddArgumentListArguments(Syntax.Argument(Syntax.ThisExpression()));
+                return SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(anonTypeName))
+                    .AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.ThisExpression()));
 
             var argSyntaxes = new List<ArgumentSyntax>();
 
-            argSyntaxes.Add(Syntax.Argument(Syntax.ThisExpression()));
+            argSyntaxes.Add(SyntaxFactory.Argument(SyntaxFactory.ThisExpression()));
 
             foreach (var arg in args)
             {
                 var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
-                argSyntaxes.Add(Syntax.Argument(argSyntax));
+                argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
             }
 
-            return Syntax.ObjectCreationExpression(Syntax.ParseTypeName(anonTypeName), Syntax.ArgumentList(Syntax.SeparatedList(argSyntaxes, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))), null);
+            return SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(anonTypeName), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(argSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))), null);
         }
     }
 }

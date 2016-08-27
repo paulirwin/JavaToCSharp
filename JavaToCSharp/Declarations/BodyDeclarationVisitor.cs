@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using com.github.javaparser.ast.body;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {

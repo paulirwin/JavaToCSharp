@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace JavaToCSharp
 {
-    public class Replacement
+	public class Replacement
     {
         private readonly Regex _regex;
         private readonly string _replacement;

@@ -1,15 +1,11 @@
 ﻿using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-    public class SynchronizedStatementVisitor : StatementVisitor<SynchronizedStmt>
+	public class SynchronizedStatementVisitor : StatementVisitor<SynchronizedStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, SynchronizedStmt synchronizedStmt)
         {
@@ -22,7 +18,7 @@ namespace JavaToCSharp.Statements
             if (bodySyntax == null)
                 return null;
 
-            return Syntax.LockStatement(lockSyntax, bodySyntax);
+            return SyntaxFactory.LockStatement(lockSyntax, bodySyntax);
         }
     }
 }

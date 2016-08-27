@@ -1,14 +1,10 @@
 ﻿using com.github.javaparser.ast.stmt;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-    public class BlockStatementVisitor : StatementVisitor<BlockStmt>
+	public class BlockStatementVisitor : StatementVisitor<BlockStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, BlockStmt blockStmt)
         {
@@ -16,7 +12,7 @@ namespace JavaToCSharp.Statements
 
             var syntaxes = StatementVisitor.VisitStatements(context, stmts);
 
-            return Syntax.Block(syntaxes);
+            return SyntaxFactory.Block(syntaxes);
         }
     }
 }

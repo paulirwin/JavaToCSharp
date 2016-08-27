@@ -1,14 +1,11 @@
-﻿using com.github.javaparser.ast.stmt;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.stmt;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-    public abstract class StatementVisitor<T> : StatementVisitor
+	public abstract class StatementVisitor<T> : StatementVisitor
         where T : Statement
     {
         public abstract StatementSyntax Visit(ConversionContext context, T statement);

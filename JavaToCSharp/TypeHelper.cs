@@ -1,14 +1,11 @@
-﻿using com.github.javaparser.ast.type;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using com.github.javaparser.ast.type;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp
 {
-    public static class TypeHelper
+	public static class TypeHelper
     {
         public static string ConvertType(string typeName)
         {
@@ -109,12 +106,12 @@ namespace JavaToCSharp
 
             if (typeArgs != null && typeArgs.Count > 0)
             {
-                typeSyntax = Syntax.GenericName(typeName)
-                    .AddTypeArgumentListArguments(typeArgs.Select(i => Syntax.ParseTypeName(i.toString())).ToArray());
+                typeSyntax = SyntaxFactory.GenericName(typeName)
+                    .AddTypeArgumentListArguments(typeArgs.Select(i => SyntaxFactory.ParseTypeName(i.toString())).ToArray());
             }
             else
             {
-                typeSyntax = Syntax.ParseTypeName(typeName);
+                typeSyntax = SyntaxFactory.ParseTypeName(typeName);
             }
 
             return typeSyntax;

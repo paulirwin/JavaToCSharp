@@ -1,14 +1,10 @@
 ﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
+	public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayAccessExpr expr)
         {
@@ -18,7 +14,10 @@ namespace JavaToCSharp.Expressions
             var indexExpr = expr.getIndex();
             var indexSyntax = ExpressionVisitor.VisitExpression(context, indexExpr);
 
-            return Syntax.ElementAccessExpression(nameSyntax, Syntax.BracketedArgumentList(Syntax.SeparatedList(Syntax.Argument(indexSyntax))));
+            return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(new []
+            {
+	            SyntaxFactory.Argument(indexSyntax)
+            })));
         }
     }
 }

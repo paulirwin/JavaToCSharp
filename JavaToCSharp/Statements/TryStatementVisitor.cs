@@ -1,6 +1,7 @@
 ﻿using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
-using Roslyn.Compilers.CSharp;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -15,23 +16,31 @@ namespace JavaToCSharp.Statements
 
             var catches = tryStmt.getCatchs().ToList<CatchClause>();
 
-            var trySyn = Syntax.TryStatement()
+            var trySyn = SyntaxFactory.TryStatement()
                 .AddBlockStatements(tryConverted.ToArray());
 
             if (catches != null)
             {
                 foreach (var ctch in catches)
                 {
-					//chaws
                     var referenceType = (ReferenceType)ctch.getParam().getType();
                     var block = ctch.getCatchBlock();
                     var catchStatements = block.getStmts().ToList<Statement>();
                     var catchConverted = StatementVisitor.VisitStatements(context, catchStatements);
-                    var catchBlockSyntax = Syntax.Block(catchConverted);
+                    var catchBlockSyntax = SyntaxFactory.Block(catchConverted);
 
                     var type = TypeHelper.ConvertType(referenceType.getType().ToString());
-
-                    trySyn = trySyn.AddCatches(Syntax.CatchClause(Syntax.CatchDeclaration(Syntax.ParseTypeName(type), Syntax.ParseToken(ctch.getParam().getId().toString())), catchBlockSyntax));
+					
+					trySyn = trySyn.AddCatches(
+						SyntaxFactory.CatchClause(
+							SyntaxFactory.CatchDeclaration(
+								SyntaxFactory.ParseTypeName(type),
+								SyntaxFactory.ParseToken(ctch.getParam().getId().toString())
+							),
+							filter: null,
+							block: catchBlockSyntax
+						)
+					);
                 }
             }
 
@@ -41,9 +50,9 @@ namespace JavaToCSharp.Statements
             {
                 var finallyStatements = finallyBlock.getStmts().ToList<Statement>();
                 var finallyConverted = StatementVisitor.VisitStatements(context, finallyStatements);
-                var finallyBlockSyntax = Syntax.Block(finallyConverted);
+                var finallyBlockSyntax = SyntaxFactory.Block(finallyConverted);
 
-                trySyn = trySyn.WithFinally(Syntax.FinallyClause(finallyBlockSyntax));
+                trySyn = trySyn.WithFinally(SyntaxFactory.FinallyClause(finallyBlockSyntax));
             }
 
             return trySyn;

@@ -1,15 +1,12 @@
-﻿using com.github.javaparser.ast.body;
+﻿using System;
+using com.github.javaparser.ast.body;
 using JavaToCSharp.Statements;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
-    public class InitializerDeclarationVisitor : BodyDeclarationVisitor<InitializerDeclaration>
+	public class InitializerDeclarationVisitor : BodyDeclarationVisitor<InitializerDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, InitializerDeclaration declaration)
         {
@@ -19,8 +16,8 @@ namespace JavaToCSharp.Declarations
             var block = declaration.getBlock();
             var blockSyntax = (BlockSyntax)new BlockStatementVisitor().Visit(context, block);
 
-            return Syntax.ConstructorDeclaration(classSyntax.Identifier.ValueText)
-                .WithModifiers(Syntax.TokenList(Syntax.Token(SyntaxKind.StaticKeyword)))
+            return SyntaxFactory.ConstructorDeclaration(classSyntax.Identifier.ValueText)
+                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
                 .WithBody(blockSyntax);
         }
 

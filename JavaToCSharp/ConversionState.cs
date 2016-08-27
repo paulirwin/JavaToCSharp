@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace JavaToCSharp
+﻿namespace JavaToCSharp
 {
-    public enum ConversionState
+	public enum ConversionState
     {
         Starting = 0,
         ParsingJavaAST,

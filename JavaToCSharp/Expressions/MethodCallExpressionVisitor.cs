@@ -1,14 +1,12 @@
-﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.expr;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
+	public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, MethodCallExpr methodCallExpr)
         {
@@ -27,27 +25,27 @@ namespace JavaToCSharp.Expressions
 
             if (scopeSyntax == null)
             {
-                methodExpression = Syntax.IdentifierName(methodName);
+                methodExpression = SyntaxFactory.IdentifierName(methodName);
             }
             else
             {
-                methodExpression = Syntax.MemberAccessExpression(SyntaxKind.MemberAccessExpression, scopeSyntax, Syntax.IdentifierName(methodName));
+                methodExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(methodName));
             }
 
             var args = methodCallExpr.getArgs().ToList<Expression>();
 
             if (args == null || args.Count == 0)
-                return Syntax.InvocationExpression(methodExpression);
+                return SyntaxFactory.InvocationExpression(methodExpression);
 
             var argSyntaxes = new List<ArgumentSyntax>();
 
             foreach (var arg in args)
             {
                 var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
-                argSyntaxes.Add(Syntax.Argument(argSyntax));
+                argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
             }
 
-            return Syntax.InvocationExpression(methodExpression, Syntax.ArgumentList(Syntax.SeparatedList(argSyntaxes, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))));
+            return SyntaxFactory.InvocationExpression(methodExpression, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(argSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))));
         }
     }
 }

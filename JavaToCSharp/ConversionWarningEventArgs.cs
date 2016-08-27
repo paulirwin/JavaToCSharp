@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JavaToCSharp
 {
-    public class ConversionWarningEventArgs : EventArgs
+	public class ConversionWarningEventArgs : EventArgs
     {
         public ConversionWarningEventArgs(string message, int javaLineNumber)
         {

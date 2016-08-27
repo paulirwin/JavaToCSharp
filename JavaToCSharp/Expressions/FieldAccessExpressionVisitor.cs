@@ -1,14 +1,10 @@
 ﻿using com.github.javaparser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
+	public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, FieldAccessExpr fieldAccessExpr)
         {
@@ -22,7 +18,7 @@ namespace JavaToCSharp.Expressions
 
             var field = TypeHelper.ConvertIdentifierName(fieldAccessExpr.getField());
 
-            return Syntax.MemberAccessExpression(SyntaxKind.MemberAccessExpression, scopeSyntax, Syntax.IdentifierName(field));
+            return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(field));
         }
     }
 }
