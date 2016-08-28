@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class DoubleLiteralExpressionVisitor : ExpressionVisitor<DoubleLiteralExpr>
+    public class DoubleLiteralExpressionVisitor : ExpressionVisitor<DoubleLiteralExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, DoubleLiteralExpr expr)
         {

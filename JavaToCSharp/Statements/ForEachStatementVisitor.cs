@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class ForEachStatementVisitor : StatementVisitor<ForeachStmt>
+    public class ForEachStatementVisitor : StatementVisitor<ForeachStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, ForeachStmt foreachStmt)
         {

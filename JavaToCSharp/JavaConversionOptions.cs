@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace JavaToCSharp
 {
-	public class JavaConversionOptions
+    public class JavaConversionOptions
     {
         public JavaConversionOptions()
         {

@@ -2,7 +2,7 @@
 
 namespace JavaToCSharp
 {
-	public sealed class ConversionStateChangedEventArgs : EventArgs
+    public sealed class ConversionStateChangedEventArgs : EventArgs
     {
         public ConversionStateChangedEventArgs(ConversionState newState)
         {

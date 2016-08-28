@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public abstract class ExpressionVisitor<T> : ExpressionVisitor
+    public abstract class ExpressionVisitor<T> : ExpressionVisitor
         where T : Expression
     {
         public abstract ExpressionSyntax Visit(ConversionContext context, T expr);

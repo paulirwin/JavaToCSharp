@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public abstract class StatementVisitor<T> : StatementVisitor
+    public abstract class StatementVisitor<T> : StatementVisitor
         where T : Statement
     {
         public abstract StatementSyntax Visit(ConversionContext context, T statement);

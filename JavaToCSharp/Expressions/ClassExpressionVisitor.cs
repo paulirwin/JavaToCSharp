@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class ClassExpressionVisitor : ExpressionVisitor<ClassExpr>
+    public class ClassExpressionVisitor : ExpressionVisitor<ClassExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ClassExpr expr)
         {

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
+    public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayAccessExpr expr)
         {
@@ -16,7 +16,7 @@ namespace JavaToCSharp.Expressions
 
             return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(new []
             {
-	            SyntaxFactory.Argument(indexSyntax)
+                SyntaxFactory.Argument(indexSyntax)
             })));
         }
     }

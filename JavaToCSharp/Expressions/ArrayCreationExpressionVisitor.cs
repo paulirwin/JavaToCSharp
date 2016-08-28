@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExpr>
+    public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
         {

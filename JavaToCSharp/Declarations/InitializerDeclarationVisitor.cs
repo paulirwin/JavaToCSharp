@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
-	public class InitializerDeclarationVisitor : BodyDeclarationVisitor<InitializerDeclaration>
+    public class InitializerDeclarationVisitor : BodyDeclarationVisitor<InitializerDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, InitializerDeclaration declaration)
         {

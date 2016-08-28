@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class ThrowStatementVisitor : StatementVisitor<ThrowStmt>
+    public class ThrowStatementVisitor : StatementVisitor<ThrowStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, ThrowStmt throwStmt)
         {

@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class ForStatementVisitor : StatementVisitor<ForStmt>
+    public class ForStatementVisitor : StatementVisitor<ForStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, ForStmt forStmt)
         {

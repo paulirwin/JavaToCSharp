@@ -3,7 +3,7 @@ using java.util;
 
 namespace JavaToCSharp
 {
-	public static class IKVMHelpers
+    public static class IKVMHelpers
     {
         public static List<T> ToList<T>(this java.util.List list)
         {
@@ -23,11 +23,11 @@ namespace JavaToCSharp
         public static bool HasFlag(this int value, int flag)
         {
             return (value & flag) != 0;
-		}
+        }
 
-		public static bool HasFlag<T>(this EnumSet values, T flag)
-		{
-			return values.contains(flag);
-		}
-	}
+        public static bool HasFlag<T>(this EnumSet values, T flag)
+        {
+            return values.contains(flag);
+        }
+    }
 }

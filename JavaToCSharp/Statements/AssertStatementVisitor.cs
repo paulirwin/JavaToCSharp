@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class AssertStatementVisitor : StatementVisitor<AssertStmt>
+    public class AssertStatementVisitor : StatementVisitor<AssertStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, AssertStmt assertStmt)
         {
@@ -23,7 +23,7 @@ namespace JavaToCSharp.Statements
                         SyntaxFactory.IdentifierName("Debug.Assert"),
                         SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new []
                         {
-	                        SyntaxFactory.Argument(checkSyntax)
+                            SyntaxFactory.Argument(checkSyntax)
                         }))));
 
             var messageSyntax = ExpressionVisitor.VisitExpression(context, message);

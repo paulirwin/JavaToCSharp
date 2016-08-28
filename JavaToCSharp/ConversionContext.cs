@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp
 {
-	public class ConversionContext
+    public class ConversionContext
     {
         public ConversionContext(JavaConversionOptions options)
         {

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class TryStatementVisitor : StatementVisitor<TryStmt>
+    public class TryStatementVisitor : StatementVisitor<TryStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, TryStmt tryStmt)
         {
@@ -30,17 +30,17 @@ namespace JavaToCSharp.Statements
                     var catchBlockSyntax = SyntaxFactory.Block(catchConverted);
 
                     var type = TypeHelper.ConvertType(referenceType.getType().ToString());
-					
-					trySyn = trySyn.AddCatches(
-						SyntaxFactory.CatchClause(
-							SyntaxFactory.CatchDeclaration(
-								SyntaxFactory.ParseTypeName(type),
-								SyntaxFactory.ParseToken(ctch.getParam().getId().toString())
-							),
-							filter: null,
-							block: catchBlockSyntax
-						)
-					);
+                    
+                    trySyn = trySyn.AddCatches(
+                        SyntaxFactory.CatchClause(
+                            SyntaxFactory.CatchDeclaration(
+                                SyntaxFactory.ParseTypeName(type),
+                                SyntaxFactory.ParseToken(ctch.getParam().getId().toString())
+                            ),
+                            filter: null,
+                            block: catchBlockSyntax
+                        )
+                    );
                 }
             }
 

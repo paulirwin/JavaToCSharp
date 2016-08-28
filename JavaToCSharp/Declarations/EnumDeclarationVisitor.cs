@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
-	public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
+    public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, EnumDeclaration enumDecl)
         {

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class BreakStatementVisitor : StatementVisitor<BreakStmt>
+    public class BreakStatementVisitor : StatementVisitor<BreakStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, BreakStmt brk)
         {

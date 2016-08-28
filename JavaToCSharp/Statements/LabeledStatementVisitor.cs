@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class LabeledStatementVisitor : StatementVisitor<LabeledStmt>
+    public class LabeledStatementVisitor : StatementVisitor<LabeledStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, LabeledStmt labeledStmt)
         {

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class IfStatementVisitor : StatementVisitor<IfStmt>
+    public class IfStatementVisitor : StatementVisitor<IfStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, IfStmt ifStmt)
         {

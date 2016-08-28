@@ -2,7 +2,7 @@
 
 namespace JavaToCSharp
 {
-	public class Replacement
+    public class Replacement
     {
         private readonly Regex _regex;
         private readonly string _replacement;

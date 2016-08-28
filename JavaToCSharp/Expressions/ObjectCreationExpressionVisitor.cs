@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationExpr>
+    public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ObjectCreationExpr newExpr)
         {
@@ -69,13 +69,13 @@ namespace JavaToCSharp.Expressions
                 }
             }
 
-			var classSyntax = SyntaxFactory.ClassDeclaration(anonTypeName)
+            var classSyntax = SyntaxFactory.ClassDeclaration(anonTypeName)
                 .AddModifiers(
                     SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
                     SyntaxFactory.Token(SyntaxKind.SealedKeyword))
                 .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList(new List<BaseTypeSyntax>
                 {
-	                SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseTypeName))
+                    SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseTypeName))
                 })));
 
             var parentField = SyntaxFactory.FieldDeclaration(

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class DoStatementVisitor : StatementVisitor<DoStmt>
+    public class DoStatementVisitor : StatementVisitor<DoStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, DoStmt statement)
         {

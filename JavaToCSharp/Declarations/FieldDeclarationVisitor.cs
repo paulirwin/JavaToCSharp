@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
-	public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
+    public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, FieldDeclaration fieldDecl)
         {

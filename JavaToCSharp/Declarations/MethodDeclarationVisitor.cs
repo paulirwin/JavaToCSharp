@@ -12,7 +12,7 @@ using Parameter = com.github.javaparser.ast.body.Parameter;
 
 namespace JavaToCSharp.Declarations
 {
-	public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
+    public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, MethodDeclaration methodDecl)
         {
@@ -83,7 +83,7 @@ namespace JavaToCSharp.Declarations
                         modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword));
 
                     var paramSyntax = SyntaxFactory.Parameter(
-						attributeLists: new SyntaxList<AttributeListSyntax>(),
+                        attributeLists: new SyntaxList<AttributeListSyntax>(),
                         modifiers: modifiers,
                         type: SyntaxFactory.ParseTypeName(typeName),
                         identifier: SyntaxFactory.ParseToken(identifier),
@@ -149,8 +149,8 @@ namespace JavaToCSharp.Declarations
             {
                 var paramSyntax = parameters.Select(i =>
                     SyntaxFactory.Parameter(
-						attributeLists: new SyntaxList<AttributeListSyntax>(),
-						modifiers: SyntaxFactory.TokenList(),
+                        attributeLists: new SyntaxList<AttributeListSyntax>(),
+                        modifiers: SyntaxFactory.TokenList(),
                         type: SyntaxFactory.ParseTypeName(TypeHelper.ConvertType(i.getType().toString())),
                         identifier: SyntaxFactory.ParseToken(TypeHelper.ConvertIdentifierName(i.getId().toString())),
                         @default: null))

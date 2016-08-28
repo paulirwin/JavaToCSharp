@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class ArrayInitializerExpressionVisitor : ExpressionVisitor<ArrayInitializerExpr>
+    public class ArrayInitializerExpressionVisitor : ExpressionVisitor<ArrayInitializerExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayInitializerExpr expr)
         {
@@ -15,10 +15,10 @@ namespace JavaToCSharp.Expressions
             var syntaxes = new List<ExpressionSyntax>();
 
             foreach (var valuexpr in exprs)
-	        {
+            {
                 var syntax = ExpressionVisitor.VisitExpression(context, valuexpr);
                 syntaxes.Add(syntax);
-	        }
+            }
 
             return SyntaxFactory.ImplicitArrayCreationExpression(
                 SyntaxFactory.InitializerExpression(

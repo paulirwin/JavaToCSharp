@@ -2,7 +2,7 @@
 
 namespace JavaToCSharp
 {
-	public class ConversionWarningEventArgs : EventArgs
+    public class ConversionWarningEventArgs : EventArgs
     {
         public ConversionWarningEventArgs(string message, int javaLineNumber)
         {

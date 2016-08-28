@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
+    public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, SwitchStmt switchStmt)
         {
@@ -32,8 +32,8 @@ namespace JavaToCSharp.Statements
                 {
                     // default case
                     var defaultSyntax = SyntaxFactory.SwitchSection(
-						SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.DefaultSwitchLabel() }),
-						SyntaxFactory.List(syntaxes.AsEnumerable()));
+                        SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.DefaultSwitchLabel() }),
+                        SyntaxFactory.List(syntaxes.AsEnumerable()));
                     caseSyntaxes.Add(defaultSyntax);
                 }
                 else
@@ -41,8 +41,8 @@ namespace JavaToCSharp.Statements
                     var labelSyntax = ExpressionVisitor.VisitExpression(context, label);
 
                     var caseSyntax = SyntaxFactory.SwitchSection(
-						SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.CaseSwitchLabel(labelSyntax) }),
-						SyntaxFactory.List(syntaxes.AsEnumerable()));
+                        SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.CaseSwitchLabel(labelSyntax) }),
+                        SyntaxFactory.List(syntaxes.AsEnumerable()));
                     caseSyntaxes.Add(caseSyntax);
                 }
             }

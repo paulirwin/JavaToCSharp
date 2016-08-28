@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
+    public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, FieldAccessExpr fieldAccessExpr)
         {

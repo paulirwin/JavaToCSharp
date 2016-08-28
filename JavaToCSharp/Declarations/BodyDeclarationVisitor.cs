@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
-	public abstract class BodyDeclarationVisitor<T> : BodyDeclarationVisitor
+    public abstract class BodyDeclarationVisitor<T> : BodyDeclarationVisitor
         where T : BodyDeclaration
     {
         public abstract MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, T declaration);

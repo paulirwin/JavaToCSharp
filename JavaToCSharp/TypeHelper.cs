@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp
 {
-	public static class TypeHelper
+    public static class TypeHelper
     {
         public static string ConvertType(string typeName)
         {

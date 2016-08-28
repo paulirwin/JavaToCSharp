@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-	public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
+    public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, AssignExpr assignExpr)
         {
@@ -45,8 +45,8 @@ namespace JavaToCSharp.Expressions
             else if (op == AssignExpr.Operator.xor)
                 kind = SyntaxKind.ExclusiveOrAssignmentExpression;
 
-			//chaws return SyntaxFactory.BinaryExpression(kind, leftSyntax, rightSyntax);
-			return SyntaxFactory.AssignmentExpression(kind, leftSyntax, rightSyntax);
-		}
+            //chaws return SyntaxFactory.BinaryExpression(kind, leftSyntax, rightSyntax);
+            return SyntaxFactory.AssignmentExpression(kind, leftSyntax, rightSyntax);
+        }
     }
 }

@@ -13,16 +13,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
-	public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorDeclaration>
+    public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorDeclaration>
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, ConstructorDeclaration ctorDecl)
         {
-			var ctorSyntax = SyntaxFactory.ConstructorDeclaration(classSyntax.Identifier.Value.ToString())
-				.WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
+            var ctorSyntax = SyntaxFactory.ConstructorDeclaration(classSyntax.Identifier.Value.ToString())
+                .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
             var mods = ctorDecl.getModifiers();
-			
-			if (mods.HasFlag(Modifier.PUBLIC))
+            
+            if (mods.HasFlag(Modifier.PUBLIC))
                 ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
             if (mods.HasFlag(Modifier.PROTECTED))
                 ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
@@ -55,9 +55,9 @@ namespace JavaToCSharp.Declarations
                 ctorSyntax = ctorSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
             }
 
-			//chaws: var block = ctorDecl.getBlock();
-			var block = ctorDecl.getBody();
-			var statements = block.getStmts().ToList<Statement>();
+            //chaws: var block = ctorDecl.getBlock();
+            var block = ctorDecl.getBody();
+            var statements = block.getStmts().ToList<Statement>();
 
             // handle special case for constructor invocation
             if (statements != null && statements.Count > 0 && statements[0] is ExplicitConstructorInvocationStmt)

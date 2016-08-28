@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp
 {
-	public static class JavaToCSharpConverter
+    public static class JavaToCSharpConverter
     {
         public static string ConvertText(string javaText, JavaConversionOptions options = null)
         {
@@ -109,8 +109,8 @@ namespace JavaToCSharp
                     attributeLists: new SyntaxList<AttributeListSyntax>(), 
                     members: SyntaxFactory.List<MemberDeclarationSyntax>(rootMembers))
                     .NormalizeWhitespace();
-				
-				var tree = SyntaxFactory.SyntaxTree(root);
+                
+                var tree = SyntaxFactory.SyntaxTree(root);
 
                 options.ConversionStateChanged(ConversionState.Done);
 
@@ -206,7 +206,7 @@ namespace JavaToCSharp
             {
                 foreach (var extend in extends)
                 {
-					classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
+                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
                 }
             }
 

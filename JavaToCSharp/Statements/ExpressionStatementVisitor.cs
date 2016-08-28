@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
-	public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
+    public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
     {
         public override StatementSyntax Visit(ConversionContext context, ExpressionStmt exprStmt)
         {

@@ -1,6 +1,6 @@
 ﻿namespace JavaToCSharp
 {
-	public enum ConversionState
+    public enum ConversionState
     {
         Starting = 0,
         ParsingJavaAST,
