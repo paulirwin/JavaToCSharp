@@ -1,10 +1,6 @@
-﻿using japa.parser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using com.github.javaparser.ast.expr;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
@@ -17,7 +13,7 @@ namespace JavaToCSharp.Expressions
 
             var type = TypeHelper.ConvertType(expr.getType().toString());
 
-            return Syntax.BinaryExpression(SyntaxKind.IsExpression, exprSyntax, Syntax.IdentifierName(type));
+            return SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, exprSyntax, SyntaxFactory.IdentifierName(type));
         }
     }
 }

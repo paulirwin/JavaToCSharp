@@ -1,11 +1,7 @@
-﻿using japa.parser.ast.stmt;
+﻿using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -25,15 +21,15 @@ namespace JavaToCSharp.Statements
             var elseStmt = ifStmt.getElseStmt();
 
             if (elseStmt == null)
-                return Syntax.IfStatement(conditionSyntax, thenSyntax);
+                return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);
 
             var elseStatementSyntax = StatementVisitor.VisitStatement(context, elseStmt);
-            var elseSyntax = Syntax.ElseClause(elseStatementSyntax);
+            var elseSyntax = SyntaxFactory.ElseClause(elseStatementSyntax);
 
             if (elseSyntax == null)
-                return Syntax.IfStatement(conditionSyntax, thenSyntax);
+                return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);
 
-            return Syntax.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
+            return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
         }
     }
 }

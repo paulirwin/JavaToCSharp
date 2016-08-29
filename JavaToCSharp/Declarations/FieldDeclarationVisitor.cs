@@ -1,12 +1,11 @@
-﻿using japa.parser.ast.body;
-using java.lang.reflect;
-using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using JavaToCSharp.Expressions;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
@@ -36,34 +35,34 @@ namespace JavaToCSharp.Declarations
                 if (initexpr != null)
                 {
                     var initsyn = ExpressionVisitor.VisitExpression(context, initexpr);
-                    var vardeclsyn = Syntax.VariableDeclarator(name).WithInitializer(Syntax.EqualsValueClause(initsyn));
+                    var vardeclsyn = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initsyn));
                     variables.Add(vardeclsyn);
                 }
                 else
-                    variables.Add(Syntax.VariableDeclarator(name));
+                    variables.Add(SyntaxFactory.VariableDeclarator(name));
             }
 
             typeName = TypeHelper.ConvertType(typeName);
 
-            var fieldSyntax = Syntax.FieldDeclaration(
-                Syntax.VariableDeclaration(
-                    Syntax.ParseTypeName(typeName),
-                    Syntax.SeparatedList(variables, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), variables.Count - 1))));
+            var fieldSyntax = SyntaxFactory.FieldDeclaration(
+                SyntaxFactory.VariableDeclaration(
+                    SyntaxFactory.ParseTypeName(typeName),
+                    SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
 
             var mods = fieldDecl.getModifiers();
 
             if (mods.HasFlag(Modifier.PUBLIC))
-                fieldSyntax = fieldSyntax.AddModifiers(Syntax.Token(SyntaxKind.PublicKeyword));
+                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
             if (mods.HasFlag(Modifier.PROTECTED))
-                fieldSyntax = fieldSyntax.AddModifiers(Syntax.Token(SyntaxKind.ProtectedKeyword));
+                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
             if (mods.HasFlag(Modifier.PRIVATE))
-                fieldSyntax = fieldSyntax.AddModifiers(Syntax.Token(SyntaxKind.PrivateKeyword));
+                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
             if (mods.HasFlag(Modifier.STATIC))
-                fieldSyntax = fieldSyntax.AddModifiers(Syntax.Token(SyntaxKind.StaticKeyword));
+                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
             if (mods.HasFlag(Modifier.FINAL))
-                fieldSyntax = fieldSyntax.AddModifiers(Syntax.Token(SyntaxKind.ReadOnlyKeyword));
+                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
             if (mods.HasFlag(Modifier.VOLATILE))
-                fieldSyntax = fieldSyntax.AddModifiers(Syntax.Token(SyntaxKind.VolatileKeyword));
+                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
 
             return fieldSyntax;
         }

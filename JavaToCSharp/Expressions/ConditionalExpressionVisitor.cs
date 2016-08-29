@@ -1,10 +1,6 @@
-﻿using japa.parser.ast.expr;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using com.github.javaparser.ast.expr;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
@@ -21,7 +17,7 @@ namespace JavaToCSharp.Expressions
             var elseExpr = conditionalExpr.getElseExpr();
             var elseSyntax = ExpressionVisitor.VisitExpression(context, elseExpr);
 
-            return Syntax.ConditionalExpression(conditionSyntax, thenSyntax, elseSyntax);
+            return SyntaxFactory.ConditionalExpression(conditionSyntax, thenSyntax, elseSyntax);
         }
     }
 }

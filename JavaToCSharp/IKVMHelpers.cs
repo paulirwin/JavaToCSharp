@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using java.util;
 
 namespace JavaToCSharp
 {
@@ -26,6 +23,11 @@ namespace JavaToCSharp
         public static bool HasFlag(this int value, int flag)
         {
             return (value & flag) != 0;
+        }
+
+        public static bool HasFlag<T>(this EnumSet values, T flag)
+        {
+            return values.contains(flag);
         }
     }
 }

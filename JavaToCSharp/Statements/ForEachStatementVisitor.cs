@@ -1,12 +1,9 @@
-﻿using japa.parser.ast.body;
-using japa.parser.ast.stmt;
+﻿using System.Linq;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -22,7 +19,7 @@ namespace JavaToCSharp.Statements
 
             var vars = varExpr.getVars()
                 .ToList<VariableDeclarator>()
-                .Select(i => Syntax.VariableDeclarator(i.toString()))
+                .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
                 .ToArray();
 
             var body = foreachStmt.getBody();
@@ -31,7 +28,7 @@ namespace JavaToCSharp.Statements
             if (bodySyntax == null)
                 return null;
 
-            return Syntax.ForEachStatement(Syntax.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
+            return SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
         }
     }
 }

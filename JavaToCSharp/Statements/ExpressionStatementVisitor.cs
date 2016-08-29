@@ -1,13 +1,11 @@
-﻿using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
-using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.stmt;
+using JavaToCSharp.Expressions;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -23,7 +21,7 @@ namespace JavaToCSharp.Statements
 
             var expressionSyntax = ExpressionVisitor.VisitExpression(context, expression);
 
-            return Syntax.ExpressionStatement(expressionSyntax);
+            return SyntaxFactory.ExpressionStatement(expressionSyntax);
         }
 
         private static StatementSyntax VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
@@ -50,15 +48,15 @@ namespace JavaToCSharp.Statements
                 if (initexpr != null)
                 {
                     var initsyn = ExpressionVisitor.VisitExpression(context, initexpr);
-                    var vardeclsyn = Syntax.VariableDeclarator(name).WithInitializer(Syntax.EqualsValueClause(initsyn));
+                    var vardeclsyn = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initsyn));
                     variables.Add(vardeclsyn);
                 }
                 else
-                    variables.Add(Syntax.VariableDeclarator(name));
+                    variables.Add(SyntaxFactory.VariableDeclarator(name));
             }
 
-            return Syntax.LocalDeclarationStatement(
-                Syntax.VariableDeclaration(Syntax.ParseTypeName(type), Syntax.SeparatedList(variables, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), variables.Count - 1))));
+            return SyntaxFactory.LocalDeclarationStatement(
+                SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(type), SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
         }
     }
 }

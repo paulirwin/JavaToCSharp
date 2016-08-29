@@ -1,11 +1,9 @@
-﻿using japa.parser.ast.body;
-using java.lang.reflect;
-using Roslyn.Compilers.CSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast;
+using com.github.javaparser.ast.body;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
 {
@@ -23,23 +21,23 @@ namespace JavaToCSharp.Declarations
             foreach (var entry in entries)
             {
                 // TODO: support "equals" value
-                memberSyntaxes.Add(Syntax.EnumMemberDeclaration(entry.getName()));
+                memberSyntaxes.Add(SyntaxFactory.EnumMemberDeclaration(entry.getName()));
             }
 
             if (members != null && members.Count > 0)
-                context.Options.Warning("Members found in enum " + name + " will not be ported. Check for correctness.", enumDecl.getBeginLine());
+                context.Options.Warning("Members found in enum " + name + " will not be ported. Check for correctness.", enumDecl.getBegin().line);
 
-            var enumSyntax = Syntax.EnumDeclaration(name)
+            var enumSyntax = SyntaxFactory.EnumDeclaration(name)
                 .AddMembers(memberSyntaxes.ToArray());
 
             var mods = enumDecl.getModifiers();
 
             if (mods.HasFlag(Modifier.PRIVATE))
-                enumSyntax = enumSyntax.AddModifiers(Syntax.Token(SyntaxKind.PrivateKeyword));
+                enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
             if (mods.HasFlag(Modifier.PROTECTED))
-                enumSyntax = enumSyntax.AddModifiers(Syntax.Token(SyntaxKind.ProtectedKeyword));
+                enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
             if (mods.HasFlag(Modifier.PUBLIC))
-                enumSyntax = enumSyntax.AddModifiers(Syntax.Token(SyntaxKind.PublicKeyword));
+                enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
             return enumSyntax;
         }

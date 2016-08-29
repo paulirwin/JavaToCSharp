@@ -1,10 +1,6 @@
-﻿using japa.parser.ast.stmt;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using com.github.javaparser.ast.stmt;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -13,9 +9,9 @@ namespace JavaToCSharp.Statements
         public override StatementSyntax Visit(ConversionContext context, BreakStmt brk)
         {
             if (!string.IsNullOrEmpty(brk.getId()))
-                context.Options.Warning("Break with label detected, using plain break instead. Check for correctness.", brk.getBeginLine());
+                context.Options.Warning("Break with label detected, using plain break instead. Check for correctness.", brk.getBegin().line);
 
-            return Syntax.BreakStatement();
+            return SyntaxFactory.BreakStatement();
         }
     }
 }

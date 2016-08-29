@@ -1,13 +1,11 @@
-﻿using japa.parser.ast.body;
-using japa.parser.ast.expr;
-using japa.parser.ast.stmt;
-using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.stmt;
+using JavaToCSharp.Expressions;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -32,10 +30,10 @@ namespace JavaToCSharp.Statements
 
                         var vars = varExpr.getVars()
                             .ToList<VariableDeclarator>()
-                            .Select(i => Syntax.VariableDeclarator(i.toString()))
+                            .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
                             .ToArray();
 
-                        varSyntax = Syntax.VariableDeclaration(Syntax.ParseTypeName(type), Syntax.SeparatedList(vars, Enumerable.Repeat(Syntax.Token(SyntaxKind.CommaToken), vars.Length - 1)));
+                        varSyntax = SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(type), SyntaxFactory.SeparatedList(vars, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), vars.Length - 1)));
                     }
                     else
                     {
@@ -66,7 +64,7 @@ namespace JavaToCSharp.Statements
             if (bodySyntax == null)
                 return null;
 
-            return Syntax.ForStatement(bodySyntax)
+            return SyntaxFactory.ForStatement(bodySyntax)
                 .WithDeclaration(varSyntax)
                 .AddInitializers(initSyntaxes.ToArray())
                 .WithCondition(conditionSyntax)

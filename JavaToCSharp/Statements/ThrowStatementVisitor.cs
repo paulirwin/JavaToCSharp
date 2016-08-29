@@ -1,11 +1,7 @@
-﻿using japa.parser.ast.stmt;
+﻿using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -17,7 +13,7 @@ namespace JavaToCSharp.Statements
 
             var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
 
-            return Syntax.ThrowStatement(exprSyntax);
+            return SyntaxFactory.ThrowStatement(exprSyntax);
         }
     }
 }

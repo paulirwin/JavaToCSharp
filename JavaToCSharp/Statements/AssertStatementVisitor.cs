@@ -1,11 +1,7 @@
-﻿using japa.parser.ast.stmt;
+﻿using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
-using Roslyn.Compilers.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements
 {
@@ -22,17 +18,20 @@ namespace JavaToCSharp.Statements
             var message = assertStmt.getMessage();
 
             if (message == null)
-                return Syntax.ExpressionStatement(
-                    Syntax.InvocationExpression(
-                        Syntax.IdentifierName("Debug.Assert"),
-                        Syntax.ArgumentList(Syntax.SeparatedList(Syntax.Argument(checkSyntax)))));
+                return SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.IdentifierName("Debug.Assert"),
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new []
+                        {
+                            SyntaxFactory.Argument(checkSyntax)
+                        }))));
 
             var messageSyntax = ExpressionVisitor.VisitExpression(context, message);
 
-            return Syntax.ExpressionStatement(
-                    Syntax.InvocationExpression(
-                        Syntax.IdentifierName("Debug.Assert"),
-                        Syntax.ArgumentList(Syntax.SeparatedList(new[] { Syntax.Argument(checkSyntax), Syntax.Argument(messageSyntax) }, new[] { Syntax.Token(SyntaxKind.CommaToken) }))));
+            return SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.IdentifierName("Debug.Assert"),
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] { SyntaxFactory.Argument(checkSyntax), SyntaxFactory.Argument(messageSyntax) }, new[] { SyntaxFactory.Token(SyntaxKind.CommaToken) }))));
         }
     }
 }
