@@ -9,12 +9,12 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, IntegerLiteralExpr expr)
         {
-            string value = expr.toString();
+            string value = expr.getValue();
 
             if (value.StartsWith("0x"))
                 return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value, Convert.ToInt32(value.Substring(2), 16)));
             else
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(int.Parse(expr.toString())));
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(int.Parse(value)));
         }
     }
 }

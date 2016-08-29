@@ -81,7 +81,7 @@ namespace JavaToCSharp.Declarations
 
                     if (param.isVarArgs())
                         modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword));
-
+                    
                     var paramSyntax = SyntaxFactory.Parameter(
                         attributeLists: new SyntaxList<AttributeListSyntax>(),
                         modifiers: modifiers,
