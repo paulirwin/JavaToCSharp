@@ -196,6 +196,7 @@
     <Compile Include="Expressions\FieldAccessExpressionVisitor.cs" />
     <Compile Include="Expressions\InstanceOfExpressionVisitor.cs" />
     <Compile Include="Expressions\IntegerLiteralExpressionVisitor.cs" />
+    <Compile Include="Expressions\LongLiteralExpressionVisitor.cs" />
     <Compile Include="Expressions\MethodCallExpressionVisitor.cs" />
     <Compile Include="Expressions\NameExpressionVisitor.cs" />
     <Compile Include="Expressions\NullLiteralExpressionVisitor.cs" />
