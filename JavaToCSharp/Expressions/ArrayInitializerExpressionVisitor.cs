@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
@@ -23,7 +24,7 @@ namespace JavaToCSharp.Expressions
             return SyntaxFactory.ImplicitArrayCreationExpression(
                 SyntaxFactory.InitializerExpression(
                     SyntaxKind.ArrayInitializerExpression, 
-                    SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1))));
+                    SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), Math.Max(0, syntaxes.Count - 1)))));
         }
     }
 }

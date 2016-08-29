@@ -18,7 +18,7 @@ namespace JavaToCSharp.Expressions
             if (op == UnaryExpr.Operator.inverse)
                 kind = SyntaxKind.BitwiseNotExpression;
             else if (op == UnaryExpr.Operator.negative)
-                kind = SyntaxKind.SubtractExpression;
+                kind = SyntaxKind.UnaryMinusExpression;
             else if (op == UnaryExpr.Operator.not)
                 kind = SyntaxKind.LogicalNotExpression;
             else if (op == UnaryExpr.Operator.posDecrement)
@@ -32,7 +32,7 @@ namespace JavaToCSharp.Expressions
                 isPostfix = true;
             }
             else if (op == UnaryExpr.Operator.positive)
-                kind = SyntaxKind.AddExpression;
+                kind = SyntaxKind.UnaryPlusExpression;
             else if (op == UnaryExpr.Operator.preDecrement)
                 kind = SyntaxKind.PreDecrementExpression;
             else if (op == UnaryExpr.Operator.preIncrement)
