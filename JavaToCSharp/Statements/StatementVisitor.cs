@@ -41,6 +41,8 @@ namespace JavaToCSharp.Statements
                 { typeof(ThrowStmt), new ThrowStatementVisitor() },
                 { typeof(TryStmt), new TryStatementVisitor() },
                 { typeof(WhileStmt), new WhileStatementVisitor() },
+                { typeof(EmptyStmt), new EmptyStatementVisitor() },
+                { typeof(TypeDeclarationStmt), new TypeDeclarationStatementVisitor() }
             };
         }
 
@@ -69,7 +71,10 @@ namespace JavaToCSharp.Statements
             StatementVisitor visitor;
 
             if (!_visitors.TryGetValue(statement.GetType(), out visitor))
-                throw new InvalidOperationException("Statement visitor not implemented for statement type " + statement.GetType().Name);
+            {
+                var message = $"Statement visitor not implemented for statement `{statement}`, `{statement.getBegin()}` type `{statement.GetType()}`.";
+                throw new InvalidOperationException(message);
+            }
 
             return visitor.Visit(context, statement);
         }

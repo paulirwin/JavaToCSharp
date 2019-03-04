@@ -72,6 +72,10 @@ namespace JavaToCSharp
                 case "is":
                 case "as":
                 case "base":
+                case "namespace":
+                case "event":
+                case "lock":
+                case "operator":
                 case "override":
                     return name + "_renamed";
                 default:

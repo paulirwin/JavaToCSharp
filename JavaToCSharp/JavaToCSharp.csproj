@@ -174,8 +174,11 @@
     <Compile Include="ConversionState.cs" />
     <Compile Include="ConversionStateChangedEventArgs.cs" />
     <Compile Include="ConversionWarningEventArgs.cs" />
+    <Compile Include="Declarations\AnnotationDeclarationVisitor.cs" />
     <Compile Include="Declarations\BodyDeclarationVisitor.cs" />
+    <Compile Include="Declarations\ClassOrInterfaceDeclarationVisitor.cs" />
     <Compile Include="Declarations\ConstructorDeclarationVisitor.cs" />
+    <Compile Include="Declarations\EmptyMemberDeclarationVisitor.cs" />
     <Compile Include="Declarations\EnumDeclarationVisitor.cs" />
     <Compile Include="Declarations\FieldDeclarationVisitor.cs" />
     <Compile Include="Declarations\InitializerDeclarationVisitor.cs" />
@@ -196,14 +199,17 @@
     <Compile Include="Expressions\FieldAccessExpressionVisitor.cs" />
     <Compile Include="Expressions\InstanceOfExpressionVisitor.cs" />
     <Compile Include="Expressions\IntegerLiteralExpressionVisitor.cs" />
+    <Compile Include="Expressions\LambdaExpressionVisitor.cs" />
     <Compile Include="Expressions\LongLiteralExpressionVisitor.cs" />
     <Compile Include="Expressions\MethodCallExpressionVisitor.cs" />
+    <Compile Include="Expressions\MethodReferenceExpressionVisitor.cs" />
     <Compile Include="Expressions\NameExpressionVisitor.cs" />
     <Compile Include="Expressions\NullLiteralExpressionVisitor.cs" />
     <Compile Include="Expressions\ObjectCreationExpressionVisitor.cs" />
     <Compile Include="Expressions\StringLiteralExpressionVisitor.cs" />
     <Compile Include="Expressions\SuperExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpressionVisitor.cs" />
+    <Compile Include="Expressions\TypeExpressionVisitor.cs" />
     <Compile Include="Expressions\UnaryExpressionVisitor.cs" />
     <Compile Include="IKVMHelpers.cs" />
     <Compile Include="JavaConversionOptions.cs" />
@@ -215,6 +221,7 @@
     <Compile Include="Statements\BreakStatementVisitor.cs" />
     <Compile Include="Statements\ContinueStatementVisitor.cs" />
     <Compile Include="Statements\DoStatementVisitor.cs" />
+    <Compile Include="Statements\EmptyStatementVisitor.cs" />
     <Compile Include="Statements\ExpressionStatementVisitor.cs" />
     <Compile Include="Statements\ForEachStatementVisitor.cs" />
     <Compile Include="Statements\ForStatementVisitor.cs" />
@@ -226,6 +233,7 @@
     <Compile Include="Statements\SynchronizedStatementVisitor.cs" />
     <Compile Include="Statements\ThrowStatementVisitor.cs" />
     <Compile Include="Statements\TryStatementVisitor.cs" />
+    <Compile Include="Statements\TypeDeclarationStatementVisitor.cs" />
     <Compile Include="Statements\WhileStatementVisitor.cs" />
     <Compile Include="TypeHelper.cs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -81,7 +82,7 @@ namespace JavaToCSharp.Declarations
 
                     if (param.isVarArgs())
                         modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword));
-                    
+
                     var paramSyntax = SyntaxFactory.Parameter(
                         attributeLists: new SyntaxList<AttributeListSyntax>(),
                         modifiers: modifiers,

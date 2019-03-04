@@ -67,9 +67,11 @@ namespace JavaToCSharp.Declarations
             return fieldSyntax;
         }
 
-        public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, FieldDeclaration declaration)
+        public override MemberDeclarationSyntax VisitForInterface(ConversionContext context,
+            InterfaceDeclarationSyntax interfaceSyntax, FieldDeclaration declaration)
         {
-            throw new NotImplementedException("Need to implement diversion of static fields from interface declaration to static class");
+            // TODO: throw new NotImplementedException("Need to implement diversion of static fields from interface declaration to static class");
+            return VisitForClass(context, null, declaration);
         }
     }
 }

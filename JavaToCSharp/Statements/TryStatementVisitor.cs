@@ -23,24 +23,21 @@ namespace JavaToCSharp.Statements
             {
                 foreach (var ctch in catches)
                 {
-                    var referenceType = (ReferenceType)ctch.getParam().getType();
-                    var block = ctch.getCatchBlock();
-                    var catchStatements = block.getStmts().ToList<Statement>();
-                    var catchConverted = StatementVisitor.VisitStatements(context, catchStatements);
-                    var catchBlockSyntax = SyntaxFactory.Block(catchConverted);
-
-                    var type = TypeHelper.ConvertType(referenceType.getType().ToString());
-                    
-                    trySyn = trySyn.AddCatches(
-                        SyntaxFactory.CatchClause(
-                            SyntaxFactory.CatchDeclaration(
-                                SyntaxFactory.ParseTypeName(type),
-                                SyntaxFactory.ParseToken(ctch.getParam().getId().toString())
-                            ),
-                            filter: null,
-                            block: catchBlockSyntax
-                        )
-                    );
+                    var paramType = ctch.getParam().getType();
+                    if (paramType is UnionType)
+                    {
+                        var nodes = paramType.getChildrenNodes();
+                        foreach (var node in nodes.ToList<ReferenceType>())
+                        {
+                            var referenceTypeName = node.getType().ToString();
+                            trySyn = addCatches(context, ctch, referenceTypeName, trySyn);
+                        }
+                    }
+                    else
+                    {
+                        var referenceType = (ReferenceType)ctch.getParam().getType();
+                        trySyn = addCatches(context, ctch, referenceType.getType().ToString(), trySyn);
+                    }
                 }
             }
 
@@ -55,6 +52,29 @@ namespace JavaToCSharp.Statements
                 trySyn = trySyn.WithFinally(SyntaxFactory.FinallyClause(finallyBlockSyntax));
             }
 
+            return trySyn;
+        }
+
+        private static TryStatementSyntax addCatches(ConversionContext context, CatchClause ctch,
+            string typeName, TryStatementSyntax trySyn)
+        {
+            var block = ctch.getCatchBlock();
+            var catchStatements = block.getStmts().ToList<Statement>();
+            var catchConverted = StatementVisitor.VisitStatements(context, catchStatements);
+            var catchBlockSyntax = SyntaxFactory.Block(catchConverted);
+
+            var type = TypeHelper.ConvertType(typeName);
+
+            trySyn = trySyn.AddCatches(
+                SyntaxFactory.CatchClause(
+                    SyntaxFactory.CatchDeclaration(
+                        SyntaxFactory.ParseTypeName(type),
+                        SyntaxFactory.ParseToken(ctch.getParam().getId().toString())
+                    ),
+                    filter: null,
+                    block: catchBlockSyntax
+                )
+            );
             return trySyn;
         }
     }
