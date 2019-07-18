@@ -48,6 +48,9 @@ namespace JavaToCSharp.Expressions
                 { typeof(ThisExpr), new ThisExpressionVisitor() },
                 { typeof(UnaryExpr), new UnaryExpressionVisitor() },
                 { typeof(LongLiteralExpr), new LongLiteralExpressionVisitor() },
+                { typeof(LambdaExpr), new LambdaExpressionVisitor()  },
+                { typeof(MethodReferenceExpr), new MethodReferenceExpressionVisitor()  },
+                { typeof(TypeExpr), new TypeExpressionVisitor()   }
             };
         }
 
@@ -67,7 +70,10 @@ namespace JavaToCSharp.Expressions
             }
 
             if (visitor == null)
-                throw new NotImplementedException("Expression visitor not implemented for expression type " + expr.GetType().Name);
+            {
+                var message = $"Expression visitor not implemented for expression type `{expr.GetType()}`{Environment.NewLine}{expr}";
+                throw new NotImplementedException(message);
+            }
 
             return visitor.Visit(context, expr);
         }

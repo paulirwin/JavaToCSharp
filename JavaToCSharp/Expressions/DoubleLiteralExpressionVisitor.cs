@@ -12,10 +12,11 @@ namespace JavaToCSharp.Expressions
             // note: this must come before the check for StringLiteralExpr because DoubleLiteralExpr : StringLiteralExpr
             var dbl = (DoubleLiteralExpr)expr;
 
-            if (dbl.getValue().EndsWith("f", StringComparison.OrdinalIgnoreCase))
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(float.Parse(dbl.getValue().TrimEnd('f', 'F'))));
+            var value = dbl.getValue().Replace("_", string.Empty);
+            if (value.EndsWith("f", StringComparison.OrdinalIgnoreCase))
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(float.Parse(value.TrimEnd('f', 'F'))));
             else
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(double.Parse(dbl.getValue().TrimEnd('d', 'D'))));
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(double.Parse(value.TrimEnd('d', 'D'))));
         }
     }
 }

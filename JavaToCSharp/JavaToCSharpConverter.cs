@@ -5,7 +5,6 @@ using System.Text;
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
-using com.github.javaparser.ast.type;
 using JavaToCSharp.Declarations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -61,7 +60,7 @@ namespace JavaToCSharp
 
                 if (options.IncludeNamespace)
                 {
-                    string packageName = package.getName().toString();
+                    string packageName = package?.getName()?.toString() ?? "MyApp";
 
                     foreach (var packageReplacement in options.PackageReplacements)
                     {
@@ -81,7 +80,7 @@ namespace JavaToCSharp
 
                         if (classOrIntType.isInterface())
                         {
-                            var interfaceSyntax = VisitInterfaceDeclaration(context, classOrIntType, false);
+                            var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType, false);
 
                             if (options.IncludeNamespace)
                                 namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
@@ -90,7 +89,7 @@ namespace JavaToCSharp
                         }
                         else
                         {
-                            var classSyntax = VisitClassDeclaration(context, classOrIntType, false);
+                            var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType, false);
 
                             if (options.IncludeNamespace)
                                 namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
@@ -104,12 +103,12 @@ namespace JavaToCSharp
                     rootMembers.Add(namespaceSyntax);
 
                 var root = SyntaxFactory.CompilationUnit(
-                    externs: new SyntaxList<ExternAliasDirectiveSyntax>(), 
+                    externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
                     usings: SyntaxFactory.List(usings.ToArray()),
-                    attributeLists: new SyntaxList<AttributeListSyntax>(), 
+                    attributeLists: new SyntaxList<AttributeListSyntax>(),
                     members: SyntaxFactory.List<MemberDeclarationSyntax>(rootMembers))
                     .NormalizeWhitespace();
-                
+
                 var tree = SyntaxFactory.SyntaxTree(root);
 
                 options.ConversionStateChanged(ConversionState.Done);
@@ -117,146 +116,5 @@ namespace JavaToCSharp
                 return tree.GetText().ToString();
             }
         }
-
-        private static InterfaceDeclarationSyntax VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
-        {
-            string name = "I" + javai.getName();
-
-            if (!isNested)
-                context.RootTypeName = name;
-
-            context.LastTypeName = name;
-
-            var classSyntax = SyntaxFactory.InterfaceDeclaration(name);
-
-            var typeParams = javai.getTypeParameters().ToList<TypeParameter>();
-
-            if (typeParams != null && typeParams.Count > 0)
-            {
-                classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
-            }
-            
-            var mods = javai.getModifiers();
-
-            if (mods.HasFlag(Modifier.PRIVATE))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PUBLIC))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            if (mods.HasFlag(Modifier.FINAL))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
-
-            var implements = javai.getImplements().ToList<ClassOrInterfaceType>();
-
-            if (implements != null)
-            {
-                foreach (var implement in implements)
-                {
-                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
-                }
-            }
-
-            var members = javai.getMembers().ToList<BodyDeclaration>();
-
-            foreach (var member in members)
-            {
-                var syntax = BodyDeclarationVisitor.VisitBodyDeclarationForInterface(context, classSyntax, member);
-
-                classSyntax = classSyntax.AddMembers(syntax);
-            }
-
-            return classSyntax;
-        }
-
-        private static ClassDeclarationSyntax VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
-        {
-            string name = javac.getName();
-            
-            if (!isNested)
-                context.RootTypeName = name;
-            
-            context.LastTypeName = name;
-
-            var classSyntax = SyntaxFactory.ClassDeclaration(name);
-
-            var typeParams = javac.getTypeParameters().ToList<TypeParameter>();
-
-            if (typeParams != null && typeParams.Count > 0)
-            {
-                classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
-            }
-
-            var mods = javac.getModifiers();
-
-            if (mods.HasFlag(Modifier.PRIVATE))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PUBLIC))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            if (mods.HasFlag(Modifier.ABSTRACT))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
-            if (mods.HasFlag(Modifier.FINAL))
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
-
-            var extends = javac.getExtends().ToList<ClassOrInterfaceType>();
-
-            if (extends != null)
-            {
-                foreach (var extend in extends)
-                {
-                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
-                }
-            }
-
-            var implements = javac.getImplements().ToList<ClassOrInterfaceType>();
-
-            if (implements != null)
-            {
-                foreach (var implement in implements)
-                {
-                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement, true)));
-                }
-            }
-
-            var members = javac.getMembers().ToList<BodyDeclaration>();
-
-            foreach (var member in members)
-            {
-                if (member is ClassOrInterfaceDeclaration)
-                {
-                    var childc = (ClassOrInterfaceDeclaration)member;
-
-                    if (childc.isInterface())
-                    {
-                        var childInt = VisitInterfaceDeclaration(context, childc, true);
-
-                        classSyntax = classSyntax.AddMembers(childInt);
-                    }
-                    else
-                    {
-                        var childClass = VisitClassDeclaration(context, childc, true);
-
-                        classSyntax = classSyntax.AddMembers(childClass);
-                    }
-                }
-                else
-                {
-                    var syntax = BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member);
-                    classSyntax = classSyntax.AddMembers(syntax);
-                }
-
-                while (context.PendingAnonymousTypes.Count > 0)
-                {
-                    var anon = context.PendingAnonymousTypes.Dequeue();
-                    classSyntax = classSyntax.AddMembers(anon);
-                }
-            }
-
-            return classSyntax;
-        }
-   
-        
     }
 }

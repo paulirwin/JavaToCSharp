@@ -4,6 +4,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
+    /// <summary>
+    /// It's possible to have StackOverflow exception here, especially for the long long strings.
+    /// In this case just compile the code in release mode and run it outside of the debugger.
+    /// </summary>
     public class BinaryExpressionVisitor : ExpressionVisitor<BinaryExpr>
     {
         public override ExpressionSyntax Visit(ConversionContext context, BinaryExpr binaryExpr)

@@ -92,7 +92,7 @@ namespace JavaToCSharp.Expressions
             foreach (var member in anonBody)
             {
                 var memberSyntax = BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member);
-                classSyntax = classSyntax.AddMembers(memberSyntax);
+                if (memberSyntax != null) classSyntax = classSyntax.AddMembers(memberSyntax);
             }
 
             context.PendingAnonymousTypes.Enqueue(classSyntax);

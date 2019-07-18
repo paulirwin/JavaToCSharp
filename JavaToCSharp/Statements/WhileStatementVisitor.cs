@@ -15,10 +15,7 @@ namespace JavaToCSharp.Statements
             var body = whileStmt.getBody();
             var bodySyntax = StatementVisitor.VisitStatement(context, body);
 
-            if (bodySyntax == null)
-                return null;
-
-            return SyntaxFactory.WhileStatement(syntax, bodySyntax);
+            return SyntaxFactory.WhileStatement(syntax, bodySyntax ?? SyntaxFactory.EmptyStatement());
         }
     }
 }

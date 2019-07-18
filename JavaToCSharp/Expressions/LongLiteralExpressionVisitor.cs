@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,8 +9,9 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, StringLiteralExpr expr)
         {
-            var value = Convert.ToInt64(expr.toString().Trim('\"').Replace("L", String.Empty));
-
+            var data = expr.toString().Trim('\"').Replace("L", String.Empty)
+                .Replace("l", String.Empty).Replace("_", String.Empty);
+            var value = data.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Convert.ToInt64(data, 16) : Convert.ToInt64(data);
             return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
         }
     }

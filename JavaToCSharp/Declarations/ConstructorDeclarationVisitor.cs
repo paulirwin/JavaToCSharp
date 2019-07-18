@@ -21,7 +21,7 @@ namespace JavaToCSharp.Declarations
                 .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
             var mods = ctorDecl.getModifiers();
-            
+
             if (mods.HasFlag(Modifier.PUBLIC))
                 ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
             if (mods.HasFlag(Modifier.PROTECTED))
@@ -37,7 +37,8 @@ namespace JavaToCSharp.Declarations
 
                 foreach (var param in parameters)
                 {
-                    var paramSyntax = SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.ConvertIdentifierName(param.getId().toString())));
+                    var name = param.getId().toString();
+                    var paramSyntax = SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.ConvertIdentifierName(name)));
 
                     if (param.isVarArgs())
                     {
@@ -95,7 +96,7 @@ namespace JavaToCSharp.Declarations
             var statementSyntax = StatementVisitor.VisitStatements(context, statements);
 
             ctorSyntax = ctorSyntax.AddBodyStatements(statementSyntax.ToArray());
-            
+
             return ctorSyntax;
         }
 
