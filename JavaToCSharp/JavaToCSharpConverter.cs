@@ -60,7 +60,7 @@ namespace JavaToCSharp
 
                 if (options.IncludeNamespace)
                 {
-                    string packageName = package.getName().toString();
+                    string packageName = package?.getName()?.toString() ?? "MyApp";
 
                     foreach (var packageReplacement in options.PackageReplacements)
                     {
