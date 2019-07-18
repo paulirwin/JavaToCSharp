@@ -36,11 +36,14 @@ namespace JavaToCSharp.Declarations
                 { typeof(FieldDeclaration), new FieldDeclarationVisitor() },
                 { typeof(MethodDeclaration), new MethodDeclarationVisitor() },
                 { typeof(InitializerDeclaration), new InitializerDeclarationVisitor() },
+                { typeof(EmptyMemberDeclaration), new EmptyMemberDeclarationVisitor() },
+                { typeof(ClassOrInterfaceDeclaration), new ClassOrInterfaceDeclarationVisitor() },
+                { typeof(AnnotationDeclaration), new AnnotationDeclarationVisitor() },
             };
         }
 
         protected abstract MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration);
-        
+
         protected abstract MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration);
 
         public static MemberDeclarationSyntax VisitBodyDeclarationForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
@@ -48,7 +51,10 @@ namespace JavaToCSharp.Declarations
             BodyDeclarationVisitor visitor;
 
             if (!_visitors.TryGetValue(declaration.GetType(), out visitor))
-                throw new InvalidOperationException("No visitor has been implemented for body declaration type " + declaration.GetType().Name);
+            {
+                var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().begin} type `{declaration.GetType()}`.";
+                throw new InvalidOperationException(message);
+            }
 
             return visitor.VisitForClass(context, classSyntax, declaration);
         }
@@ -58,7 +64,10 @@ namespace JavaToCSharp.Declarations
             BodyDeclarationVisitor visitor;
 
             if (!_visitors.TryGetValue(declaration.GetType(), out visitor))
-                throw new InvalidOperationException("No visitor has been implemented for body declaration type " + declaration.GetType().Name);
+            {
+                var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().begin} type `{declaration.GetType()}`.";
+                throw new InvalidOperationException(message);
+            }
 
             return visitor.VisitForInterface(context, interfaceSyntax, declaration);
         }

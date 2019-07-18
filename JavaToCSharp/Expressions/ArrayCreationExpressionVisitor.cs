@@ -43,7 +43,10 @@ namespace JavaToCSharp.Expressions
                 syntaxes.Add(syntax);
             }
 
-            var initSyntax = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1)));
+            var initSyntax =
+                syntaxes.Any() ?
+                SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1))) :
+                SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression);
 
             return SyntaxFactory.ArrayCreationExpression(SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(type)), initSyntax);
         }

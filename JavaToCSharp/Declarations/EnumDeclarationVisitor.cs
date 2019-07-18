@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using Microsoft.CodeAnalysis.CSharp;
@@ -44,7 +43,7 @@ namespace JavaToCSharp.Declarations
 
         public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, EnumDeclaration declaration)
         {
-            throw new NotImplementedException("Need to implement diversion of nested enums in interfaces to non-nested.");
+            return VisitForClass(context, null, declaration);
         }
     }
 }
