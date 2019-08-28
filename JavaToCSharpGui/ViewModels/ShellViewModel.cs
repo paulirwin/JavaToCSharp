@@ -1,25 +1,22 @@
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using Caliburn.Micro;
 using JavaToCSharp;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
-using System.Windows;
-using System.Windows.Threading;
 
 namespace JavaToCSharpGui
 {
-    public class ShellViewModel : Screen, IShell 
+    public class ShellViewModel:Screen, IShell
     {
-        private readonly ObservableCollection<string> _usings = new ObservableCollection<string>(new JavaConversionOptions().Usings);
+        private readonly ObservableCollection<string> _usings = new ObservableCollection<string> (new JavaConversionOptions ( ).Usings);
         private string _addUsingInput;
         private string _javaText;
         private string _csharpText;
+        private string _fileName;
         private string _openPath;
         private string _savePath;
         private string _copiedText;
@@ -37,132 +34,148 @@ namespace JavaToCSharpGui
             _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         }
 
-        public ObservableCollection<string> Usings
-        {
-            get { return _usings; }
-        }
+        public ObservableCollection<string> Usings => _usings;
 
         public string AddUsingInput
         {
-            get { return _addUsingInput; }
+            get => _addUsingInput;
             set
             {
                 _addUsingInput = value;
-                NotifyOfPropertyChange(() => AddUsingInput);
+                NotifyOfPropertyChange (() => AddUsingInput);
             }
         }
 
         public string JavaText
         {
-            get { return _javaText; }
+            get => _javaText;
             set
             {
                 _javaText = value;
-                NotifyOfPropertyChange(() => JavaText);
+                NotifyOfPropertyChange (() => JavaText);
             }
         }
 
         public string CSharpText
         {
-            get { return _csharpText; }
+            get => _csharpText;
             set
             {
                 _csharpText = value;
-                NotifyOfPropertyChange(() => CSharpText);
+                NotifyOfPropertyChange (() => CSharpText);
+            }
+        }
+        public string FileName
+        {
+            get => _fileName;
+            set
+            {
+                _fileName = value;
+                NotifyOfPropertyChange (() => FileName);
             }
         }
 
+
         public string OpenPath
         {
-            get { return _openPath; }
+            get => _openPath;
             set
             {
                 _openPath = value;
-                NotifyOfPropertyChange(() => OpenPath);
+                NotifyOfPropertyChange (() => OpenPath);
+            }
+        }
+        public string SavePath
+        {
+            get => _savePath;
+            set
+            {
+                _savePath = value;
+                NotifyOfPropertyChange (() => SavePath);
             }
         }
 
         public string CopiedText
         {
-            get { return _copiedText; }
+            get => _copiedText;
             set
             {
                 _copiedText = value;
-                NotifyOfPropertyChange(() => CopiedText);
+                NotifyOfPropertyChange (() => CopiedText);
             }
         }
 
         public string ConversionStateLabel
         {
-            get { return _conversionState; }
+            get => _conversionState;
             set
             {
                 _conversionState = value;
-                NotifyOfPropertyChange(() => ConversionStateLabel);
+                NotifyOfPropertyChange (() => ConversionStateLabel);
             }
         }
 
         public bool IncludeUsings
         {
-            get { return _includeUsings; }
+            get => _includeUsings;
             set
             {
                 _includeUsings = value;
-                NotifyOfPropertyChange(() => IncludeUsings);
+                NotifyOfPropertyChange (() => IncludeUsings);
                 Properties.Settings.Default.UseUsingsPreference = value;
-                Properties.Settings.Default.Save();
+                Properties.Settings.Default.Save ( );
             }
         }
 
         public bool IncludeNamespace
         {
-            get { return _includeNamespace; }
+            get => _includeNamespace;
             set
             {
                 _includeNamespace = value;
-                NotifyOfPropertyChange(() => IncludeNamespace);
+                NotifyOfPropertyChange (() => IncludeNamespace);
                 Properties.Settings.Default.UseNamespacePreference = value;
-                Properties.Settings.Default.Save();
+                Properties.Settings.Default.Save ( );
             }
         }
 
         public bool UseDebugAssertForAsserts
         {
-            get { return _useDebugAssertForAsserts; }
+            get => _useDebugAssertForAsserts;
             set
             {
                 _useDebugAssertForAsserts = value;
-                NotifyOfPropertyChange(() => UseDebugAssertForAsserts);
+                NotifyOfPropertyChange (() => UseDebugAssertForAsserts);
                 Properties.Settings.Default.UseDebugAssertPreference = value;
-                Properties.Settings.Default.Save();
+                Properties.Settings.Default.Save ( );
 
-                if (value && !_usings.Contains("System.Diagnostics"))
+                if ( value && !_usings.Contains ("System.Diagnostics") )
                 {
                     _addUsingInput = "System.Diagnostics";
-                    AddUsing();
+                    AddUsing ( );
                 }
             }
         }
 
         public void AddUsing()
         {
-            _usings.Add(_addUsingInput);
+            _usings.Add (_addUsingInput);
             AddUsingInput = string.Empty;
         }
 
         public void RemoveUsing(string value)
         {
-            _usings.Remove(value);
+            _usings.Remove (value);
         }
 
         public void Convert()
         {
-            var options = new JavaConversionOptions();
-            options.ClearUsings();
+            JavaConversionOptions options = new JavaConversionOptions ( );
+            options.ClearUsings ( );
 
-            foreach (var ns in _usings)
+            foreach ( string ns in _usings )
             {
-                options.AddUsing(ns);
+                options.AddUsing (ns);
             }
 
             options.IncludeUsings = _includeUsings;
@@ -172,27 +185,27 @@ namespace JavaToCSharpGui
             options.WarningEncountered += options_WarningEncountered;
             options.StateChanged += options_StateChanged;
 
-            Task.Run(() =>
-            {
-                try
-                {
-                    var csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
+            Task.Run (() =>
+             {
+                 try
+                 {
+                     string csharp = JavaToCSharpConverter.ConvertText (JavaText, options);
 
-                    Dispatcher.CurrentDispatcher.Invoke(() => this.CSharpText = csharp);
-                }
-                catch (Exception ex)
-                {
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show("There was an error converting the text to C#: " + ex.Message);
-                    });
-                }
-            });
+                     Dispatcher.CurrentDispatcher.Invoke (() => CSharpText = csharp);
+                 }
+                 catch ( Exception ex )
+                 {
+                     Dispatcher.CurrentDispatcher.Invoke (() =>
+                     {
+                         MessageBox.Show ("There was an error converting the text to C#: " + ex.Message);
+                     });
+                 }
+             });
         }
 
-        void options_StateChanged(object sender, ConversionStateChangedEventArgs e)
+        private void options_StateChanged(object sender, ConversionStateChangedEventArgs e)
         {
-            switch (e.NewState)
+            switch ( e.NewState )
             {
                 case ConversionState.Starting:
                     ConversionStateLabel = "Starting...";
@@ -211,42 +224,69 @@ namespace JavaToCSharpGui
             }
         }
 
-        void options_WarningEncountered(object sender, ConversionWarningEventArgs e)
+        private void options_WarningEncountered(object sender, ConversionWarningEventArgs e)
         {
-            MessageBox.Show("Java Line " + e.JavaLineNumber + ": " + e.Message, "Warning Encountered");
+            MessageBox.Show ("Java Line " + e.JavaLineNumber + ": " + e.Message, "Warning Encountered");
         }
 
         public void OpenFileDialog()
         {
-            var ofd = new OpenFileDialog();
-            ofd.Filter = "Java Files (*.java)|*.java";
-            ofd.Title = "Open Java File";
-
-            var result = ofd.ShowDialog();
-
-            if (result.GetValueOrDefault())
+            OpenFileDialog ofd = new OpenFileDialog
             {
+                Filter = "Java Files (*.java)|*.java",
+                Title = "Open Java File"
+            };
+
+            bool? result = ofd.ShowDialog ( );
+
+            if ( result.GetValueOrDefault ( ) )
+            {
+                FileName = ofd.SafeFileName;
                 OpenPath = ofd.FileName;
-                JavaText = File.ReadAllText(ofd.FileName);
+                JavaText = File.ReadAllText (ofd.FileName);
             }
+        }
+
+        public void SaveFileDialog()
+        {
+
+
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                FileName = FileName.Substring (0, FileName.LastIndexOf (".")) + ".cs",
+
+                Filter = "C# File (*.cs)|*.cs",
+                Title = "Open Java File"
+            };
+            bool? result = sfd.ShowDialog ( );
+
+
+
+            if ( result.GetValueOrDefault ( ) )
+            {
+
+                File.WriteAllText (sfd.FileName, CSharpText);
+            }
+
+
         }
 
         public void CopyOutput()
         {
-            Clipboard.SetText(CSharpText);
+            Clipboard.SetText (CSharpText);
 
             CopiedText = "Copied!";
 
-            Task.Run(async () =>
-            {
-                await Task.Delay(5000);
-                CopiedText = null;
-            });
+            Task.Run (async () =>
+             {
+                 await Task.Delay (5000);
+                 CopiedText = null;
+             });
         }
 
         public void ForkMeOnGitHub()
         {
-            UrlLauncher.UrlLauncher.LaunchUrl("http://www.github.com/paulirwin/javatocsharp");
+            UrlLauncher.UrlLauncher.LaunchUrl ("http://www.github.com/paulirwin/javatocsharp");
         }
     }
 }
