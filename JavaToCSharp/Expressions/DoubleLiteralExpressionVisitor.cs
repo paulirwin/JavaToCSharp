@@ -8,11 +8,12 @@ namespace JavaToCSharp.Expressions
 {
     public class DoubleLiteralExpressionVisitor : ExpressionVisitor<DoubleLiteralExpr>
     {
-        CultureInfo ci;
+        private readonly CultureInfo _cultureInfo;
+
         public DoubleLiteralExpressionVisitor()
         {
-            ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.CurrencyDecimalSeparator = ".";
+            _cultureInfo = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            _cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
         }
 
         public override ExpressionSyntax Visit(ConversionContext context, DoubleLiteralExpr expr)
@@ -22,9 +23,9 @@ namespace JavaToCSharp.Expressions
 
             var value = dbl.getValue().Replace("_", string.Empty);
             if (value.EndsWith("f", StringComparison.OrdinalIgnoreCase))
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(float.Parse(value.TrimEnd('f', 'F'), NumberStyles.Any, ci)));
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(float.Parse(value.TrimEnd('f', 'F'), NumberStyles.Any, _cultureInfo)));
             else
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(double.Parse(value.TrimEnd('d', 'D'), NumberStyles.Any, ci)));
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(double.Parse(value.TrimEnd('d', 'D'), NumberStyles.Any, _cultureInfo)));
         }
     }
 }
