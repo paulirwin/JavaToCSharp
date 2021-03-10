@@ -56,7 +56,8 @@ namespace JavaToCSharp.Declarations
                 throw new InvalidOperationException(message);
             }
 
-            return visitor.VisitForClass(context, classSyntax, declaration);
+            return visitor.VisitForClass(context, classSyntax, declaration)
+                .WithJavaComments(declaration);
         }
 
         public static MemberDeclarationSyntax VisitBodyDeclarationForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
@@ -69,7 +70,8 @@ namespace JavaToCSharp.Declarations
                 throw new InvalidOperationException(message);
             }
 
-            return visitor.VisitForInterface(context, interfaceSyntax, declaration);
+            return visitor.VisitForInterface(context, interfaceSyntax, declaration)
+                .WithJavaComments(declaration);
         }
     }
 }

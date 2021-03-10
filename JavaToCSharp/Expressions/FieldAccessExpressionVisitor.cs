@@ -16,7 +16,7 @@ namespace JavaToCSharp.Expressions
                 scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
             }
 
-            var field = TypeHelper.ConvertIdentifierName(fieldAccessExpr.getField());
+            var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getField());
 
             return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(field));
         }

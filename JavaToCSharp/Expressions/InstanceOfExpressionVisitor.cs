@@ -11,7 +11,7 @@ namespace JavaToCSharp.Expressions
             var innerExpr = expr.getExpr();
             var exprSyntax = ExpressionVisitor.VisitExpression(context, innerExpr);
 
-            var type = TypeHelper.ConvertType(expr.getType().toString());
+            var type = TypeHelper.ConvertTypeOf(expr);
 
             return SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, exprSyntax, SyntaxFactory.IdentifierName(type));
         }

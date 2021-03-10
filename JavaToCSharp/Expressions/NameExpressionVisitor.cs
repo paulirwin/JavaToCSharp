@@ -8,7 +8,7 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, NameExpr nameExpr)
         {
-            return SyntaxFactory.IdentifierName(TypeHelper.ConvertIdentifierName(nameExpr.getName()));
+            return SyntaxFactory.IdentifierName(TypeHelper.EscapeIdentifier(nameExpr.getName()));
         }
     }
 }

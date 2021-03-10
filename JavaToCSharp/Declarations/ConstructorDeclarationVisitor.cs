@@ -38,16 +38,16 @@ namespace JavaToCSharp.Declarations
                 foreach (var param in parameters)
                 {
                     var name = param.getId().toString();
-                    var paramSyntax = SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.ConvertIdentifierName(name)));
+                    var paramSyntax = SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(name)));
 
                     if (param.isVarArgs())
                     {
-                        paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(TypeHelper.ConvertType(param.getType().toString()) + "[]"))
+                        paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(param) + "[]"))
                             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)));
                     }
                     else
                     {
-                        paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(TypeHelper.ConvertType(param.getType().toString())));
+                        paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(param)));
                     }
 
                     paramSyntaxes.Add(paramSyntax);
@@ -68,19 +68,10 @@ namespace JavaToCSharp.Declarations
 
                 ArgumentListSyntax argsSyntax = null;
 
-                var initargs = ctorInvStmt.getArgs().ToList<Expression>();
-
-                if (initargs != null && initargs.Count > 0)
+                var initargs = ctorInvStmt.getArgs();
+                if (initargs != null && initargs.size() > 0)
                 {
-                    var initargslist = new List<ArgumentSyntax>();
-
-                    foreach (var arg in initargs)
-                    {
-                        var argsyn = ExpressionVisitor.VisitExpression(context, arg);
-                        initargslist.Add(SyntaxFactory.Argument(argsyn));
-                    }
-
-                    argsSyntax = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(initargslist, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), initargslist.Count - 1)));
+                    argsSyntax = TypeHelper.GetSyntaxFromArguments(context, initargs);
                 }
 
                 ConstructorInitializerSyntax ctorinitsyn;

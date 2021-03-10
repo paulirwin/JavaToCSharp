@@ -98,6 +98,9 @@ ipch/
 _ReSharper*/
 *.[Rr]e[Ss]harper
 
+# DevExpress CodeRush
+.cr/
+
 # TeamCity is a build add-in
 _TeamCity*
 

@@ -15,6 +15,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -189,6 +190,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommentsHelper.cs" />
     <Compile Include="ConversionContext.cs" />
     <Compile Include="ConversionState.cs" />
     <Compile Include="ConversionStateChangedEventArgs.cs" />
@@ -230,7 +232,7 @@
     <Compile Include="Expressions\ThisExpressionVisitor.cs" />
     <Compile Include="Expressions\TypeExpressionVisitor.cs" />
     <Compile Include="Expressions\UnaryExpressionVisitor.cs" />
-    <Compile Include="IKVMHelpers.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="JavaConversionOptions.cs" />
     <Compile Include="JavaToCSharpConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -254,7 +256,9 @@
     <Compile Include="Statements\TryStatementVisitor.cs" />
     <Compile Include="Statements\TypeDeclarationStatementVisitor.cs" />
     <Compile Include="Statements\WhileStatementVisitor.cs" />
+    <Compile Include="SanitizingSyntaxRewriter.cs" />
     <Compile Include="TypeHelper.cs" />
+    <Compile Include="TypeNameParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

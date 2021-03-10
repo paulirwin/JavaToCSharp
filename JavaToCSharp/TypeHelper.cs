@@ -1,47 +1,62 @@
-﻿using System.Linq;
-using com.github.javaparser.ast.type;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using JavaToCSharp.Expressions;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ast = com.github.javaparser.ast;
 
 namespace JavaToCSharp
 {
     public static class TypeHelper
     {
+        private static readonly Dictionary<string, string> _typeNameConversions = new() {
+            // Simple types
+            ["boolean"] = "bool",
+            ["Boolean"] = "bool",
+            ["ICloseable"] = "IDisposable",
+            ["Integer"] = "int",
+            ["String"] = "string",
+
+            // Generic types
+            ["ArrayList"] = "List",
+            ["List"] = "IList",
+
+            // Exceptions
+            ["AlreadyClosedException"] = "ObjectDisposedException",
+            ["Error"] = "Exception",
+            ["IllegalArgumentException"] = "ArgumentException",
+            ["IllegalStateException"] = "InvalidOperationException",
+            ["UnsupportedOperationException"] = "NotSupportedException",
+            ["RuntimeException"] = "Exception",
+        };
+
+        public static string ConvertTypeOf(ast.nodeTypes.NodeWithType typedNode)
+        {
+            return ConvertType(typedNode.getType().toString());
+        }
+
+        public static string ConvertType(ast.type.Type type)
+        {
+            return ConvertType(type.toString());
+        }
+
         public static string ConvertType(string typeName)
         {
-            switch (typeName)
-            {
-                case "RuntimeException":
-                case "Error":
-                    return "Exception";
-                case "Integer":
-                    return "int";
-                case "boolean":
-                case "Boolean":
-                    return "bool";
-                case "String":
-                    return "string";
-                case "UnsupportedOperationException":
-                    return "NotSupportedException";
-                case "IllegalArgumentException":
-                    return "ArgumentException";
-                case "ICloseable":
-                    return "IDisposable";
-                case "AlreadyClosedException":
-                    return "ObjectDisposedException";
-                case "IllegalStateException":
-                    return "InvalidOperationException";
-                default:
-                    return typeName;
-            }
+            return TypeNameParser.ParseTypeName(typeName, s => {
+                if (_typeNameConversions.TryGetValue(s, out string converted)) {
+                    return converted;
+                }
+                return s;
+            });
         }
 
         public static string Capitalize(string name)
         {
             var parts = name.Split('.');
 
-            var joined = string.Join(".", parts.Select(i =>
-            {
+            var joined = string.Join(".", parts.Select(i => {
                 if (i.Length == 1)
                     return i.ToUpper();
                 else
@@ -51,10 +66,10 @@ namespace JavaToCSharp
             return joined;
         }
 
-        public static string ConvertIdentifierName(string name)
+        public static string EscapeIdentifier(string name)
         {
-            switch (name)
-            {
+            // @ (C# Reference): https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
+            switch (name) {
                 case "string":
                 case "ref":
                 case "object":
@@ -77,7 +92,7 @@ namespace JavaToCSharp
                 case "lock":
                 case "operator":
                 case "override":
-                    return name + "_renamed";
+                    return "@" + name;
                 default:
                     return name;
             }
@@ -85,8 +100,7 @@ namespace JavaToCSharp
 
         public static string ReplaceCommonMethodNames(string name)
         {
-            switch (name.ToLower())
-            {
+            switch (name.ToLower()) {
                 case "hashcode":
                     return "GetHashCode";
                 case "getclass":
@@ -96,30 +110,117 @@ namespace JavaToCSharp
             }
         }
 
-        public static TypeSyntax GetSyntaxFromType(ClassOrInterfaceType type, bool addI = false)
+        public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type, bool addI = false)
         {
             string typeName = type.getName();
 
-            if (addI)
-                typeName = "I" + typeName;
-
+            string originalTypeName = typeName;
             typeName = ConvertType(typeName);
+            if (addI && typeName == originalTypeName)
+                typeName = "I" + typeName;
 
             var typeArgs = type.getTypeArgs().ToList<com.github.javaparser.ast.type.Type>();
 
             TypeSyntax typeSyntax;
 
-            if (typeArgs != null && typeArgs.Count > 0)
-            {
+            if (typeArgs != null && typeArgs.Count > 0) {
                 typeSyntax = SyntaxFactory.GenericName(typeName)
-                    .AddTypeArgumentListArguments(typeArgs.Select(i => SyntaxFactory.ParseTypeName(i.toString())).ToArray());
-            }
-            else
-            {
+                    .AddTypeArgumentListArguments(typeArgs.Select(t => SyntaxFactory.ParseTypeName(ConvertType(t))).ToArray());
+            } else {
                 typeSyntax = SyntaxFactory.ParseTypeName(typeName);
             }
 
             return typeSyntax;
+        }
+
+        public static ArgumentListSyntax GetSyntaxFromArguments(ConversionContext context, java.util.List args)
+        {
+            return SyntaxFactory.ArgumentList(GetSeparatedListFromArguments(context, args));
+        }
+
+        private static SeparatedSyntaxList<ArgumentSyntax> GetSeparatedListFromArguments(ConversionContext context, java.util.List args)
+        {
+            return GetSeparatedListFromArguments(context, args.OfType<ast.expr.Expression>());
+        }
+
+        private static SeparatedSyntaxList<ArgumentSyntax> GetSeparatedListFromArguments(ConversionContext context, IEnumerable<ast.expr.Expression> args)
+        {
+            var argSyntaxes = new List<ArgumentSyntax>();
+
+            foreach (var arg in args) {
+                var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
+                argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
+            }
+
+            var separators = Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1);
+            return SyntaxFactory.SeparatedList(argSyntaxes, separators);
+        }
+
+        /// <summary>
+        /// Transforms method calls into property and indexer accesses where appropriate.
+        /// </summary>
+        /// <param name="context">The conversion context.</param>
+        /// <param name="methodCallExpr">The <c>MethodCallExpr</c> to be transformed.</param>
+        /// <param name="transformedSyntax">The resulting transformed syntax.</param>
+        /// <returns><c>true</c> if the syntax was transformed, <c>false</c> otherwise</returns>
+        public static bool TryTransformMethodCall(ConversionContext context, ast.expr.MethodCallExpr methodCallExpr,
+            out ExpressionSyntax transformedSyntax)
+        {
+            if (methodCallExpr.getScope() is ast.expr.Expression scope) {
+                string methodName = methodCallExpr.getName();
+                var args = methodCallExpr.getArgs();
+                ExpressionSyntax scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
+
+                switch (methodName) {
+                    case "size" when args.size() == 0:
+                        transformedSyntax = ReplaceSizeByCount(scopeSyntax);
+                        return true;
+                    case "get" when args.size() == 1:
+                        transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntax, args);
+                        return true;
+                    case "set" when args.size() == 2:
+                        transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntax, args);
+                        return true;
+                }
+            }
+
+            transformedSyntax = null;
+            return false;
+
+
+            static MemberAccessExpressionSyntax ReplaceSizeByCount(ExpressionSyntax scopeSyntax)
+            {
+                // Replace   expr.Size()   by   expr.Count
+                return SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    scopeSyntax,
+                    SyntaxFactory.IdentifierName(SyntaxFactory.Identifier("Count")));
+            }
+
+            static ExpressionSyntax ReplaceGetByIndexAccess(ConversionContext context, ExpressionSyntax scopeSyntax,
+                java.util.List args)
+            {
+                // Replace   expr.Get(i)   by   expr[i]
+                return SyntaxFactory.ElementAccessExpression(
+                    scopeSyntax,
+                    SyntaxFactory.BracketedArgumentList(GetSeparatedListFromArguments(context, args))
+                );
+            }
+
+            static ExpressionSyntax ReplaceSetByIndexAccess(ConversionContext context, ExpressionSyntax scopeSyntax,
+                java.util.List args)
+            {
+                // Replace   expr.Set(i,v)   by   expr[i] = v
+                var argsList = args.ToList<ast.expr.Expression>();
+                return SyntaxFactory.AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    SyntaxFactory.ElementAccessExpression(
+                        scopeSyntax,
+                        SyntaxFactory.BracketedArgumentList(GetSeparatedListFromArguments(context, argsList.Take(1)))
+                    ).WithTrailingTrivia(SyntaxFactory.Whitespace(" ")),
+                     ExpressionVisitor.VisitExpression(context, argsList[1]).WithLeadingTrivia(SyntaxFactory.Whitespace(" "))
+                );
+            }
         }
     }
 }
