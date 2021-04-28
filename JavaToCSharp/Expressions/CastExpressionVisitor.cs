@@ -11,7 +11,7 @@ namespace JavaToCSharp.Expressions
             var expr = castExpr.getExpr();
             var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
 
-            var type = TypeHelper.ConvertType(castExpr.getType().toString());
+            var type = TypeHelper.ConvertTypeOf(castExpr);
 
             return SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(type), exprSyntax);
         }

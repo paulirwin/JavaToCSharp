@@ -15,7 +15,7 @@ namespace JavaToCSharp.Statements
             var iterableSyntax = ExpressionVisitor.VisitExpression(context, iterableExpr);
 
             var varExpr = foreachStmt.getVariable();
-            var type = TypeHelper.ConvertType(varExpr.getType().toString());
+            var type = TypeHelper.ConvertTypeOf(varExpr);
 
             var vars = varExpr.getVars()
                 .ToList<VariableDeclarator>()

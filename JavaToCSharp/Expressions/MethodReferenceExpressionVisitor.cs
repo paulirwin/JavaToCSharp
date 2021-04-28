@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,8 +12,7 @@ namespace JavaToCSharp.Expressions
             var scope = expr.getScope();
             ExpressionSyntax scopeSyntax = null;
 
-            if (scope != null)
-            {
+            if (scope != null) {
                 scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
             }
 
@@ -23,29 +21,17 @@ namespace JavaToCSharp.Expressions
 
             ExpressionSyntax methodExpression;
 
-            if (scopeSyntax == null)
-            {
+            if (scopeSyntax == null) {
                 methodExpression = SyntaxFactory.IdentifierName(methodName);
-            }
-            else
-            {
+            } else {
                 methodExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(methodName));
             }
 
-            var args = expr.getTypeArguments().getTypeArguments().ToList<Expression>();
-
-            if (args == null || args.Count == 0)
+            var args = expr.getTypeArguments().getTypeArguments();
+            if (args == null || args.size() == 0)
                 return SyntaxFactory.InvocationExpression(methodExpression);
 
-            var argSyntaxes = new List<ArgumentSyntax>();
-
-            foreach (var arg in args)
-            {
-                var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
-                argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
-            }
-
-            return SyntaxFactory.InvocationExpression(methodExpression, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(argSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))));
+            return SyntaxFactory.InvocationExpression(methodExpression, TypeHelper.GetSyntaxFromArguments(context, args));
         }
     }
 }

@@ -8,7 +8,7 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, ClassExpr expr)
         {
-            var type = TypeHelper.ConvertType(expr.getType().toString());
+            var type = TypeHelper.ConvertTypeOf(expr);
 
             return SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(type));
         }

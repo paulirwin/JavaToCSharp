@@ -26,7 +26,7 @@ namespace JavaToCSharp.Statements
                     {
                         var varExpr = init as VariableDeclarationExpr;
 
-                        var type = TypeHelper.ConvertType(varExpr.getType().toString());
+                        var type = TypeHelper.ConvertTypeOf(varExpr);
 
                         var vars = varExpr.getVars()
                             .ToList<VariableDeclarator>()

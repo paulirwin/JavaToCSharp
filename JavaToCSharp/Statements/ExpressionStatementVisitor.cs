@@ -26,7 +26,7 @@ namespace JavaToCSharp.Statements
 
         private static StatementSyntax VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
         {
-            var type = TypeHelper.ConvertType(varExpr.getType().toString());
+            var type = TypeHelper.ConvertTypeOf(varExpr);
 
             var variables = new List<VariableDeclaratorSyntax>();
 

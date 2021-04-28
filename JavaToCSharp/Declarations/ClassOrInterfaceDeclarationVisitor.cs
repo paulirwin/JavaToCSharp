@@ -66,10 +66,10 @@ namespace JavaToCSharp.Declarations
             foreach (var member in members)
             {
                 var syntax = BodyDeclarationVisitor.VisitBodyDeclarationForInterface(context, classSyntax, member);
-                if (syntax != null) classSyntax = classSyntax.AddMembers(syntax);
+                if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
             }
 
-            return classSyntax;
+            return classSyntax.WithJavaComments(javai);
         }
 
         public static ClassDeclarationSyntax VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
@@ -147,7 +147,7 @@ namespace JavaToCSharp.Declarations
                 else
                 {
                     var syntax = BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member);
-                    if (syntax != null) classSyntax = classSyntax.AddMembers(syntax);
+                    if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
                 }
 
                 while (context.PendingAnonymousTypes.Count > 0)
@@ -157,7 +157,7 @@ namespace JavaToCSharp.Declarations
                 }
             }
 
-            return classSyntax;
+            return classSyntax.WithJavaComments(javac);
         }
     }
 }

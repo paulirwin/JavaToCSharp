@@ -10,11 +10,14 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, MethodCallExpr methodCallExpr)
         {
+            if (TypeHelper.TryTransformMethodCall(context, methodCallExpr, out var transformedSyntax)) {
+                return transformedSyntax;
+            }
+
             var scope = methodCallExpr.getScope();
             ExpressionSyntax scopeSyntax = null;
 
-            if (scope != null)
-            {
+            if (scope != null) {
                 scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
             }
 
@@ -23,29 +26,17 @@ namespace JavaToCSharp.Expressions
 
             ExpressionSyntax methodExpression;
 
-            if (scopeSyntax == null)
-            {
+            if (scopeSyntax == null) {
                 methodExpression = SyntaxFactory.IdentifierName(methodName);
-            }
-            else
-            {
+            } else {
                 methodExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(methodName));
             }
 
-            var args = methodCallExpr.getArgs().ToList<Expression>();
-
-            if (args == null || args.Count == 0)
+            var args = methodCallExpr.getArgs();
+            if (args == null || args.size() == 0)
                 return SyntaxFactory.InvocationExpression(methodExpression);
 
-            var argSyntaxes = new List<ArgumentSyntax>();
-
-            foreach (var arg in args)
-            {
-                var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
-                argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
-            }
-
-            return SyntaxFactory.InvocationExpression(methodExpression, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(argSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), argSyntaxes.Count - 1))));
+            return SyntaxFactory.InvocationExpression(methodExpression, TypeHelper.GetSyntaxFromArguments(context, args));
         }
     }
 }

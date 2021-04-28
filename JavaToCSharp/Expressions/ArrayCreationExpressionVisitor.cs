@@ -10,7 +10,7 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
         {
-            var type = TypeHelper.ConvertType(expr.getType().toString());
+            var type = TypeHelper.ConvertTypeOf(expr);
 
             var rankDimensions = expr.getDimensions().ToList<Expression>();
 
