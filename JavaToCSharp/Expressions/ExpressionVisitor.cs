@@ -10,10 +10,7 @@ namespace JavaToCSharp.Expressions
     {
         public abstract ExpressionSyntax Visit(ConversionContext context, T expr);
 
-        protected sealed override ExpressionSyntax Visit(ConversionContext context, Expression expr)
-        {
-            return Visit(context, (T)expr);
-        }
+        protected sealed override ExpressionSyntax Visit(ConversionContext context, Expression expr) => Visit(context, (T)expr);
     }
 
     public abstract class ExpressionVisitor
@@ -62,20 +59,18 @@ namespace JavaToCSharp.Expressions
                 return null;
 
             ExpressionVisitor visitor = null;
-            Type t = expr.GetType();
+            var t = expr.GetType();
 
             while (t != null && !_visitors.TryGetValue(t, out visitor))
             {
                 t = t.BaseType;
             }
 
-            if (visitor == null)
-            {
-                var message = $"Expression visitor not implemented for expression type `{expr.GetType()}`{Environment.NewLine}{expr}";
-                throw new NotImplementedException(message);
-            }
+            if (visitor != null) 
+                return visitor.Visit(context, expr);
 
-            return visitor.Visit(context, expr);
+            var message = $"Expression visitor not implemented for expression type `{expr.GetType()}`{Environment.NewLine}{expr}";
+            throw new NotImplementedException(message);
         }
     }
 }

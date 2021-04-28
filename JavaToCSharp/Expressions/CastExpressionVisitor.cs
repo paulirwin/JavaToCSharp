@@ -9,7 +9,7 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, CastExpr castExpr)
         {
             var expr = castExpr.getExpr();
-            var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
+            var exprSyntax = VisitExpression(context, expr);
 
             var type = TypeHelper.ConvertTypeOf(castExpr);
 

@@ -35,7 +35,7 @@ namespace JavaToCSharp.Declarations
 
             var typeParams = javai.getTypeParameters().ToList<TypeParameter>();
 
-            if (typeParams != null && typeParams.Count > 0)
+            if (typeParams is {Count: > 0})
             {
                 classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
             }
@@ -65,7 +65,7 @@ namespace JavaToCSharp.Declarations
 
             foreach (var member in members)
             {
-                var syntax = BodyDeclarationVisitor.VisitBodyDeclarationForInterface(context, classSyntax, member);
+                var syntax = VisitBodyDeclarationForInterface(context, classSyntax, member);
                 if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
             }
 
@@ -85,7 +85,7 @@ namespace JavaToCSharp.Declarations
 
             var typeParams = javac.getTypeParameters().ToList<TypeParameter>();
 
-            if (typeParams != null && typeParams.Count > 0)
+            if (typeParams is {Count: > 0})
             {
                 classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
             }
@@ -127,26 +127,24 @@ namespace JavaToCSharp.Declarations
 
             foreach (var member in members)
             {
-                if (member is ClassOrInterfaceDeclaration)
+                if (member is ClassOrInterfaceDeclaration childType)
                 {
-                    var childc = (ClassOrInterfaceDeclaration)member;
-
-                    if (childc.isInterface())
+                    if (childType.isInterface())
                     {
-                        var childInt = VisitInterfaceDeclaration(context, childc, true);
+                        var childInt = VisitInterfaceDeclaration(context, childType, true);
 
                         classSyntax = classSyntax.AddMembers(childInt);
                     }
                     else
                     {
-                        var childClass = VisitClassDeclaration(context, childc, true);
+                        var childClass = VisitClassDeclaration(context, childType, true);
 
                         classSyntax = classSyntax.AddMembers(childClass);
                     }
                 }
                 else
                 {
-                    var syntax = BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member);
+                    var syntax = VisitBodyDeclarationForClass(context, classSyntax, member);
                     if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
                 }
 

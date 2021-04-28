@@ -9,8 +9,12 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, StringLiteralExpr expr)
         {
-            var data = expr.toString().Trim('\"').Replace("L", String.Empty)
-                .Replace("l", String.Empty).Replace("_", String.Empty);
+            var data = expr.toString()
+                .Trim('\"')
+                .Replace("L", string.Empty)
+                .Replace("l", string.Empty)
+                .Replace("_", string.Empty);
+
             var value = data.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Convert.ToInt64(data, 16) : Convert.ToInt64(data);
             return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
         }

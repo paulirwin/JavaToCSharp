@@ -18,14 +18,13 @@ namespace JavaToCSharp.Expressions
 
         public override ExpressionSyntax Visit(ConversionContext context, DoubleLiteralExpr expr)
         {
-            // note: this must come before the check for StringLiteralExpr because DoubleLiteralExpr : StringLiteralExpr
-            var dbl = (DoubleLiteralExpr)expr;
+            var value = expr.getValue().Replace("_", string.Empty);
+            
+            var literalSyntax = value.EndsWith("f", StringComparison.OrdinalIgnoreCase) 
+                ? SyntaxFactory.Literal(float.Parse(value.TrimEnd('f', 'F'), NumberStyles.Any, _cultureInfo)) 
+                : SyntaxFactory.Literal(double.Parse(value.TrimEnd('d', 'D'), NumberStyles.Any, _cultureInfo));
 
-            var value = dbl.getValue().Replace("_", string.Empty);
-            if (value.EndsWith("f", StringComparison.OrdinalIgnoreCase))
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(float.Parse(value.TrimEnd('f', 'F'), NumberStyles.Any, _cultureInfo)));
-            else
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(double.Parse(value.TrimEnd('d', 'D'), NumberStyles.Any, _cultureInfo)));
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, literalSyntax);
         }
     }
 }

@@ -9,12 +9,12 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, ArrayAccessExpr expr)
         {
             var nameExpr = expr.getName();
-            var nameSyntax = ExpressionVisitor.VisitExpression(context, nameExpr);
+            var nameSyntax = VisitExpression(context, nameExpr);
 
             var indexExpr = expr.getIndex();
-            var indexSyntax = ExpressionVisitor.VisitExpression(context, indexExpr);
+            var indexSyntax = VisitExpression(context, indexExpr);
 
-            return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(new []
+            return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(new[]
             {
                 SyntaxFactory.Argument(indexSyntax)
             })));

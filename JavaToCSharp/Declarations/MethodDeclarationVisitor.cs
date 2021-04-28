@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -24,7 +23,8 @@ namespace JavaToCSharp.Declarations
             methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
             string typeParameters = methodDecl.getTypeParameters().ToString() ?? "";
-            if (typeParameters.Length > 2) {
+            if (typeParameters.Length > 2)
+            {
                 // Looks like "[T, U]". Convert to "<T, U>"
                 methodName += typeParameters.Replace('[', '<').Replace(']', '>');
             }
@@ -48,11 +48,13 @@ namespace JavaToCSharp.Declarations
             bool isOverride = false;
 
             // TODO: figure out how to check for a non-interface base type
-            if (annotations != null
-                && annotations.Count > 0) {
-                foreach (var annotation in annotations) {
+            if (annotations is {Count: > 0})
+            {
+                foreach (var annotation in annotations)
+                {
                     string name = annotation.getName().getName();
-                    if (name == "Override") {
+                    if (name == "Override")
+                    {
                         methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.OverrideKeyword));
                         isOverride = true;
                     }
@@ -69,17 +71,19 @@ namespace JavaToCSharp.Declarations
 
             var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-            if (parameters != null && parameters.Count > 0) {
+            if (parameters is {Count: > 0})
+            {
                 var paramSyntaxes = new List<ParameterSyntax>();
 
-                foreach (var param in parameters) {
+                foreach (var param in parameters)
+                {
                     string typeName = TypeHelper.ConvertTypeOf(param);
                     string identifier = TypeHelper.EscapeIdentifier(param.getId().getName());
 
                     if ((param.getId().getArrayCount() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
                         typeName += "[]";
 
-                    SyntaxTokenList modifiers = SyntaxFactory.TokenList();
+                    var modifiers = SyntaxFactory.TokenList();
 
                     if (param.isVarArgs())
                         modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword));
@@ -99,7 +103,8 @@ namespace JavaToCSharp.Declarations
 
             var block = methodDecl.getBody();
 
-            if (block == null) {
+            if (block == null)
+            {
                 // i.e. abstract method
                 methodSyntax = methodSyntax.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 
@@ -110,18 +115,18 @@ namespace JavaToCSharp.Declarations
 
             var statementSyntax = StatementVisitor.VisitStatements(context, statements);
 
-            if (mods.HasFlag(Modifier.SYNCHRONIZED)) {
-                LockStatementSyntax lockSyntax;
-                BlockSyntax lockBlock = SyntaxFactory.Block(statementSyntax);
+            if (mods.HasFlag(Modifier.SYNCHRONIZED))
+            {
+                var lockBlock = SyntaxFactory.Block(statementSyntax);
 
-                if (mods.HasFlag(Modifier.STATIC)) {
-                    lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(classSyntax.Identifier.Value.ToString())), lockBlock);
-                } else {
-                    lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.ThisExpression(), lockBlock);
-                }
+                var lockSyntax = mods.HasFlag(Modifier.STATIC) 
+                    ? SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(classSyntax.Identifier.Value.ToString())), lockBlock) 
+                    : SyntaxFactory.LockStatement(SyntaxFactory.ThisExpression(), lockBlock);
 
                 methodSyntax = methodSyntax.AddBodyStatements(lockSyntax);
-            } else {
+            }
+            else
+            {
                 methodSyntax = methodSyntax.AddBodyStatements(statementSyntax.ToArray());
             }
 
@@ -137,7 +142,8 @@ namespace JavaToCSharp.Declarations
             methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
             string typeParameters = methodDecl.getTypeParameters().ToString() ?? "";
-            if (typeParameters.Length > 2) {
+            if (typeParameters.Length > 2)
+            {
                 // Looks like "[T, U]". Convert to "<T, U>"
                 methodName += typeParameters.Replace('[', '<').Replace(']', '>');
             }
@@ -146,7 +152,8 @@ namespace JavaToCSharp.Declarations
 
             var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-            if (parameters != null && parameters.Count > 0) {
+            if (parameters is {Count: > 0})
+            {
                 var paramSyntax = parameters.Select(i =>
                     SyntaxFactory.Parameter(
                         attributeLists: new SyntaxList<AttributeListSyntax>(),

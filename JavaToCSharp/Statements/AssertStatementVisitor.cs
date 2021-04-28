@@ -21,7 +21,7 @@ namespace JavaToCSharp.Statements
                 return SyntaxFactory.ExpressionStatement(
                     SyntaxFactory.InvocationExpression(
                         SyntaxFactory.IdentifierName("Debug.Assert"),
-                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new []
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[]
                         {
                             SyntaxFactory.Argument(checkSyntax)
                         }))));

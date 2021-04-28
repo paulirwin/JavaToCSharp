@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JavaToCSharpGui.UrlLauncher
 {
@@ -24,7 +20,7 @@ namespace JavaToCSharpGui.UrlLauncher
 
             Process currentProcess = Process.GetCurrentProcess();
             IntPtr hProcessToken = default(IntPtr);
-            
+
             OpenProcessToken(currentProcess.Handle, TOKEN_ADJUST_PRIVILEGES, out hProcessToken);
 
             TOKEN_PRIVILEGES tkp = new TOKEN_PRIVILEGES();
@@ -43,8 +39,8 @@ namespace JavaToCSharpGui.UrlLauncher
             uint dwShellPID;
             GetWindowThreadProcessId(hShellWnd, out dwShellPID);
 
-            IntPtr hShellProcess = OpenProcess(ProcessAccessFlags.QueryInformation, false, (int)dwShellPID), 
-                hShellProcessToken = default(IntPtr), 
+            IntPtr hShellProcess = OpenProcess(ProcessAccessFlags.QueryInformation, false, (int)dwShellPID),
+                hShellProcessToken = default(IntPtr),
                 hPrimaryToken = default(IntPtr);
 
             OpenProcessToken(hShellProcess, (uint)0x2, out hShellProcessToken);
@@ -104,7 +100,7 @@ namespace JavaToCSharpGui.UrlLauncher
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool AdjustTokenPrivileges(IntPtr TokenHandle,
-           [MarshalAs(UnmanagedType.Bool)]bool DisableAllPrivileges,
+           [MarshalAs(UnmanagedType.Bool)] bool DisableAllPrivileges,
            ref TOKEN_PRIVILEGES NewState,
            UInt32 BufferLengthInBytes,
            ref TOKEN_PRIVILEGES PreviousState,

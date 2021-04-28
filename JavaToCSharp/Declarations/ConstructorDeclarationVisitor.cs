@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
-using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
-using JavaToCSharp.Expressions;
 using JavaToCSharp.Statements;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -31,7 +28,7 @@ namespace JavaToCSharp.Declarations
 
             var parameters = ctorDecl.getParameters().ToList<Parameter>();
 
-            if (parameters != null && parameters.Count > 0)
+            if (parameters is {Count: > 0})
             {
                 var paramSyntaxes = new List<ParameterSyntax>();
 
@@ -55,33 +52,29 @@ namespace JavaToCSharp.Declarations
 
                 ctorSyntax = ctorSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
             }
-
-            //chaws: var block = ctorDecl.getBlock();
+            
             var block = ctorDecl.getBody();
             var statements = block.getStmts().ToList<Statement>();
 
             // handle special case for constructor invocation
-            if (statements != null && statements.Count > 0 && statements[0] is ExplicitConstructorInvocationStmt)
+            if (statements is {Count: > 0} && statements[0] is ExplicitConstructorInvocationStmt)
             {
                 var ctorInvStmt = (ExplicitConstructorInvocationStmt)statements[0];
                 statements.RemoveAt(0);
 
                 ArgumentListSyntax argsSyntax = null;
 
-                var initargs = ctorInvStmt.getArgs();
-                if (initargs != null && initargs.size() > 0)
+                var initArgs = ctorInvStmt.getArgs();
+                if (initArgs != null && initArgs.size() > 0)
                 {
-                    argsSyntax = TypeHelper.GetSyntaxFromArguments(context, initargs);
+                    argsSyntax = TypeHelper.GetSyntaxFromArguments(context, initArgs);
                 }
 
-                ConstructorInitializerSyntax ctorinitsyn;
+                var constructorInitSyntax = SyntaxFactory.ConstructorInitializer(ctorInvStmt.isThis() 
+                    ? SyntaxKind.ThisConstructorInitializer 
+                    : SyntaxKind.BaseConstructorInitializer, argsSyntax);
 
-                if (ctorInvStmt.isThis())
-                    ctorinitsyn = SyntaxFactory.ConstructorInitializer(SyntaxKind.ThisConstructorInitializer, argsSyntax);
-                else
-                    ctorinitsyn = SyntaxFactory.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer, argsSyntax);
-
-                ctorSyntax = ctorSyntax.WithInitializer(ctorinitsyn);
+                ctorSyntax = ctorSyntax.WithInitializer(constructorInitSyntax);
             }
 
             var statementSyntax = StatementVisitor.VisitStatements(context, statements);

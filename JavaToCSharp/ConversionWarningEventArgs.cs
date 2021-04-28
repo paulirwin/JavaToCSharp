@@ -6,12 +6,12 @@ namespace JavaToCSharp
     {
         public ConversionWarningEventArgs(string message, int javaLineNumber)
         {
-            this.Message = message;
-            this.JavaLineNumber = javaLineNumber;
+            Message = message;
+            JavaLineNumber = javaLineNumber;
         }
 
-        public string Message { get; private set; }
+        public string Message { get; }
 
-        public int JavaLineNumber { get; private set; }
+        public int JavaLineNumber { get; }
     }
 }

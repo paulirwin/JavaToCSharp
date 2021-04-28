@@ -20,11 +20,7 @@ namespace JavaToCSharp.Expressions
 
             if (rankDimensions != null)
             {
-                foreach (var dimension in rankDimensions)
-                {
-                    var rankSyntax = ExpressionVisitor.VisitExpression(context, dimension);
-                    rankSyntaxes.Add(rankSyntax);
-                }
+                rankSyntaxes.AddRange(rankDimensions.Select(dimension => VisitExpression(context, dimension)));
             }
 
             if (initializer == null)
@@ -35,13 +31,7 @@ namespace JavaToCSharp.Expressions
 
             var values = initializer.getValues().ToList<Expression>();
 
-            var syntaxes = new List<ExpressionSyntax>();
-
-            foreach (var value in values)
-            {
-                var syntax = ExpressionVisitor.VisitExpression(context, value);
-                syntaxes.Add(syntax);
-            }
+            var syntaxes = values.Select(value => VisitExpression(context, value)).ToList();
 
             var initSyntax =
                 syntaxes.Any() ?

@@ -9,7 +9,7 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, EnclosedExpr enclosedExpr)
         {
             var expr = enclosedExpr.getInner();
-            var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
+            var exprSyntax = VisitExpression(context, expr);
 
             return SyntaxFactory.ParenthesizedExpression(exprSyntax);
         }

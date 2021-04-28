@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,19 +10,13 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayInitializerExpr expr)
         {
-            var exprs = expr.getValues().ToList<Expression>();
+            var expressions = expr.getValues().ToList<Expression>();
 
-            var syntaxes = new List<ExpressionSyntax>();
-
-            foreach (var valuexpr in exprs)
-            {
-                var syntax = ExpressionVisitor.VisitExpression(context, valuexpr);
-                syntaxes.Add(syntax);
-            }
+            var syntaxes = expressions.Select(valueExpression => VisitExpression(context, valueExpression)).ToList();
 
             return SyntaxFactory.ImplicitArrayCreationExpression(
                 SyntaxFactory.InitializerExpression(
-                    SyntaxKind.ArrayInitializerExpression, 
+                    SyntaxKind.ArrayInitializerExpression,
                     SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), Math.Max(0, syntaxes.Count - 1)))));
         }
     }

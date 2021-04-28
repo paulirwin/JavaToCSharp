@@ -8,33 +8,23 @@ namespace JavaToCSharp
     {
         public JavaConversionOptions()
         {
-            this.IncludeNamespace = true;
-            this.IncludeUsings = true;
+            IncludeNamespace = true;
+            IncludeUsings = true;
         }
-
-        private readonly IList<Replacement> _packageReplacements = new List<Replacement>();
 
         public event EventHandler<ConversionWarningEventArgs> WarningEncountered;
 
         public event EventHandler<ConversionStateChangedEventArgs> StateChanged;
-        
-        private readonly IList<string> _usings = new List<string>
+
+        public IList<Replacement> PackageReplacements { get; } = new List<Replacement>();
+
+        public IList<string> Usings { get; } = new List<string>
         {
             "System",
             "System.Collections.Generic",
             "System.Linq",
             "System.Text"
         };
-
-        public IList<Replacement> PackageReplacements
-        {
-            get { return _packageReplacements; }
-        }
-
-        public IList<string> Usings
-        {
-            get { return _usings; }
-        }
 
         public bool IncludeUsings { get; set; }
 
@@ -46,45 +36,32 @@ namespace JavaToCSharp
 
         public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
         {
-            _packageReplacements.Add(new Replacement(pattern, replacement, options));
+            PackageReplacements.Add(new Replacement(pattern, replacement, options));
 
             return this;
         }
 
         public JavaConversionOptions ClearUsings()
         {
-            _usings.Clear();
-            
+            Usings.Clear();
+
             return this;
         }
 
         public JavaConversionOptions AddUsing(string ns)
         {
-            _usings.Add(ns);
+            Usings.Add(ns);
 
             return this;
         }
 
-        internal void Warning(string message, int javaLineNumber)
-        {
-            var e = WarningEncountered;
-
-            if (e != null)
-            {
-                e(this, new ConversionWarningEventArgs(message, javaLineNumber));
-            }
-        }
+        internal void Warning(string message, int javaLineNumber) => WarningEncountered?.Invoke(this, new ConversionWarningEventArgs(message, javaLineNumber));
 
         internal void ConversionStateChanged(ConversionState newState)
         {
-            this.ConversionState = newState;
+            ConversionState = newState;
 
-            var e = StateChanged;
-
-            if (e != null)
-            {
-                e(this, new ConversionStateChangedEventArgs(newState));
-            }
+            StateChanged?.Invoke(this, new ConversionStateChangedEventArgs(newState));
         }
     }
 }

@@ -6,9 +6,9 @@ namespace JavaToCSharp
     {
         public ConversionStateChangedEventArgs(ConversionState newState)
         {
-            this.NewState = newState;
+            NewState = newState;
         }
 
-        public ConversionState NewState { get; private set; }
+        public ConversionState NewState { get; }
     }
 }

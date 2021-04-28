@@ -23,12 +23,9 @@ namespace JavaToCSharp.Statements
                 .ToArray();
 
             var body = foreachStmt.getBody();
-            var bodySyntax = StatementVisitor.VisitStatement(context, body);
+            var bodySyntax = VisitStatement(context, body);
 
-            if (bodySyntax == null)
-                return null;
-
-            return SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
+            return bodySyntax == null ? null : SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
         }
     }
 }

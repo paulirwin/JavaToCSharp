@@ -1,20 +1,16 @@
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using Caliburn.Micro;
 using JavaToCSharp;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
-using System.Windows;
-using System.Windows.Threading;
 
 namespace JavaToCSharpGui
 {
-    public class ShellViewModel : Screen, IShell 
+    public class ShellViewModel : Screen, IShell
     {
         private readonly ObservableCollection<string> _usings = new ObservableCollection<string>(new JavaConversionOptions().Usings);
         private string _addUsingInput;
@@ -197,10 +193,10 @@ namespace JavaToCSharpGui
                 case ConversionState.Starting:
                     ConversionStateLabel = "Starting...";
                     break;
-                case ConversionState.ParsingJavaAST:
+                case ConversionState.ParsingJavaAst:
                     ConversionStateLabel = "Parsing Java code...";
                     break;
-                case ConversionState.BuildingCSharpAST:
+                case ConversionState.BuildingCSharpAst:
                     ConversionStateLabel = "Building C# AST...";
                     break;
                 case ConversionState.Done:

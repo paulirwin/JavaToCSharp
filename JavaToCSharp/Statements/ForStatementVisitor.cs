@@ -22,10 +22,8 @@ namespace JavaToCSharp.Statements
             {
                 foreach (var init in inits)
                 {
-                    if (init is VariableDeclarationExpr)
+                    if (init is VariableDeclarationExpr varExpr)
                     {
-                        var varExpr = init as VariableDeclarationExpr;
-
                         var type = TypeHelper.ConvertTypeOf(varExpr);
 
                         var vars = varExpr.getVars()
@@ -51,15 +49,11 @@ namespace JavaToCSharp.Statements
 
             if (increments != null)
             {
-                foreach (var increment in increments)
-                {
-                    var incrementSyntax = ExpressionVisitor.VisitExpression(context, increment);
-                    incrementSyntaxes.Add(incrementSyntax);
-                }
+                incrementSyntaxes.AddRange(increments.Select(increment => ExpressionVisitor.VisitExpression(context, increment)));
             }
 
             var body = forStmt.getBody();
-            var bodySyntax = StatementVisitor.VisitStatement(context, body);
+            var bodySyntax = VisitStatement(context, body);
 
             if (bodySyntax == null)
                 return null;

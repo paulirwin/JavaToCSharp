@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -30,13 +29,13 @@ namespace JavaToCSharp.Declarations
                         name = name.Substring(0, name.Length - 2);
                 }
 
-                var initexpr = item.getInit();
+                var initExpr = item.getInit();
 
-                if (initexpr != null)
+                if (initExpr != null)
                 {
-                    var initsyn = ExpressionVisitor.VisitExpression(context, initexpr);
-                    var vardeclsyn = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initsyn));
-                    variables.Add(vardeclsyn);
+                    var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
+                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                    variables.Add(varDeclarationSyntax);
                 }
                 else
                     variables.Add(SyntaxFactory.VariableDeclarator(name));

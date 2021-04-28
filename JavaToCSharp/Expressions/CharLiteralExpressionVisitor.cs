@@ -6,9 +6,7 @@ namespace JavaToCSharp.Expressions
 {
     public class CharLiteralExpressionVisitor : ExpressionVisitor<CharLiteralExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(expr.toString().Trim('\'')[0]));
-        }
+        public override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr) => 
+            SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(expr.toString().Trim('\'')[0]));
     }
 }

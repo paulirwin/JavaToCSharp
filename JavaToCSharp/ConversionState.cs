@@ -3,8 +3,8 @@
     public enum ConversionState
     {
         Starting = 0,
-        ParsingJavaAST,
-        BuildingCSharpAST,
+        ParsingJavaAst,
+        BuildingCSharpAst,
         Done
     }
 }

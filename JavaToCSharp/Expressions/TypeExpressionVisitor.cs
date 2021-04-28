@@ -6,9 +6,6 @@ namespace JavaToCSharp.Expressions
 {
     public class TypeExpressionVisitor : ExpressionVisitor<TypeExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, TypeExpr expr)
-        {
-            return SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(expr));
-        }
+        public override ExpressionSyntax Visit(ConversionContext context, TypeExpr expr) => SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(expr));
     }
 }

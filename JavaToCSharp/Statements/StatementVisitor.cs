@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using com.github.javaparser.ast.stmt;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -22,7 +23,6 @@ namespace JavaToCSharp.Statements
 
         static StatementVisitor()
         {
-            // TODO: replace with MEF
             _visitors = new Dictionary<Type, StatementVisitor>
             {
                 { typeof(AssertStmt), new AssertStatementVisitor() },
@@ -48,29 +48,14 @@ namespace JavaToCSharp.Statements
 
         protected abstract StatementSyntax Visit(ConversionContext context, Statement statement);
 
-        public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement> statements)
-        {
-            if (statements == null)
-                return new List<StatementSyntax>();
-
-            var syntaxes = new List<StatementSyntax>();
-
-            foreach (var statement in statements)
-            {
-                StatementSyntax syntax = VisitStatement(context, statement);
-
-                if (syntax != null)
-                    syntaxes.Add(syntax);
-            }
-
-            return syntaxes;
-        }
+        public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement> statements) => 
+            statements == null 
+                ? new List<StatementSyntax>() 
+                : statements.Select(statement => VisitStatement(context, statement)).Where(syntax => syntax != null).ToList();
 
         public static StatementSyntax VisitStatement(ConversionContext context, Statement statement)
         {
-            StatementVisitor visitor;
-
-            if (!_visitors.TryGetValue(statement.GetType(), out visitor))
+            if (!_visitors.TryGetValue(statement.GetType(), out var visitor))
             {
                 var message = $"Statement visitor not implemented for statement `{statement}`, `{statement.getBegin()}` type `{statement.GetType()}`.";
                 throw new InvalidOperationException(message);

@@ -13,7 +13,7 @@ namespace JavaToCSharp.Statements
             var conditionSyntax = ExpressionVisitor.VisitExpression(context, condition);
 
             var body = statement.getBody();
-            var bodySyntax = StatementVisitor.VisitStatement(context, body);
+            var bodySyntax = VisitStatement(context, body);
 
             return SyntaxFactory.DoStatement(bodySyntax, conditionSyntax);
         }

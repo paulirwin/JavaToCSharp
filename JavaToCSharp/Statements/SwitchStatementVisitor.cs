@@ -26,7 +26,7 @@ namespace JavaToCSharp.Statements
                 var label = cs.getLabel();
 
                 var statements = cs.getStmts().ToList<Statement>();
-                var syntaxes = StatementVisitor.VisitStatements(context, statements);
+                var syntaxes = VisitStatements(context, statements);
 
                 if (label == null)
                 {
@@ -47,7 +47,7 @@ namespace JavaToCSharp.Statements
                 }
             }
 
-            return SyntaxFactory.SwitchStatement(selectorSyntax, SyntaxFactory.List<SwitchSectionSyntax>(caseSyntaxes));
+            return SyntaxFactory.SwitchStatement(selectorSyntax, SyntaxFactory.List(caseSyntaxes));
         }
     }
 }

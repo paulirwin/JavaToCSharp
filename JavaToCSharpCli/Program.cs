@@ -1,11 +1,6 @@
-﻿using JavaToCSharp;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using JavaToCSharp;
 
 namespace JavaToCSharpCli
 {
@@ -18,7 +13,7 @@ namespace JavaToCSharpCli
                 Console.WriteLine("Usage: JavaToCSharpCli.exe [pathToJavaFile] [pathToCsOutputFile]");
                 return;
             }
-            
+
             if (!File.Exists(args[0]))
             {
                 Console.WriteLine("Java input file doesn't exist!");

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using com.github.javaparser.ast;
+﻿using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace JavaToCSharp.Declarations
 {
@@ -15,19 +15,12 @@ namespace JavaToCSharp.Declarations
             var members = enumDecl.getMembers().ToList<BodyDeclaration>();
 
             var entries = enumDecl.getEntries().ToList<EnumConstantDeclaration>();
-            var memberSyntaxes = new List<EnumMemberDeclarationSyntax>();
 
-            foreach (var entry in entries)
-            {
-                // TODO: support "equals" value
-                memberSyntaxes.Add(SyntaxFactory.EnumMemberDeclaration(entry.getName()));
-            }
-
-            if (members != null && members.Count > 0)
+            if (members is {Count: > 0})
                 context.Options.Warning("Members found in enum " + name + " will not be ported. Check for correctness.", enumDecl.getBegin().line);
 
             var enumSyntax = SyntaxFactory.EnumDeclaration(name)
-                .AddMembers(memberSyntaxes.ToArray());
+                .AddMembers(entries.Select(entry => SyntaxFactory.EnumMemberDeclaration(entry.getName())).ToArray());
 
             var mods = enumDecl.getModifiers();
 

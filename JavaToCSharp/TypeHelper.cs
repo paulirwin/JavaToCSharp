@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis;
@@ -11,7 +10,8 @@ namespace JavaToCSharp
 {
     public static class TypeHelper
     {
-        private static readonly Dictionary<string, string> _typeNameConversions = new() {
+        private static readonly Dictionary<string, string> _typeNameConversions = new()
+        {
             // Simple types
             ["boolean"] = "bool",
             ["Boolean"] = "bool",
@@ -44,8 +44,10 @@ namespace JavaToCSharp
 
         public static string ConvertType(string typeName)
         {
-            return TypeNameParser.ParseTypeName(typeName, s => {
-                if (_typeNameConversions.TryGetValue(s, out string converted)) {
+            return TypeNameParser.ParseTypeName(typeName, s =>
+            {
+                if (_typeNameConversions.TryGetValue(s, out string converted))
+                {
                     return converted;
                 }
                 return s;
@@ -56,7 +58,8 @@ namespace JavaToCSharp
         {
             var parts = name.Split('.');
 
-            var joined = string.Join(".", parts.Select(i => {
+            var joined = string.Join(".", parts.Select(i =>
+            {
                 if (i.Length == 1)
                     return i.ToUpper();
                 else
@@ -69,7 +72,8 @@ namespace JavaToCSharp
         public static string EscapeIdentifier(string name)
         {
             // @ (C# Reference): https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
-            switch (name) {
+            switch (name)
+            {
                 case "string":
                 case "ref":
                 case "object":
@@ -100,7 +104,8 @@ namespace JavaToCSharp
 
         public static string ReplaceCommonMethodNames(string name)
         {
-            switch (name.ToLower()) {
+            switch (name.ToLower())
+            {
                 case "hashcode":
                     return "GetHashCode";
                 case "getclass":
@@ -123,10 +128,13 @@ namespace JavaToCSharp
 
             TypeSyntax typeSyntax;
 
-            if (typeArgs != null && typeArgs.Count > 0) {
+            if (typeArgs != null && typeArgs.Count > 0)
+            {
                 typeSyntax = SyntaxFactory.GenericName(typeName)
                     .AddTypeArgumentListArguments(typeArgs.Select(t => SyntaxFactory.ParseTypeName(ConvertType(t))).ToArray());
-            } else {
+            }
+            else
+            {
                 typeSyntax = SyntaxFactory.ParseTypeName(typeName);
             }
 
@@ -147,7 +155,8 @@ namespace JavaToCSharp
         {
             var argSyntaxes = new List<ArgumentSyntax>();
 
-            foreach (var arg in args) {
+            foreach (var arg in args)
+            {
                 var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
                 argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
             }
@@ -166,12 +175,14 @@ namespace JavaToCSharp
         public static bool TryTransformMethodCall(ConversionContext context, ast.expr.MethodCallExpr methodCallExpr,
             out ExpressionSyntax transformedSyntax)
         {
-            if (methodCallExpr.getScope() is ast.expr.Expression scope) {
+            if (methodCallExpr.getScope() is ast.expr.Expression scope)
+            {
                 string methodName = methodCallExpr.getName();
                 var args = methodCallExpr.getArgs();
                 ExpressionSyntax scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
 
-                switch (methodName) {
+                switch (methodName)
+                {
                     case "size" when args.size() == 0:
                         transformedSyntax = ReplaceSizeByCount(scopeSyntax);
                         return true;

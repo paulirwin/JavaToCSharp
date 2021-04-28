@@ -9,12 +9,9 @@ namespace JavaToCSharp.Statements
         public override StatementSyntax Visit(ConversionContext context, LabeledStmt labeledStmt)
         {
             var statement = labeledStmt.getStmt();
-            var syntax = StatementVisitor.VisitStatement(context, statement);
+            var syntax = VisitStatement(context, statement);
 
-            if (syntax == null)
-                return null;
-
-            return SyntaxFactory.LabeledStatement(labeledStmt.getLabel(), syntax);
+            return syntax == null ? null : SyntaxFactory.LabeledStatement(labeledStmt.getLabel(), syntax);
         }
     }
 }

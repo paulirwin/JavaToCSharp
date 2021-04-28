@@ -8,9 +8,9 @@ namespace JavaToCSharp.Statements
     {
         public override StatementSyntax Visit(ConversionContext context, BlockStmt blockStmt)
         {
-            var stmts = blockStmt.getStmts().ToList<Statement>();
+            var statements = blockStmt.getStmts().ToList<Statement>();
 
-            var syntaxes = StatementVisitor.VisitStatements(context, stmts);
+            var syntaxes = VisitStatements(context, statements);
 
             return SyntaxFactory.Block(syntaxes);
         }

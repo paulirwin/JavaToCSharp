@@ -6,9 +6,7 @@ namespace JavaToCSharp.Expressions
 {
     public class NameExpressionVisitor : ExpressionVisitor<NameExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, NameExpr nameExpr)
-        {
-            return SyntaxFactory.IdentifierName(TypeHelper.EscapeIdentifier(nameExpr.getName()));
-        }
+        public override ExpressionSyntax Visit(ConversionContext context, NameExpr nameExpr) => 
+            SyntaxFactory.IdentifierName(TypeHelper.EscapeIdentifier(nameExpr.getName()));
     }
 }

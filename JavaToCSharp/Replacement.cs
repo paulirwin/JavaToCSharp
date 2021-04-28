@@ -4,49 +4,37 @@ namespace JavaToCSharp
 {
     public class Replacement
     {
-        private readonly Regex _regex;
-        private readonly string _replacement;
-
         public Replacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
         {
-            _regex = new Regex(pattern, options);
-            _replacement = replacement;
+            Regex = new Regex(pattern, options);
+            ReplacementValue = replacement;
         }
 
-        public Regex Regex
-        {
-            get { return _regex; }
-        }
+        public Regex Regex { get; }
 
-        public string ReplacementValue
-        {
-            get { return _replacement; }
-        }
+        public string ReplacementValue { get; }
 
-        public string Replace(string input)
+        public string Replace(string input) => Regex.Replace(input, ReplacementValue);
+
+        protected bool Equals(Replacement other)
         {
-            return _regex.Replace(input, _replacement);
+            return Equals(Regex, other.Regex) && ReplacementValue == other.ReplacementValue;
         }
 
         public override bool Equals(object obj)
         {
-            Replacement r = obj as Replacement;
-
-            if (obj == null) return false;
-
-            return r.Regex.Equals(_regex) && string.Equals(r.ReplacementValue, _replacement);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Replacement) obj);
         }
 
         public override int GetHashCode()
         {
-            const int prime = 23;
-
-            int i = 17;
-
-            i += prime * _regex.GetHashCode();
-            i += prime * _replacement.GetHashCode();
-
-            return i;
+            unchecked
+            {
+                return ((Regex != null ? Regex.GetHashCode() : 0) * 397) ^ (ReplacementValue != null ? ReplacementValue.GetHashCode() : 0);
+            }
         }
     }
 }

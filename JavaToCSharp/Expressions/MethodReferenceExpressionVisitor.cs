@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using com.github.javaparser.ast.expr;
+﻿using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -12,8 +11,9 @@ namespace JavaToCSharp.Expressions
             var scope = expr.getScope();
             ExpressionSyntax scopeSyntax = null;
 
-            if (scope != null) {
-                scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
+            if (scope != null)
+            {
+                scopeSyntax = VisitExpression(context, scope);
             }
 
             var methodName = TypeHelper.Capitalize(expr.getIdentifier());
@@ -21,9 +21,12 @@ namespace JavaToCSharp.Expressions
 
             ExpressionSyntax methodExpression;
 
-            if (scopeSyntax == null) {
+            if (scopeSyntax == null)
+            {
                 methodExpression = SyntaxFactory.IdentifierName(methodName);
-            } else {
+            }
+            else
+            {
                 methodExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(methodName));
             }
 

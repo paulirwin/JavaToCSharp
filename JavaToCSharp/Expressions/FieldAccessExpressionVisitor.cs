@@ -13,7 +13,7 @@ namespace JavaToCSharp.Expressions
 
             if (scope != null)
             {
-                scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
+                scopeSyntax = VisitExpression(context, scope);
             }
 
             var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getField());

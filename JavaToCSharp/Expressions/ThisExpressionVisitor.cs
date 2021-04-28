@@ -6,9 +6,6 @@ namespace JavaToCSharp.Expressions
 {
     public class ThisExpressionVisitor : ExpressionVisitor<ThisExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, ThisExpr expr)
-        {
-            return SyntaxFactory.ThisExpression();
-        }
+        public override ExpressionSyntax Visit(ConversionContext context, ThisExpr expr) => SyntaxFactory.ThisExpression();
     }
 }

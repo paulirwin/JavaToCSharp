@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using JavaToCSharp.Declarations;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace JavaToCSharp.Expressions
 {
@@ -15,7 +15,8 @@ namespace JavaToCSharp.Expressions
         {
             var anonBody = newExpr.getAnonymousClassBody().ToList<BodyDeclaration>();
 
-            if (anonBody != null && anonBody.Count > 0) {
+            if (anonBody is {Count: > 0})
+            {
                 return VisitAnonymousClassCreationExpression(context, newExpr, anonBody);
             }
 
@@ -43,13 +44,15 @@ namespace JavaToCSharp.Expressions
             string baseTypeName = TypeHelper.ConvertType(newExpr.getType().getName());
             string anonTypeName = string.Empty;
 
-            for (int i = 0; i <= 100; i++) {
+            for (int i = 0; i <= 100; i++)
+            {
                 if (i == 100)
                     throw new InvalidOperationException("Too many anonymous types");
 
-                anonTypeName = string.Format("Anonymous{0}{1}", baseTypeName, i == 0 ? string.Empty : i.ToString());
+                anonTypeName = $"Anonymous{baseTypeName}{(i == 0 ? string.Empty : i.ToString())}";
 
-                if (!context.UsedAnonymousTypeNames.Contains(anonTypeName)) {
+                if (!context.UsedAnonymousTypeNames.Contains(anonTypeName))
+                {
                     context.UsedAnonymousTypeNames.Add(anonTypeName);
                     break; // go with this one
                 }
@@ -75,9 +78,9 @@ namespace JavaToCSharp.Expressions
 
             classSyntax = classSyntax.AddMembers(ctorSyntax, parentField);
 
-            foreach (var member in anonBody) {
-                var memberSyntax = BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member);
-                if (memberSyntax != null) classSyntax = classSyntax.AddMembers(memberSyntax);
+            foreach (var memberSyntax in anonBody.Select(member => BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member)).Where(memberSyntax => memberSyntax != null))
+            {
+                classSyntax = classSyntax.AddMembers(memberSyntax);
             }
 
             context.PendingAnonymousTypes.Enqueue(classSyntax);

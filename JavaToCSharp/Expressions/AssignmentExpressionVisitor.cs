@@ -9,10 +9,10 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, AssignExpr assignExpr)
         {
             var left = assignExpr.getTarget();
-            var leftSyntax = ExpressionVisitor.VisitExpression(context, left);
+            var leftSyntax = VisitExpression(context, left);
 
             var right = assignExpr.getValue();
-            var rightSyntax = ExpressionVisitor.VisitExpression(context, right);
+            var rightSyntax = VisitExpression(context, right);
 
             var op = assignExpr.getOperator();
             var kind = SyntaxKind.None;
@@ -44,8 +44,7 @@ namespace JavaToCSharp.Expressions
                 kind = SyntaxKind.MultiplyAssignmentExpression;
             else if (op == AssignExpr.Operator.xor)
                 kind = SyntaxKind.ExclusiveOrAssignmentExpression;
-
-            //chaws return SyntaxFactory.BinaryExpression(kind, leftSyntax, rightSyntax);
+            
             return SyntaxFactory.AssignmentExpression(kind, leftSyntax, rightSyntax);
         }
     }

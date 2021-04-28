@@ -9,10 +9,10 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, UnaryExpr unaryExpr)
         {
             var expr = unaryExpr.getExpr();
-            var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
+            var exprSyntax = VisitExpression(context, expr);
 
             var op = unaryExpr.getOperator();
-            SyntaxKind kind = SyntaxKind.None;
+            var kind = SyntaxKind.None;
             bool isPostfix = false;
 
             if (op == UnaryExpr.Operator.inverse)

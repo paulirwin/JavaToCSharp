@@ -15,10 +15,7 @@ namespace JavaToCSharp.Statements
             var body = synchronizedStmt.getBlock();
             var bodySyntax = new BlockStatementVisitor().Visit(context, body);
 
-            if (bodySyntax == null)
-                return null;
-
-            return SyntaxFactory.LockStatement(lockSyntax, bodySyntax);
+            return bodySyntax == null ? null : SyntaxFactory.LockStatement(lockSyntax, bodySyntax);
         }
     }
 }

@@ -13,13 +13,13 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, BinaryExpr binaryExpr)
         {
             var leftExpr = binaryExpr.getLeft();
-            var leftSyntax = ExpressionVisitor.VisitExpression(context, leftExpr);
+            var leftSyntax = VisitExpression(context, leftExpr);
 
             var rightExpr = binaryExpr.getRight();
-            var rightSyntax = ExpressionVisitor.VisitExpression(context, rightExpr);
+            var rightSyntax = VisitExpression(context, rightExpr);
 
             var op = binaryExpr.getOperator();
-            SyntaxKind kind = SyntaxKind.None;
+            var kind = SyntaxKind.None;
 
             if (op == BinaryExpr.Operator.and)
                 kind = SyntaxKind.LogicalAndExpression;

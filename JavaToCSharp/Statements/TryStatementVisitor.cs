@@ -12,7 +12,7 @@ namespace JavaToCSharp.Statements
             var tryBlock = tryStmt.getTryBlock();
             var tryStatements = tryBlock.getStmts().ToList<Statement>();
 
-            var tryConverted = StatementVisitor.VisitStatements(context, tryStatements);
+            var tryConverted = VisitStatements(context, tryStatements);
 
             var catches = tryStmt.getCatchs().ToList<CatchClause>();
 
@@ -21,46 +21,46 @@ namespace JavaToCSharp.Statements
 
             if (catches != null)
             {
-                foreach (var ctch in catches)
+                foreach (var catchClause in catches)
                 {
-                    var paramType = ctch.getParam().getType();
+                    var paramType = catchClause.getParam().getType();
                     if (paramType is UnionType)
                     {
                         var nodes = paramType.getChildrenNodes();
                         foreach (var node in nodes.ToList<ReferenceType>())
                         {
                             var referenceTypeName = node.getType().ToString();
-                            trySyn = addCatches(context, ctch, referenceTypeName, trySyn);
+                            trySyn = AddCatches(context, catchClause, referenceTypeName, trySyn);
                         }
                     }
                     else
                     {
-                        var referenceType = (ReferenceType)ctch.getParam().getType();
-                        trySyn = addCatches(context, ctch, referenceType.getType().ToString(), trySyn);
+                        var referenceType = (ReferenceType)catchClause.getParam().getType();
+                        trySyn = AddCatches(context, catchClause, referenceType.getType().ToString(), trySyn);
                     }
                 }
             }
 
             var finallyBlock = tryStmt.getFinallyBlock();
 
-            if (finallyBlock != null)
-            {
-                var finallyStatements = finallyBlock.getStmts().ToList<Statement>();
-                var finallyConverted = StatementVisitor.VisitStatements(context, finallyStatements);
-                var finallyBlockSyntax = SyntaxFactory.Block(finallyConverted);
+            if (finallyBlock == null)
+                return trySyn;
 
-                trySyn = trySyn.WithFinally(SyntaxFactory.FinallyClause(finallyBlockSyntax));
-            }
+            var finallyStatements = finallyBlock.getStmts().ToList<Statement>();
+            var finallyConverted = VisitStatements(context, finallyStatements);
+            var finallyBlockSyntax = SyntaxFactory.Block(finallyConverted);
+
+            trySyn = trySyn.WithFinally(SyntaxFactory.FinallyClause(finallyBlockSyntax));
 
             return trySyn;
         }
 
-        private static TryStatementSyntax addCatches(ConversionContext context, CatchClause ctch,
+        private static TryStatementSyntax AddCatches(ConversionContext context, CatchClause ctch,
             string typeName, TryStatementSyntax trySyn)
         {
             var block = ctch.getCatchBlock();
             var catchStatements = block.getStmts().ToList<Statement>();
-            var catchConverted = StatementVisitor.VisitStatements(context, catchStatements);
+            var catchConverted = VisitStatements(context, catchStatements);
             var catchBlockSyntax = SyntaxFactory.Block(catchConverted);
 
             var type = TypeHelper.ConvertType(typeName);
@@ -75,6 +75,7 @@ namespace JavaToCSharp.Statements
                     block: catchBlockSyntax
                 )
             );
+
             return trySyn;
         }
     }

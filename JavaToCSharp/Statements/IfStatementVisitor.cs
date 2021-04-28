@@ -13,7 +13,7 @@ namespace JavaToCSharp.Statements
             var conditionSyntax = ExpressionVisitor.VisitExpression(context, condition);
 
             var thenStmt = ifStmt.getThenStmt();
-            var thenSyntax = StatementVisitor.VisitStatement(context, thenStmt);
+            var thenSyntax = VisitStatement(context, thenStmt);
 
             if (thenSyntax == null)
                 return null;
@@ -23,13 +23,12 @@ namespace JavaToCSharp.Statements
             if (elseStmt == null)
                 return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);
 
-            var elseStatementSyntax = StatementVisitor.VisitStatement(context, elseStmt);
+            var elseStatementSyntax = VisitStatement(context, elseStmt);
             var elseSyntax = SyntaxFactory.ElseClause(elseStatementSyntax);
 
-            if (elseSyntax == null)
-                return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);
-
-            return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
+            return elseSyntax == null 
+                ? SyntaxFactory.IfStatement(conditionSyntax, thenSyntax) 
+                : SyntaxFactory.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
         }
     }
 }

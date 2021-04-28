@@ -13,7 +13,7 @@ namespace JavaToCSharp.Statements
             var syntax = ExpressionVisitor.VisitExpression(context, expr);
 
             var body = whileStmt.getBody();
-            var bodySyntax = StatementVisitor.VisitStatement(context, body);
+            var bodySyntax = VisitStatement(context, body);
 
             return SyntaxFactory.WhileStatement(syntax, bodySyntax ?? SyntaxFactory.EmptyStatement());
         }

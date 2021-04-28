@@ -9,14 +9,14 @@ namespace JavaToCSharp
         {
             PendingAnonymousTypes = new Queue<ClassDeclarationSyntax>();
             UsedAnonymousTypeNames = new HashSet<string>();
-            this.Options = options;
+            Options = options;
         }
 
-        public Queue<ClassDeclarationSyntax> PendingAnonymousTypes { get; private set; }
+        public Queue<ClassDeclarationSyntax> PendingAnonymousTypes { get; }
 
-        public ISet<string> UsedAnonymousTypeNames { get; private set; }
+        public ISet<string> UsedAnonymousTypeNames { get; }
 
-        public JavaConversionOptions Options { get; private set; }
+        public JavaConversionOptions Options { get; }
 
         public string RootTypeName { get; set; }
 

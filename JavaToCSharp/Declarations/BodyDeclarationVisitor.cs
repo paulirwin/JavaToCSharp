@@ -48,9 +48,7 @@ namespace JavaToCSharp.Declarations
 
         public static MemberDeclarationSyntax VisitBodyDeclarationForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
         {
-            BodyDeclarationVisitor visitor;
-
-            if (!_visitors.TryGetValue(declaration.GetType(), out visitor))
+            if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
             {
                 var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().begin} type `{declaration.GetType()}`.";
                 throw new InvalidOperationException(message);
@@ -62,9 +60,7 @@ namespace JavaToCSharp.Declarations
 
         public static MemberDeclarationSyntax VisitBodyDeclarationForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
         {
-            BodyDeclarationVisitor visitor;
-
-            if (!_visitors.TryGetValue(declaration.GetType(), out visitor))
+            if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
             {
                 var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().begin} type `{declaration.GetType()}`.";
                 throw new InvalidOperationException(message);
