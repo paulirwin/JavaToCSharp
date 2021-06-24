@@ -5,10 +5,12 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="JavaToCSharpIcon.ico" />
     <None Remove="JavaToCSharpIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="JavaToCSharpIcon.png" />
+    <Resource Include="JavaToCSharpIcon.ico" />
+    <Resource Include="JavaToCSharpIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="4.0.173" />
