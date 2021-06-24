@@ -21,11 +21,11 @@
         </ResourceDictionary>
 
     </Window.Resources>
-    <Controls:MetroWindow.WindowCommands>
+    <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button x:Name="ForkMeOnGitHub" Micro:Message.Attach="[Event Click]=[Action ForkMeOnGitHub]">fork me on GitHub</Button>
         </Controls:WindowCommands>
-    </Controls:MetroWindow.WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
@@ -57,7 +57,7 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition Width="50"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <TextBox x:Name="AddUsingInput" Margin="5,2,5,2" Controls:TextboxHelper.ClearTextButton="True"></TextBox>
+                            <TextBox x:Name="AddUsingInput" Margin="5,2,5,2" Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
                             <Button x:Name="AddUsing" Grid.Column="1" Margin="5,2,5,2">Add</Button>
                         </Grid>
                         <ListBox MinHeight="100" 

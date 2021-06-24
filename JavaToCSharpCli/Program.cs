@@ -4,9 +4,9 @@ using JavaToCSharp;
 
 namespace JavaToCSharpCli
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             if (args == null || args.Length < 2)
             {
@@ -23,11 +23,7 @@ namespace JavaToCSharpCli
             var javaText = File.ReadAllText(args[0]);
 
             // HACK for testing
-            var options = new JavaConversionOptions()
-                .AddPackageReplacement("org\\.apache\\.lucene", "Lucene.Net")
-                .AddUsing("Lucene.Net")
-                .AddUsing("Lucene.Net.Support")
-                .AddUsing("Lucene.Net.Util");
+            var options = new JavaConversionOptions();
 
             var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
 

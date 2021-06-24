@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,7 +9,7 @@ using Caliburn.Micro;
 using JavaToCSharp;
 using Microsoft.Win32;
 
-namespace JavaToCSharpGui
+namespace JavaToCSharpGui.ViewModels
 {
     public class ShellViewModel : Screen, IShell
     {
@@ -242,7 +243,11 @@ namespace JavaToCSharpGui
 
         public void ForkMeOnGitHub()
         {
-            UrlLauncher.UrlLauncher.LaunchUrl("http://www.github.com/paulirwin/javatocsharp");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "http://www.github.com/paulirwin/javatocsharp",
+                UseShellExecute = true
+            });
         }
     }
 }

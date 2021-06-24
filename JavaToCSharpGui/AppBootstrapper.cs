@@ -1,3 +1,5 @@
+using JavaToCSharpGui.ViewModels;
+
 namespace JavaToCSharpGui
 {
     using System;
@@ -10,7 +12,7 @@ namespace JavaToCSharpGui
 
         public AppBootstrapper()
         {
-            Start();
+            StartRuntime();
         }
 
         protected override void Configure()
