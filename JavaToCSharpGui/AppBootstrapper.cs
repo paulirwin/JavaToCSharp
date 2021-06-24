@@ -1,3 +1,4 @@
+using System.Linq;
 using JavaToCSharpGui.ViewModels;
 
 namespace JavaToCSharpGui
@@ -13,6 +14,19 @@ namespace JavaToCSharpGui
         public AppBootstrapper()
         {
             StartRuntime();
+        }
+
+        protected override void PrepareApplication()
+        {
+            var baseLocate = ViewLocator.LocateTypeForModelType;
+
+            ViewLocator.LocateTypeForModelType = (modelType, displayLocation, context) =>
+            {
+                var attribute = modelType.GetCustomAttributes(typeof(ViewAttribute), false).OfType<ViewAttribute>().FirstOrDefault(x => x.Context == context);
+                return attribute != null ? attribute.ViewType : baseLocate(modelType, displayLocation, context);
+            };
+
+            base.PrepareApplication();
         }
 
         protected override void Configure()

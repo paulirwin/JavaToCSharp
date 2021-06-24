@@ -7,23 +7,23 @@ using System.Windows;
 using System.Windows.Threading;
 using Caliburn.Micro;
 using JavaToCSharp;
+using JavaToCSharpGui.Views;
 using Microsoft.Win32;
 
 namespace JavaToCSharpGui.ViewModels
 {
+    [View(typeof(ShellView))]
     public class ShellViewModel : Screen, IShell
     {
-        private readonly ObservableCollection<string> _usings = new ObservableCollection<string>(new JavaConversionOptions().Usings);
         private string _addUsingInput;
         private string _javaText;
         private string _csharpText;
         private string _openPath;
-        private string _savePath;
         private string _copiedText;
         private string _conversionState;
         private bool _includeUsings = true;
         private bool _includeNamespace = true;
-        private bool _useDebugAssertForAsserts = false;
+        private bool _useDebugAssertForAsserts;
 
         public ShellViewModel()
         {
@@ -34,14 +34,11 @@ namespace JavaToCSharpGui.ViewModels
             _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         }
 
-        public ObservableCollection<string> Usings
-        {
-            get { return _usings; }
-        }
+        public ObservableCollection<string> Usings { get; } = new(new JavaConversionOptions().Usings);
 
         public string AddUsingInput
         {
-            get { return _addUsingInput; }
+            get => _addUsingInput;
             set
             {
                 _addUsingInput = value;
@@ -51,7 +48,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public string JavaText
         {
-            get { return _javaText; }
+            get => _javaText;
             set
             {
                 _javaText = value;
@@ -61,7 +58,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public string CSharpText
         {
-            get { return _csharpText; }
+            get => _csharpText;
             set
             {
                 _csharpText = value;
@@ -71,7 +68,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public string OpenPath
         {
-            get { return _openPath; }
+            get => _openPath;
             set
             {
                 _openPath = value;
@@ -81,7 +78,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public string CopiedText
         {
-            get { return _copiedText; }
+            get => _copiedText;
             set
             {
                 _copiedText = value;
@@ -91,7 +88,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public string ConversionStateLabel
         {
-            get { return _conversionState; }
+            get => _conversionState;
             set
             {
                 _conversionState = value;
@@ -101,7 +98,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public bool IncludeUsings
         {
-            get { return _includeUsings; }
+            get => _includeUsings;
             set
             {
                 _includeUsings = value;
@@ -113,7 +110,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public bool IncludeNamespace
         {
-            get { return _includeNamespace; }
+            get => _includeNamespace;
             set
             {
                 _includeNamespace = value;
@@ -125,7 +122,7 @@ namespace JavaToCSharpGui.ViewModels
 
         public bool UseDebugAssertForAsserts
         {
-            get { return _useDebugAssertForAsserts; }
+            get => _useDebugAssertForAsserts;
             set
             {
                 _useDebugAssertForAsserts = value;
@@ -133,7 +130,7 @@ namespace JavaToCSharpGui.ViewModels
                 Properties.Settings.Default.UseDebugAssertPreference = value;
                 Properties.Settings.Default.Save();
 
-                if (value && !_usings.Contains("System.Diagnostics"))
+                if (value && !Usings.Contains("System.Diagnostics"))
                 {
                     _addUsingInput = "System.Diagnostics";
                     AddUsing();
@@ -143,13 +140,13 @@ namespace JavaToCSharpGui.ViewModels
 
         public void AddUsing()
         {
-            _usings.Add(_addUsingInput);
+            Usings.Add(_addUsingInput);
             AddUsingInput = string.Empty;
         }
 
         public void RemoveUsing(string value)
         {
-            _usings.Remove(value);
+            Usings.Remove(value);
         }
 
         public void Convert()
@@ -157,7 +154,7 @@ namespace JavaToCSharpGui.ViewModels
             var options = new JavaConversionOptions();
             options.ClearUsings();
 
-            foreach (var ns in _usings)
+            foreach (string ns in Usings)
             {
                 options.AddUsing(ns);
             }
@@ -166,8 +163,8 @@ namespace JavaToCSharpGui.ViewModels
             options.IncludeNamespace = _includeNamespace;
             options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
 
-            options.WarningEncountered += options_WarningEncountered;
-            options.StateChanged += options_StateChanged;
+            options.WarningEncountered += Options_WarningEncountered;
+            options.StateChanged += Options_StateChanged;
 
             Task.Run(() =>
             {
@@ -187,7 +184,7 @@ namespace JavaToCSharpGui.ViewModels
             });
         }
 
-        void options_StateChanged(object sender, ConversionStateChangedEventArgs e)
+        private void Options_StateChanged(object sender, ConversionStateChangedEventArgs e)
         {
             switch (e.NewState)
             {
@@ -208,16 +205,18 @@ namespace JavaToCSharpGui.ViewModels
             }
         }
 
-        void options_WarningEncountered(object sender, ConversionWarningEventArgs e)
+        private static void Options_WarningEncountered(object sender, ConversionWarningEventArgs e)
         {
             MessageBox.Show("Java Line " + e.JavaLineNumber + ": " + e.Message, "Warning Encountered");
         }
 
         public void OpenFileDialog()
         {
-            var ofd = new OpenFileDialog();
-            ofd.Filter = "Java Files (*.java)|*.java";
-            ofd.Title = "Open Java File";
+            var ofd = new OpenFileDialog
+            {
+                Filter = "Java Files (*.java)|*.java", 
+                Title = "Open Java File"
+            };
 
             var result = ofd.ShowDialog();
 

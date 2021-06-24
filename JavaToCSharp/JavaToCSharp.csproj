@@ -5,6 +5,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="IKVM" Version="8.1.5717" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0-1.final" />
   </ItemGroup>

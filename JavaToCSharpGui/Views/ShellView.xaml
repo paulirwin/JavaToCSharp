@@ -1,4 +1,4 @@
-<Controls:MetroWindow x:Class="JavaToCSharpGui.ShellView"
+<Controls:MetroWindow x:Class="JavaToCSharpGui.Views.ShellView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Micro="http://www.caliburnproject.org"

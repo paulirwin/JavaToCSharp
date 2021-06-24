@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaToCSharp", "JavaToCSharp\JavaToCSharp.csproj", "{EDCE2F7C-299E-4FEA-870F-87C201FB2E43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaToCSharp", "JavaToCSharp\JavaToCSharp.csproj", "{EDCE2F7C-299E-4FEA-870F-87C201FB2E43}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{7A18D136-8A66-4B98-8D8E-9C210E0C8D2D}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,9 +11,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{7A18D136-8A6
 		Lib\javaparser-core-3.0.0-SNAPSHOT.jar = Lib\javaparser-core-3.0.0-SNAPSHOT.jar
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaToCSharpCli", "JavaToCSharpCli\JavaToCSharpCli.csproj", "{8C56AE52-8E0F-438F-9B5B-87B891D70861}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaToCSharpCli", "JavaToCSharpCli\JavaToCSharpCli.csproj", "{8C56AE52-8E0F-438F-9B5B-87B891D70861}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaToCSharpGui", "JavaToCSharpGui\JavaToCSharpGui.csproj", "{DAA3F412-0460-40C3-98F7-3244649820F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaToCSharpGui", "JavaToCSharpGui\JavaToCSharpGui.csproj", "{DAA3F412-0460-40C3-98F7-3244649820F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E8E0DCFE-ED61-442C-9F4B-36433D6949DF}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
