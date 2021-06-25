@@ -1,0 +1,2 @@
+dotnet publish ../JavaToCSharpGui/JavaToCSharpGui.csproj -c Release -r win10-x64 --self-contained true -o ../publish/gui/
+dotnet publish ../JavaToCSharpCli/JavaToCSharpCli.csproj -c Release -r win10-x64 --self-contained true -o ../publish/cli/
