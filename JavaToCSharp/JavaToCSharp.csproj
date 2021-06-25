@@ -4,6 +4,11 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <Authors>Paul Irwin</Authors>
+    <Description>A Java to C# converter.</Description>
+    <Copyright>Copyright 2021, Paul Irwin</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/paulirwin/JavaToCSharp</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
@@ -16,5 +21,11 @@
     <Reference Include="javaparser-core-3.0.0-SNAPSHOT">
       <HintPath>..\Lib\javaparser-core-3.0.0-SNAPSHOT.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Lib\javaparser-core-3.0.0-SNAPSHOT.dll">
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </Content>
   </ItemGroup>
 </Project>
