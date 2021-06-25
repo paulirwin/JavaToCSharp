@@ -14,11 +14,21 @@ namespace JavaToCSharp.Expressions
         {
             var bodyStatement = expr.getBody();
             var bodyStatementSyntax = StatementVisitor.VisitStatement(context, bodyStatement);
-            var lambdaExpressionSyntax = SyntaxFactory.ParenthesizedLambdaExpression(bodyStatementSyntax);
+            
+            ParenthesizedLambdaExpressionSyntax lambdaExpressionSyntax;
+
+            if (bodyStatementSyntax is ExpressionStatementSyntax ess)
+            {
+                lambdaExpressionSyntax = SyntaxFactory.ParenthesizedLambdaExpression(ess.Expression);
+            }
+            else
+            {
+                lambdaExpressionSyntax = SyntaxFactory.ParenthesizedLambdaExpression(bodyStatementSyntax);
+            }
 
             var parameters = expr.getParameters().ToList<Parameter>();
 
-            if (parameters is not {Count: > 0}) 
+            if (parameters is not { Count: > 0 })
                 return lambdaExpressionSyntax;
 
             var paramSyntaxes = new List<ParameterSyntax>();
