@@ -1,12 +1,10 @@
 Java to C# Converter
 ====================
 
-Java to C# converter, work in progress. Uses javaparser with 1.7 
+Java to C# converter. Uses javaparser with Java 8 
 support from https://github.com/before/javaparser, IKVM.NET to 
-convert the javaparser .jar into a .NET .dll, and the Roslyn CTP
-for C# AST generation. 
+convert the javaparser .jar into a .NET .dll, and Roslyn for C# AST generation. 
 
-This was a quick hack only, it is still very much a work in progress.
 Pull requests and issue submission welcome.
 
 Getting Started
@@ -19,6 +17,8 @@ minutes on large files.
 
 Alternatively, launch the command line (Cli) version to process files
 from the command line.
+
+The core library is installable via NuGet at https://www.nuget.org/packages/JavaToCSharp/
 
 License for JavaParser
 ======================
