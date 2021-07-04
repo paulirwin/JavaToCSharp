@@ -8,25 +8,19 @@ namespace TypeHelperTests
         [Fact]
         public void ConvertType_Int()
         {
-            string typeName = "int";
-            string type = TypeHelper.ConvertType(typeName);
-            Assert.Equal("int", type);
+            Assert.Equal("int", TypeHelper.ConvertType("int"));
         }
 
         [Fact]
         public void ConvertType_String()
         {
-            string typeName = "string";
-            string type = TypeHelper.ConvertType(typeName);
-            Assert.Equal("string", type);
+            Assert.Equal("string", TypeHelper.ConvertType("string"));
         }
 
         [Fact]
         public void ConvertType_IntArray_BracketsAfterType()
         {
-            string typeName = "int[]";
-            string type = TypeHelper.ConvertType(typeName);
-            Assert.Equal("int[]", type);
+            Assert.Equal("int[]", TypeHelper.ConvertType("int[]"));
         }
     }
 }
