@@ -18,6 +18,7 @@ namespace JavaToCSharp
             ["ICloseable"] = "IDisposable",
             ["Integer"] = "int",
             ["String"] = "string",
+            ["Object"] = "object",
 
             // Generic types
             ["ArrayList"] = "List",

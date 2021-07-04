@@ -14,7 +14,13 @@ namespace TypeHelperTests
         [Fact]
         public void ConvertType_String()
         {
-            Assert.Equal("string", TypeHelper.ConvertType("string"));
+            Assert.Equal("string", TypeHelper.ConvertType("String"));
+        }
+
+        [Fact]
+        public void ConvertType_Object()
+        {
+            Assert.Equal("object", TypeHelper.ConvertType("Object"));
         }
 
         [Fact]
