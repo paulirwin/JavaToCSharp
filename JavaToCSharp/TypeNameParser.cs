@@ -121,11 +121,16 @@ namespace JavaToCSharp
             // TypeArgument = [ "?" [ "extends" | "super" ] ] TypeName.
             if (_token.type is TokenType.QuestionMark)
             {
-                // C# does not have this. Ignore. We could fix it by replacing IList<T> by IList for example.
+                _sb.Append("TWildcardTodo");
                 NextToken();
+
                 if (_token.type is TokenType.Extends or TokenType.Super)
                 {
                     NextToken();
+                }
+                else if (_token.type is TokenType.RightAngleBracket)
+                {
+                    return true;
                 }
             }
             return TypeName();
