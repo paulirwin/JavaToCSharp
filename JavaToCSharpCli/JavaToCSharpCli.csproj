@@ -1,12 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
   </ItemGroup>
