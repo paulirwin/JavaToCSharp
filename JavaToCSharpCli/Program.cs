@@ -22,8 +22,9 @@ namespace JavaToCSharpCli
 
             var javaText = File.ReadAllText(args[0]);
 
-            // HACK for testing
             var options = new JavaConversionOptions();
+
+            options.WarningEncountered += (sender, eventArgs) => Console.WriteLine($"[WARNING] Line {eventArgs.JavaLineNumber}: {eventArgs.Message}");
 
             var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
 
