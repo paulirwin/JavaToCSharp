@@ -12,13 +12,15 @@ namespace JavaToCSharp
             Identifier,
             Extends,
             Super,
-            LeftBracket,
-            RightBracket,
+            LeftSquareBracket,
+            RightSquareBracket,
+            LeftAngleBracket,
+            RightAngleBracket,
             Comma,
             QuestionMark
         }
 
-        private static readonly Regex _tokenizePattern = new(@"\w+|<|>|,|\?", RegexOptions.Compiled);
+        private static readonly Regex _tokenizePattern = new(@"\w+|\[|\]|<|>|,|\?", RegexOptions.Compiled);
 
         private static (string, TokenType)[] _tokens;
         private static (string text, TokenType type) _token;
@@ -41,7 +43,7 @@ namespace JavaToCSharp
             _sb.Clear();
 
             if (TypeName() && _token.type is TokenType.EndOfString)
-            { 
+            {
                 // Otherwise we have extra tokens.
                 return _sb.ToString();
             }
@@ -59,8 +61,10 @@ namespace JavaToCSharp
                 string s = match.Value;
                 tokens[i] = s switch
                 {
-                    "<" => (s, TokenType.LeftBracket),
-                    ">" => (s, TokenType.RightBracket),
+                    "[" => (s, TokenType.LeftSquareBracket),
+                    "]" => (s, TokenType.RightSquareBracket),
+                    "<" => (s, TokenType.LeftAngleBracket),
+                    ">" => (s, TokenType.RightAngleBracket),
                     "," => (s, TokenType.Comma),
                     "?" => (s, TokenType.QuestionMark),
                     "extends" => (s, TokenType.Extends),
@@ -84,7 +88,7 @@ namespace JavaToCSharp
             {
                 _sb.Append(_translate(_token.text));
                 NextToken();
-                if (_token.type is TokenType.LeftBracket)
+                if (_token.type is TokenType.LeftAngleBracket)
                 {
                     _sb.Append("<");
                     NextToken();
@@ -96,7 +100,7 @@ namespace JavaToCSharp
                             NextToken();
                             if (!TypeArgument()) return false;
                         }
-                        if (_token.type is TokenType.RightBracket)
+                        if (_token.type is TokenType.RightAngleBracket)
                         {
                             _sb.Append(">");
                             NextToken();
@@ -117,11 +121,16 @@ namespace JavaToCSharp
             // TypeArgument = [ "?" [ "extends" | "super" ] ] TypeName.
             if (_token.type is TokenType.QuestionMark)
             {
-                // C# does not have this. Ignore. We could fix it by replacing IList<T> by IList for example.
+                _sb.Append("TWildcardTodo");
                 NextToken();
+
                 if (_token.type is TokenType.Extends or TokenType.Super)
                 {
                     NextToken();
+                }
+                else if (_token.type is TokenType.RightAngleBracket)
+                {
+                    return true;
                 }
             }
             return TypeName();
