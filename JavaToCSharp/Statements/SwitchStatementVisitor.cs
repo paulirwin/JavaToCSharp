@@ -31,6 +31,19 @@ namespace JavaToCSharp.Statements
                 if (label == null)
                 {
                     // default case
+                    var hasBreakStmt = false;
+                    foreach (var syntax in syntaxes)
+                    {
+                        if (syntax.Kind() == SyntaxKind.BreakStatement)
+                        {
+                            hasBreakStmt = true;
+                        }
+                    }
+                    if (!hasBreakStmt)
+                    {
+                        syntaxes.Add(SyntaxFactory.BreakStatement());
+                    }
+
                     var defaultSyntax = SyntaxFactory.SwitchSection(
                         SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.DefaultSwitchLabel() }),
                         SyntaxFactory.List(syntaxes.AsEnumerable()));
