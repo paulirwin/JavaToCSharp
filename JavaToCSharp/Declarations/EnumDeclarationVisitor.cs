@@ -1,8 +1,11 @@
-﻿using com.github.javaparser.ast;
+﻿using System.Linq;
+
+using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 
 namespace JavaToCSharp.Declarations
 {
@@ -10,33 +13,55 @@ namespace JavaToCSharp.Declarations
     {
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, EnumDeclaration enumDecl)
         {
-            var name = enumDecl.getName();
-
-            var members = enumDecl.getMembers().ToList<BodyDeclaration>();
-
-            var entries = enumDecl.getEntries().ToList<EnumConstantDeclaration>();
-
-            if (members is {Count: > 0})
-                context.Options.Warning("Members found in enum " + name + " will not be ported. Check for correctness.", enumDecl.getBegin().line);
-
-            var enumSyntax = SyntaxFactory.EnumDeclaration(name)
-                .AddMembers(entries.Select(entry => SyntaxFactory.EnumMemberDeclaration(entry.getName())).ToArray());
-
-            var mods = enumDecl.getModifiers();
-
-            if (mods.HasFlag(Modifier.PRIVATE))
-                enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
-                enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PUBLIC))
-                enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-
-            return enumSyntax;
+            return VisitEnumDeclaration(context, enumDecl);
         }
 
         public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, EnumDeclaration declaration)
         {
             return VisitForClass(context, null, declaration);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="javai"></param>
+        /// <returns></returns>
+        public static EnumDeclarationSyntax VisitEnumDeclaration(ConversionContext context, EnumDeclaration javai)
+        {
+            var name = javai.getName();
+            context.LastTypeName = name;
+
+            var classSyntax = SyntaxFactory.EnumDeclaration(name);
+
+            var typeConstants = javai.getEntries().ToList<EnumConstantDeclaration>();
+            if (typeConstants is { Count: > 0 })
+            {
+                classSyntax = classSyntax.AddMembers(typeConstants.Select(i => SyntaxFactory.EnumMemberDeclaration(i.getName())
+                                                                                                .WithJavaComments(i)).ToArray());
+            }
+
+            var mods = javai.getModifiers();
+            if (mods.HasFlag(Modifier.PRIVATE))
+                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+            if (mods.HasFlag(Modifier.PROTECTED))
+                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
+            if (mods.HasFlag(Modifier.PUBLIC))
+                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+
+            var members = javai.getMembers().ToList<BodyDeclaration>();
+            if (members is { Count: > 0 })
+            {
+                var todoCodes = CommentsHelper.ConvertToComment(members, "enum members");
+                if (todoCodes != null)
+                {
+                    var lastMemberLeadingTrivia = classSyntax.Members.Last().GetTrailingTrivia().Last();
+                    classSyntax = classSyntax.InsertTriviaAfter(lastMemberLeadingTrivia, todoCodes);
+                }
+                context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
+            }
+
+            return classSyntax.WithJavaComments(javai);
         }
     }
 }

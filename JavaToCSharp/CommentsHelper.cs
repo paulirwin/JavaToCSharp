@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using JavaAst = com.github.javaparser.ast;
 using JavaComments = com.github.javaparser.ast.comments;
 using JavaParser = com.github.javaparser;
@@ -120,7 +122,6 @@ namespace JavaToCSharp
                 }
             }
 
-
             return result;
         }
 
@@ -171,6 +172,26 @@ namespace JavaToCSharp
                 });
         }
 
+        public static IEnumerable<SyntaxTrivia> ConvertToComment(IEnumerable<JavaAst.Node> codes, string tag)
+        {
+            var outputs = new List<string>();
+            foreach (var code in codes)
+            {
+                string[] input = code.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None);
+                outputs.AddRange(input);
+            }
+            if (outputs.Count > 0)
+            {
+                yield return SyntaxFactory.Comment($"\r\n// --------------------");
+                yield return SyntaxFactory.Comment($"// TODO {tag}");
+                foreach (var t in outputs)
+                {
+                    yield return SyntaxFactory.Comment($"// {t}");
+                }
+                yield return SyntaxFactory.Comment($"// --------------------\r\n");
+            }
+        }
+
         private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string post)
         {
             string[] input = comment.getContent().Split(new[] { "\r\n" }, StringSplitOptions.None);
@@ -217,10 +238,10 @@ namespace JavaToCSharp
             AppendRemarks(output, remarks);
             if (output.Count > 0)
             {
-                output[output.Count - 1] += post;
+                //output[output.Count - 1] += post;
                 foreach (var t in output)
                 {
-                    yield return SyntaxFactory.Comment("/// " + t);
+                    yield return SyntaxFactory.Comment($"/// {t}{post}");
                 }
             }
         }
@@ -281,19 +302,21 @@ namespace JavaToCSharp
                     }
 
                     break;
+
                 case "param": // <param name="id">label</param>
                     (id, label) = ParseByFirstWord(text);
                     output.Add($"<param name=\"{id}\">{label}");
                     break;
+
                 case "exception": // <exception cref="id">label</exception>
                     (id, label) = ParseByFirstWord(text);
                     output.Add($"<exception cref=\"{id}\">{label}");
                     break;
+
                 default:
                     output.Add($"<{tag}>{text}");
                     break;
             }
-
 
             static (string id, string label) ParseByFirstWord(string text)
             {
@@ -316,19 +339,18 @@ namespace JavaToCSharp
 
             return node;
 
-
             static SyntaxNode InsertEmptyLineBeforeComment(SyntaxNode node)
             {
                 /* For increased readability we change this
-                 *    
+                 *
                  *    DoSomething();
                  *    // Comment
                  *    DoSomethingElse();
-                 * 
+                 *
                  * to this
                  *
                  *    DoSomething();
-                 *    
+                 *
                  *    // Comment
                  *    DoSomethingElse();
                  */

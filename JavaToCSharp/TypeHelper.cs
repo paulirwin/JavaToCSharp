@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using JavaToCSharp.Expressions;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using ast = com.github.javaparser.ast;
 
 namespace JavaToCSharp
@@ -17,6 +20,8 @@ namespace JavaToCSharp
             ["Boolean"] = "bool",
             ["ICloseable"] = "IDisposable",
             ["Integer"] = "int",
+            ["Long"] = "long",
+            ["Float"] = "float",
             ["String"] = "string",
             ["Object"] = "object",
 
@@ -98,6 +103,7 @@ namespace JavaToCSharp
                 case "operator":
                 case "override":
                     return "@" + name;
+
                 default:
                     return name;
             }
@@ -109,8 +115,10 @@ namespace JavaToCSharp
             {
                 case "hashcode":
                     return "GetHashCode";
+
                 case "getclass":
                     return "GetType";
+
                 default:
                     return name;
             }
@@ -187,9 +195,11 @@ namespace JavaToCSharp
                     case "size" when args.size() == 0:
                         transformedSyntax = ReplaceSizeByCount(scopeSyntax);
                         return true;
+
                     case "get" when args.size() == 1:
                         transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntax, args);
                         return true;
+
                     case "set" when args.size() == 2:
                         transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntax, args);
                         return true;
@@ -198,7 +208,6 @@ namespace JavaToCSharp
 
             transformedSyntax = null;
             return false;
-
 
             static MemberAccessExpressionSyntax ReplaceSizeByCount(ExpressionSyntax scopeSyntax)
             {

@@ -2,10 +2,13 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+
 using JavaToCSharp.Declarations;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -94,6 +97,15 @@ namespace JavaToCSharp
                         else
                             rootMembers.Add(classSyntax);
                     }
+                }
+                else if (type is EnumDeclaration enumType)
+                {
+                    var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
+
+                    if (namespaceSyntax != null)
+                        namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
+                    else
+                        rootMembers.Add(classSyntax);
                 }
             }
 
