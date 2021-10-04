@@ -241,7 +241,7 @@ namespace JavaToCSharpGui.ViewModels
                             {
                                 Dispatcher.CurrentDispatcher.Invoke(() =>
                                 {
-                                    this.CSharpText = $"{ this.CSharpText } \r\n==================\r\n[ERROR]out.path: { jOutPath },\r\nex: { ex } \r\n";
+                                    this.CSharpText = $"{ this.CSharpText } \r\n==================\r\n[ERROR]out.path: { jOutPath },\r\n\t\tfile: {jOutFileName},\r\nex: { ex } \r\n";
                                 });
                             }
                         }

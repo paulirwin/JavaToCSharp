@@ -55,8 +55,14 @@ namespace JavaToCSharp.Declarations
                 var todoCodes = CommentsHelper.ConvertToComment(members, "enum members");
                 if (todoCodes != null)
                 {
-                    var lastMemberLeadingTrivia = classSyntax.Members.Last().GetTrailingTrivia().Last();
-                    classSyntax = classSyntax.InsertTriviaAfter(lastMemberLeadingTrivia, todoCodes);
+                    var lastMember = classSyntax.Members.Last();
+                    var lastMemberTrailingTrivia = lastMember.GetTrailingTrivia();
+                    var lastMemberLeadingTrivia = lastMember.GetLeadingTrivia();
+
+                    if (lastMemberTrailingTrivia.Count > 0)
+                        classSyntax = classSyntax.InsertTriviaAfter(lastMemberTrailingTrivia.Last(), todoCodes);
+                    else if (lastMemberLeadingTrivia.Count > 0)
+                        classSyntax = classSyntax.InsertTriviaBefore(lastMemberLeadingTrivia.First(), todoCodes);
                 }
                 context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
             }
