@@ -58,5 +58,17 @@ namespace JavaToCSharpGui.Properties {
                 this["UseDebugAssertPreference"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseFolderConvert {
+            get {
+                return ((bool)(this["UseFolderConvert"]));
+            }
+            set {
+                this["UseFolderConvert"] = value;
+            }
+        }
     }
 }

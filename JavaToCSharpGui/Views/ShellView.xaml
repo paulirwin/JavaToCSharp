@@ -1,4 +1,4 @@
-<Controls:MetroWindow x:Class="JavaToCSharpGui.Views.ShellView"
+﻿<Controls:MetroWindow x:Class="JavaToCSharpGui.Views.ShellView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Micro="http://www.caliburnproject.org"
@@ -68,6 +68,7 @@
                         <CheckBox Margin="5" x:Name="IncludeUsings">Include Usings in Output</CheckBox>
                         <CheckBox Margin="5" x:Name="IncludeNamespace">Include Namespace in Output</CheckBox>
                         <CheckBox Margin="5" x:Name="UseDebugAssertForAsserts">Use Debug.Assert() for asserts</CheckBox>
+                        <CheckBox Margin="5" x:Name="UseFolderConvert">Use Folder Convert</CheckBox>
                     </StackPanel>
                 </Grid>
             </GroupBox>
