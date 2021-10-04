@@ -30,6 +30,7 @@ namespace JavaToCSharpGui.ViewModels
         private bool _includeUsings = true;
         private bool _includeNamespace = true;
         private bool _useDebugAssertForAsserts;
+        private bool _useAnnotationsToComment;
 
         #region UseFolder
 
@@ -153,6 +154,18 @@ namespace JavaToCSharpGui.ViewModels
             }
         }
 
+        public bool UseAnnotationsToComment
+        {
+            get => _useAnnotationsToComment;
+            set
+            {
+                _useAnnotationsToComment = value;
+                NotifyOfPropertyChange(() => UseAnnotationsToComment);
+                Properties.Settings.Default.UseAnnotationsToComment = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
         public bool UseFolderConvert
         {
             get => _useFolderConvert;
@@ -189,6 +202,7 @@ namespace JavaToCSharpGui.ViewModels
             options.IncludeUsings = _includeUsings;
             options.IncludeNamespace = _includeNamespace;
             options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
+            options.UseAnnotationsToComment = _useAnnotationsToComment;
 
             options.WarningEncountered += Options_WarningEncountered;
             options.StateChanged += Options_StateChanged;

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -37,8 +38,24 @@ namespace JavaToCSharp.Declarations
             var typeConstants = javai.getEntries().ToList<EnumConstantDeclaration>();
             if (typeConstants is { Count: > 0 })
             {
-                classSyntax = classSyntax.AddMembers(typeConstants.Select(i => SyntaxFactory.EnumMemberDeclaration(i.getName())
-                                                                                                .WithJavaComments(i)).ToArray());
+                var enumMembers = new List<EnumMemberDeclarationSyntax>(typeConstants.Count);
+                foreach (var itemConst in typeConstants)
+                {
+                    var memberDecl = SyntaxFactory.EnumMemberDeclaration(itemConst.getName())
+                                                  .WithJavaComments(itemConst);
+
+                    var constArgs = itemConst.getArgs();
+                    var classBody = itemConst.getClassBody();
+                    if (!constArgs.isEmpty() || !classBody.isEmpty())
+                    {
+                        var bodyCodes = CommentsHelper.ConvertToComment(new[] { itemConst }, "enum member body", false);
+                        var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
+                        memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
+                    }
+
+                    enumMembers.Add(memberDecl);
+                }
+                classSyntax = classSyntax.AddMembers(enumMembers.ToArray());
             }
 
             var mods = javai.getModifiers();
@@ -52,7 +69,8 @@ namespace JavaToCSharp.Declarations
             var members = javai.getMembers().ToList<BodyDeclaration>();
             if (members is { Count: > 0 })
             {
-                var todoCodes = CommentsHelper.ConvertToComment(members, "enum members");
+                //gen todo codes
+                var todoCodes = CommentsHelper.ConvertToComment(members, "enum body members");
                 if (todoCodes != null)
                 {
                     var lastMember = classSyntax.Members.Last();

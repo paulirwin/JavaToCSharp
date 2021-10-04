@@ -59,6 +59,9 @@ namespace JavaToCSharp.Declarations
                         isOverride = true;
                     }
                 }
+
+                if (context.Options.UseAnnotationsToComment)
+                    methodSyntax = methodSyntax.AppendAnnotationsTrivias(methodDecl, annotations);
             }
 
             if (!mods.HasFlag(Modifier.FINAL)

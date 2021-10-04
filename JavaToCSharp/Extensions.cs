@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.CodeAnalysis;
+
 using JavaAst = com.github.javaparser.ast;
 
 namespace JavaToCSharp
@@ -38,11 +40,12 @@ namespace JavaToCSharp
 
             return newList;
         }
-        
+
         public static bool HasFlag<T>(this java.util.EnumSet values, T flag) => values.contains(flag);
 
-        public static TSyntax WithJavaComments<TSyntax>(this TSyntax syntax, JavaAst.Node node, string singleLineCommentEnd = null) 
+        public static TSyntax WithJavaComments<TSyntax>(this TSyntax syntax, JavaAst.Node node,
+            string singleLineCommentEnd = null, bool includeLeadingTrivias = false)
             where TSyntax : SyntaxNode =>
-            CommentsHelper.AddCommentsTrivias(syntax, node, singleLineCommentEnd);
+            CommentsHelper.AddCommentsTrivias(syntax, node, singleLineCommentEnd, includeLeadingTrivias);
     }
 }

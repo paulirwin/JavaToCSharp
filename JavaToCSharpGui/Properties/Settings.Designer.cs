@@ -70,5 +70,18 @@ namespace JavaToCSharpGui.Properties {
                 this["UseFolderConvert"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseAnnotationsToComment
+        {
+            get {
+                return ((bool)(this["UseAnnotationsToComment"]));
+            }
+            set {
+                this["UseAnnotationsToComment"] = value;
+            }
+        }  
     }
 }

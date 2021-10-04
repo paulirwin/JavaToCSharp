@@ -1,7 +1,11 @@
 ﻿using System.Linq;
+
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.type;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -35,7 +39,7 @@ namespace JavaToCSharp.Declarations
 
             var typeParams = javai.getTypeParameters().ToList<TypeParameter>();
 
-            if (typeParams is {Count: > 0})
+            if (typeParams is { Count: > 0 })
             {
                 classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
             }
@@ -85,7 +89,7 @@ namespace JavaToCSharp.Declarations
 
             var typeParams = javac.getTypeParameters().ToList<TypeParameter>();
 
-            if (typeParams is {Count: > 0})
+            if (typeParams is { Count: > 0 })
             {
                 classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
             }
@@ -125,6 +129,7 @@ namespace JavaToCSharp.Declarations
 
             var members = javac.getMembers().ToList<BodyDeclaration>();
 
+            var useAnnotationsToComment = context.Options.UseAnnotationsToComment;
             foreach (var member in members)
             {
                 if (member is ClassOrInterfaceDeclaration childType)
@@ -145,7 +150,8 @@ namespace JavaToCSharp.Declarations
                 else
                 {
                     var syntax = VisitBodyDeclarationForClass(context, classSyntax, member);
-                    if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
+                    if (syntax != null)
+                        classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member, includeLeadingTrivias: useAnnotationsToComment));
                 }
 
                 while (context.PendingAnonymousTypes.Count > 0)
@@ -155,7 +161,10 @@ namespace JavaToCSharp.Declarations
                 }
             }
 
-            return classSyntax.WithJavaComments(javac);
+            if (useAnnotationsToComment)
+                classSyntax = classSyntax.AppendAnnotationsTrivias(javac);
+
+            return classSyntax.WithJavaComments(javac, includeLeadingTrivias: useAnnotationsToComment);
         }
     }
 }

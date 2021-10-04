@@ -33,7 +33,9 @@ namespace JavaToCSharp
             ["@throws"] = "exception"
         };
 
-        public static TSyntax AddCommentsTrivias<TSyntax>(TSyntax syntax, JavaAst.Node node, string commentEnding) where TSyntax : SyntaxNode
+        public static TSyntax AddCommentsTrivias<TSyntax>(TSyntax syntax, JavaAst.Node node,
+            string commentEnding, bool includeLeadingTrivias = false)
+            where TSyntax : SyntaxNode
         {
             var comments = GatherComments(node);
             if (comments.Count > 0)
@@ -61,6 +63,12 @@ namespace JavaToCSharp
                     }
                 }
 
+                if (includeLeadingTrivias)
+                {
+                    var refLeadingTrivia = syntax.GetLeadingTrivia();
+                    if (refLeadingTrivia.Count > 0)
+                        leadingTriviaList.AddRange(refLeadingTrivia);
+                }
                 syntax = syntax
                     .WithLeadingTrivia(leadingTriviaList)
                     .WithTrailingTrivia(trailingTriviaList);
@@ -172,7 +180,7 @@ namespace JavaToCSharp
                 });
         }
 
-        public static IEnumerable<SyntaxTrivia> ConvertToComment(IEnumerable<JavaAst.Node> codes, string tag)
+        public static IEnumerable<SyntaxTrivia> ConvertToComment(IEnumerable<JavaAst.Node> codes, string tag, bool hasBlockMark = true)
         {
             var outputs = new List<string>();
             foreach (var code in codes)
@@ -180,16 +188,51 @@ namespace JavaToCSharp
                 string[] input = code.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None);
                 outputs.AddRange(input);
             }
+
             if (outputs.Count > 0)
             {
-                yield return SyntaxFactory.Comment($"\r\n// --------------------");
-                yield return SyntaxFactory.Comment($"// TODO {tag}");
+                if (hasBlockMark)
+                {
+                    yield return SyntaxFactory.Comment($"\r\n// --------------------");
+                    yield return SyntaxFactory.Comment($"// TODO {tag}");
+                }
+
                 foreach (var t in outputs)
                 {
                     yield return SyntaxFactory.Comment($"// {t}");
                 }
-                yield return SyntaxFactory.Comment($"// --------------------\r\n");
+
+                if (hasBlockMark)
+                    yield return SyntaxFactory.Comment($"// --------------------\r\n");
             }
+        }
+
+        public static TCSharpSyntaxNode AppendAnnotationsTrivias<TCSharpSyntaxNode>(this TCSharpSyntaxNode syntaxNode,
+                JavaAst.body.BodyDeclaration bodyDecl,
+                IList<JavaAst.expr.AnnotationExpr> annotations = null)
+            where TCSharpSyntaxNode : CSharpSyntaxNode
+        {
+            if (syntaxNode == null)
+                throw new ArgumentNullException(nameof(syntaxNode));
+
+            if (bodyDecl == null)
+                return syntaxNode;
+
+            if (annotations == null)
+                annotations = bodyDecl.getAnnotations().ToList<JavaAst.expr.AnnotationExpr>();
+
+            if (annotations is { Count: > 0 })
+            {
+                annotations = annotations.Where(x => !new[] { "Override" }.Contains(x.getName().getName())).ToList();
+                var todoCodes = ConvertToComment(annotations, "annotations", hasBlockMark: false);
+                if (todoCodes.Any())
+                {
+                    var lastLeadingTrivia = syntaxNode.GetLeadingTrivia().Last();
+                    syntaxNode = syntaxNode.InsertTriviaAfter(lastLeadingTrivia, todoCodes);
+                }
+            }
+
+            return syntaxNode;
         }
 
         private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string post)

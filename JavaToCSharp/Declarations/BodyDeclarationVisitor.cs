@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using com.github.javaparser.ast.body;
+
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Declarations
@@ -54,8 +56,9 @@ namespace JavaToCSharp.Declarations
                 throw new InvalidOperationException(message);
             }
 
+            var useAnnotationsToComment = context.Options.UseAnnotationsToComment;
             return visitor.VisitForClass(context, classSyntax, declaration)
-                .WithJavaComments(declaration);
+                .WithJavaComments(declaration, includeLeadingTrivias: useAnnotationsToComment);
         }
 
         public static MemberDeclarationSyntax VisitBodyDeclarationForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)

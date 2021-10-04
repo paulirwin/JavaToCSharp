@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+
 using JavaToCSharp.Expressions;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -62,6 +67,9 @@ namespace JavaToCSharp.Declarations
                 fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
             if (mods.HasFlag(Modifier.VOLATILE))
                 fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
+
+            if (context.Options.UseAnnotationsToComment)
+                return fieldSyntax.AppendAnnotationsTrivias(fieldDecl);
 
             return fieldSyntax;
         }
