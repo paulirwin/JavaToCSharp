@@ -88,6 +88,7 @@ namespace JavaToCSharp
                 case "float":
                 case "long":
                 case "double":
+                case "decimal":
                 case "in":
                 case "out":
                 case "byte":
