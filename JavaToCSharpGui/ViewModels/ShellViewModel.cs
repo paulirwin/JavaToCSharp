@@ -27,6 +27,7 @@ namespace JavaToCSharpGui.ViewModels
         private string _openPath;
         private string _copiedText;
         private string _conversionState;
+        private bool _isConvertEnabled = true;
         private bool _includeUsings = true;
         private bool _includeNamespace = true;
         private bool _useDebugAssertForAsserts;
@@ -44,10 +45,12 @@ namespace JavaToCSharpGui.ViewModels
         {
             base.DisplayName = "Java to C# Converter";
 
+            _isConvertEnabled = true;
             _includeUsings = Properties.Settings.Default.UseUsingsPreference;
             _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
             _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
             _useFolderConvert = Properties.Settings.Default.UseFolderConvert;
+            _useAnnotationsToComment = Properties.Settings.Default.UseAnnotationsToComment;
         }
 
         public ObservableCollection<string> Usings { get; } = new(new JavaConversionOptions().Usings);
@@ -109,6 +112,16 @@ namespace JavaToCSharpGui.ViewModels
             {
                 _conversionState = value;
                 NotifyOfPropertyChange(() => ConversionStateLabel);
+            }
+        }
+
+        public bool IsConvertEnabled
+        {
+            get => _isConvertEnabled;
+            set
+            {
+                _isConvertEnabled = value;
+                NotifyOfPropertyChange(() => IsConvertEnabled);
             }
         }
 
@@ -207,6 +220,7 @@ namespace JavaToCSharpGui.ViewModels
             options.WarningEncountered += Options_WarningEncountered;
             options.StateChanged += Options_StateChanged;
 
+            this.IsConvertEnabled = false;
             Task.Run(() =>
             {
                 try
@@ -272,6 +286,10 @@ namespace JavaToCSharpGui.ViewModels
                     {
                         MessageBox.Show("There was an error converting the text to C#: " + ex.Message);
                     });
+                }
+                finally
+                {
+                    Dispatcher.CurrentDispatcher.Invoke(() => this.IsConvertEnabled = true);
                 }
             });
         }
