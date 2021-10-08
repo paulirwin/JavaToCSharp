@@ -171,6 +171,40 @@ namespace JavaToCSharp
                 });
         }
 
+        /// <summary>
+        /// Convert `JavaAst.Node` code to Comments
+        /// </summary>
+        /// <param name="codes"></param>
+        /// <param name="tag"></param>
+        /// <param name="hasBlockMark"></param>
+        /// <returns></returns>
+        public static IEnumerable<SyntaxTrivia> ConvertToComment(IEnumerable<JavaAst.Node> codes, string tag, bool hasBlockMark = true)
+        {
+            var outputs = new List<string>();
+            foreach (var code in codes)
+            {
+                string[] input = code.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None);
+                outputs.AddRange(input);
+            }
+
+            if (outputs.Count > 0)
+            {
+                if (hasBlockMark)
+                {
+                    yield return SyntaxFactory.Comment($"\r\n// --------------------");
+                    yield return SyntaxFactory.Comment($"// TODO {tag}");
+                }
+
+                foreach (var t in outputs)
+                {
+                    yield return SyntaxFactory.Comment($"// {t}");
+                }
+
+                if (hasBlockMark)
+                    yield return SyntaxFactory.Comment($"// --------------------\r\n");
+            }
+        }
+
         private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string post)
         {
             string[] input = comment.getContent().Split(new[] { "\r\n" }, StringSplitOptions.None);
