@@ -178,20 +178,24 @@ namespace JavaToCSharp
         {
             if (methodCallExpr.getScope() is ast.expr.Expression scope)
             {
-                string methodName = methodCallExpr.getName();
+                var methodName = methodCallExpr.getName();
                 var args = methodCallExpr.getArgs();
-                ExpressionSyntax scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
 
                 switch (methodName)
                 {
                     case "size" when args.size() == 0:
-                        transformedSyntax = ReplaceSizeByCount(scopeSyntax);
+                        var scopeSyntaxSize = ExpressionVisitor.VisitExpression(context, scope);
+                        transformedSyntax = ReplaceSizeByCount(scopeSyntaxSize);
                         return true;
+
                     case "get" when args.size() == 1:
-                        transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntax, args);
+                        var scopeSyntaxGet = ExpressionVisitor.VisitExpression(context, scope);
+                        transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntaxGet, args);
                         return true;
+
                     case "set" when args.size() == 2:
-                        transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntax, args);
+                        var scopeSyntaxSet = ExpressionVisitor.VisitExpression(context, scope);
+                        transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntaxSet, args);
                         return true;
                 }
             }
