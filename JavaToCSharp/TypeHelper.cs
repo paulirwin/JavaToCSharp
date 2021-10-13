@@ -17,6 +17,8 @@ namespace JavaToCSharp
             ["Boolean"] = "bool",
             ["ICloseable"] = "IDisposable",
             ["Integer"] = "int",
+            ["Long"] = "long",
+            ["Float"] = "float",
             ["String"] = "string",
             ["Object"] = "object",
 
@@ -83,6 +85,7 @@ namespace JavaToCSharp
                 case "float":
                 case "long":
                 case "double":
+                case "decimal":
                 case "in":
                 case "out":
                 case "byte":
