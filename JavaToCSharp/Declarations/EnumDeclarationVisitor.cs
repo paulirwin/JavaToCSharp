@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -38,11 +37,14 @@ namespace JavaToCSharp.Declarations
             var typeConstants = javai.getEntries().ToList<EnumConstantDeclaration>();
             if (typeConstants is { Count: > 0 })
             {
-                var enumMembers = new List<EnumMemberDeclarationSyntax>(typeConstants.Count);
-                foreach (var itemConst in typeConstants)
+                var membersCount = typeConstants.Count;
+                var enumMembers = new List<EnumMemberDeclarationSyntax>(membersCount);
+                var lastMembersIndex = membersCount - 1;
+                for (int i = 0; i < membersCount; i++)
                 {
+                    var itemConst = typeConstants[i];
                     var memberDecl = SyntaxFactory.EnumMemberDeclaration(itemConst.getName())
-                                                  .WithJavaComments(itemConst);
+                              .WithJavaComments(itemConst);
 
                     //java-enum `body/args` to `code Comment`
                     var constArgs = itemConst.getArgs();
@@ -53,6 +55,9 @@ namespace JavaToCSharp.Declarations
                         var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
                         memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
                     }
+
+                    if (i == lastMembersIndex)
+                        memberDecl = MembersToCommentTrivia(memberDecl);
 
                     enumMembers.Add(memberDecl);
                 }
@@ -67,27 +72,28 @@ namespace JavaToCSharp.Declarations
             if (mods.HasFlag(Modifier.PUBLIC))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
-            var members = javai.getMembers().ToList<BodyDeclaration>();
-            if (members is { Count: > 0 })
+            return classSyntax.WithJavaComments(javai);
+
+            EnumMemberDeclarationSyntax MembersToCommentTrivia(EnumMemberDeclarationSyntax lastMemberDecl)
             {
                 //java-enum `method-body` to `code Comment`
-                var todoCodes = CommentsHelper.ConvertToComment(members, "enum body members");
-                if (todoCodes != null)
+                var members = javai.getMembers().ToList<BodyDeclaration>();
+                if (members is { Count: > 0 })
                 {
-                    var lastMember = classSyntax.Members.Last();
-                    var lastMemberTrailingTrivia = lastMember.GetTrailingTrivia();
-                    var lastMemberLeadingTrivia = lastMember.GetLeadingTrivia();
-
-                    //TODO: How do I add comments to the end of the `class code`? 
-                    if (lastMemberTrailingTrivia.Count > 0)
-                        classSyntax = classSyntax.InsertTriviaAfter(lastMemberTrailingTrivia.Last(), todoCodes);
-                    else if (lastMemberLeadingTrivia.Count > 0)
-                        classSyntax = classSyntax.InsertTriviaBefore(lastMemberLeadingTrivia.First(), todoCodes);
+                    var todoCodes = CommentsHelper.ConvertToComment(members, "enum body members");
+                    if (todoCodes != null)
+                    {
+                        var lastMemberTrailingTrivia = lastMemberDecl.GetTrailingTrivia();
+                        if (lastMemberTrailingTrivia.Count > 0)
+                            lastMemberDecl = lastMemberDecl.InsertTriviaAfter(lastMemberTrailingTrivia.Last(), todoCodes);
+                        else
+                            lastMemberDecl = lastMemberDecl.WithTrailingTrivia(todoCodes);
+                    }
+                    context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
                 }
-                context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
-            }
 
-            return classSyntax.WithJavaComments(javai);
+                return lastMemberDecl;
+            }
         }
     }
 }
