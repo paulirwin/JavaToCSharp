@@ -1,13 +1,18 @@
 ﻿using System;
 using System.IO;
 using JavaToCSharp;
+using log4net;
+using log4net.Config;
 
 namespace JavaToCSharpCli
 {
     public class Program
     {
+        private static readonly ILog _logger = LogManager.GetLogger(typeof(Program));
         public static void Main(string[] args)
         {
+            GlobalContext.Properties["appname"] = "JavaToCSharpCli";
+            XmlConfigurator.ConfigureAndWatch(new FileInfo("log4net.config"));
             try
             {
                 if (args == null || args.Length < 3)
@@ -28,7 +33,7 @@ namespace JavaToCSharpCli
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.Error(ex.Message, ex);
             }
         }
 
@@ -45,13 +50,13 @@ namespace JavaToCSharpCli
                         false);
             }
             else
-                Console.WriteLine("Java input folder doesn't exist!");
+                _logger.Info("Java input folder doesn't exist!");
         }
 
         private static void ConvertToCSharpFile(string filePath, string outputFilePath, bool overwrite = true)
         {
             if (!overwrite && File.Exists(outputFilePath))
-                Console.WriteLine($"[INFO] {outputFilePath} exists, skip to next.");
+                _logger.Info($"{outputFilePath} exists, skip to next.");
             else if (File.Exists(filePath))
             {
                 try
@@ -60,20 +65,20 @@ namespace JavaToCSharpCli
                     var options = new JavaConversionOptions();
 
                     options.WarningEncountered += (sender, eventArgs)
-                        => Console.WriteLine($"[WARNING] Line {eventArgs.JavaLineNumber}: {eventArgs.Message}");
+                        => _logger.Warn($"[WARNING] Line {eventArgs.JavaLineNumber}: {eventArgs.Message}");
 
                     var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
 
                     File.WriteAllText(outputFilePath, parsed);
-                    Console.WriteLine($"{filePath} was done!");
+                    _logger.Info($"{filePath} was done!");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] {filePath} was failed! err = " + ex);
+                    _logger.Error($"{filePath} was failed! err = " + ex.Message, ex);
                 }
             }
             else
-                Console.WriteLine("Java input file doesn't exist!");
+                _logger.Info("Java input file doesn't exist!");
         }
 
         private static void ShowHelp()
