@@ -21,12 +21,6 @@ namespace JavaToCSharp.Declarations
             return VisitForClass(context, null, declaration);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="javai"></param>
-        /// <returns></returns>
         public static EnumDeclarationSyntax VisitEnumDeclaration(ConversionContext context, EnumDeclaration javai)
         {
             var name = javai.getName();
@@ -37,30 +31,42 @@ namespace JavaToCSharp.Declarations
             var typeConstants = javai.getEntries().ToList<EnumConstantDeclaration>();
             if (typeConstants is { Count: > 0 })
             {
+                var useCodeToComment = context.Options.UseUnrecognizedCodeToComment;
                 var membersCount = typeConstants.Count;
                 var enumMembers = new List<EnumMemberDeclarationSyntax>(membersCount);
                 var lastMembersIndex = membersCount - 1;
+                var showNoPortedWarning = false;
                 for (int i = 0; i < membersCount; i++)
                 {
                     var itemConst = typeConstants[i];
                     var memberDecl = SyntaxFactory.EnumMemberDeclaration(itemConst.getName())
-                              .WithJavaComments(itemConst);
+                                                  .WithJavaComments(itemConst);
 
-                    //java-enum `body/args` to `code Comment`
-                    var constArgs = itemConst.getArgs();
-                    var classBody = itemConst.getClassBody();
-                    if (!constArgs.isEmpty() || !classBody.isEmpty())
+                    if (useCodeToComment)
                     {
-                        var bodyCodes = CommentsHelper.ConvertToComment(new[] { itemConst }, "enum member body", false);
-                        var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
-                        memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
-                    }
+                        //java-enum `body/args` to `code Comment`
+                        var constArgs = itemConst.getArgs();
+                        var classBody = itemConst.getClassBody();
+                        if (!constArgs.isEmpty() || !classBody.isEmpty())
+                        {
+                            var bodyCodes = CommentsHelper.ConvertToComment(new[] { itemConst }, "enum member body", false);
+                            var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
+                            memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
 
-                    if (i == lastMembersIndex)
-                        memberDecl = MembersToCommentTrivia(memberDecl);
+                            showNoPortedWarning = true;
+                        }
+
+                        //java-enum `method-body` to `code Comment`
+                        if (i == lastMembersIndex)
+                            memberDecl = MembersToCommentTrivia(memberDecl, ref showNoPortedWarning);
+                    }
 
                     enumMembers.Add(memberDecl);
                 }
+
+                if (showNoPortedWarning)
+                    context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
+
                 classSyntax = classSyntax.AddMembers(enumMembers.ToArray());
             }
 
@@ -74,9 +80,8 @@ namespace JavaToCSharp.Declarations
 
             return classSyntax.WithJavaComments(javai);
 
-            EnumMemberDeclarationSyntax MembersToCommentTrivia(EnumMemberDeclarationSyntax lastMemberDecl)
+            EnumMemberDeclarationSyntax MembersToCommentTrivia(EnumMemberDeclarationSyntax lastMemberDecl, ref bool showNoPortedWarning)
             {
-                //java-enum `method-body` to `code Comment`
                 var members = javai.getMembers().ToList<BodyDeclaration>();
                 if (members is { Count: > 0 })
                 {
@@ -88,8 +93,9 @@ namespace JavaToCSharp.Declarations
                             lastMemberDecl = lastMemberDecl.InsertTriviaAfter(lastMemberTrailingTrivia.Last(), todoCodes);
                         else
                             lastMemberDecl = lastMemberDecl.WithTrailingTrivia(todoCodes);
+
+                        showNoPortedWarning = true;
                     }
-                    context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
                 }
 
                 return lastMemberDecl;
