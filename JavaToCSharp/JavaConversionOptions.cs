@@ -10,6 +10,7 @@ namespace JavaToCSharp
         {
             IncludeNamespace = true;
             IncludeUsings = true;
+            UseUnrecognizedCodeToComment = true;
         }
 
         public event EventHandler<ConversionWarningEventArgs> WarningEncountered;
@@ -31,6 +32,11 @@ namespace JavaToCSharp
         public bool IncludeNamespace { get; set; }
 
         public bool UseDebugAssertForAsserts { get; set; }
+
+        /// <summary>
+        /// Unrecognized code is translated into comments
+        /// </summary>
+        public bool UseUnrecognizedCodeToComment { get; set; }
 
         public ConversionState ConversionState { get; set; }
 

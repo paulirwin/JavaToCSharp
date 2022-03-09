@@ -95,6 +95,15 @@ namespace JavaToCSharp
                             rootMembers.Add(classSyntax);
                     }
                 }
+                else if (type is EnumDeclaration enumType)
+                {
+                    var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
+
+                    if (namespaceSyntax != null)
+                        namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
+                    else
+                        rootMembers.Add(classSyntax);
+                }
             }
 
             if (namespaceSyntax != null)

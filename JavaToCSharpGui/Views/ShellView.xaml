@@ -68,6 +68,7 @@
                         <CheckBox Margin="5" x:Name="IncludeUsings">Include Usings in Output</CheckBox>
                         <CheckBox Margin="5" x:Name="IncludeNamespace">Include Namespace in Output</CheckBox>
                         <CheckBox Margin="5" x:Name="UseDebugAssertForAsserts">Use Debug.Assert() for asserts</CheckBox>
+                        <CheckBox Margin="5" x:Name="UseUnrecognizedCodeToComment">Use Unrecognized Code To Comment</CheckBox>
                         <CheckBox Margin="5" x:Name="UseFolderConvert">Use Folder Convert</CheckBox>
                     </StackPanel>
                 </Grid>

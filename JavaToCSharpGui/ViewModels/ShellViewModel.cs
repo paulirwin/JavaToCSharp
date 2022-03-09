@@ -30,6 +30,7 @@ namespace JavaToCSharpGui.ViewModels
         private bool _includeUsings = true;
         private bool _includeNamespace = true;
         private bool _useDebugAssertForAsserts;
+        private bool _useUnrecognizedCodeToComment;
         private bool _isConvertEnabled = true;
 
         #region UseFolder
@@ -50,6 +51,7 @@ namespace JavaToCSharpGui.ViewModels
             _includeUsings = Properties.Settings.Default.UseUsingsPreference;
             _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
             _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
+            _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
         }
 
         public ObservableCollection<string> Usings { get; } = new(new JavaConversionOptions().Usings);
@@ -156,6 +158,18 @@ namespace JavaToCSharpGui.ViewModels
             }
         }
 
+        public bool UseUnrecognizedCodeToComment
+        {
+            get => _useUnrecognizedCodeToComment;
+            set
+            {
+                _useUnrecognizedCodeToComment = value;
+                NotifyOfPropertyChange(() => UseUnrecognizedCodeToComment);
+                Properties.Settings.Default.UseUnrecognizedCodeToComment = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
         public bool IsConvertEnabled
         {
             get => _isConvertEnabled;
@@ -200,6 +214,7 @@ namespace JavaToCSharpGui.ViewModels
             options.IncludeUsings = _includeUsings;
             options.IncludeNamespace = _includeNamespace;
             options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
+            options.UseUnrecognizedCodeToComment = _useUnrecognizedCodeToComment;
 
             options.WarningEncountered += Options_WarningEncountered;
             options.StateChanged += Options_StateChanged;
