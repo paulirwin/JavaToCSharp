@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="4.0.173" />
+    <PackageReference Include="FolderBrowserForWPF" Version="1.2.0" />
     <PackageReference Include="MahApps.Metro" Version="2.4.6" />
   </ItemGroup>
   <ItemGroup>

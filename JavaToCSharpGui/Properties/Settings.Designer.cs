@@ -58,5 +58,17 @@ namespace JavaToCSharpGui.Properties {
                 this["UseDebugAssertPreference"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseUnrecognizedCodeToComment {
+            get {
+                return ((bool)(this["UseUnrecognizedCodeToComment"]));
+            }
+            set {
+                this["UseUnrecognizedCodeToComment"] = value;
+            }
+        }
     }
 }

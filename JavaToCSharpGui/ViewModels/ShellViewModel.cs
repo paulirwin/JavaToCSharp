@@ -1,13 +1,19 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+
 using Caliburn.Micro;
+
 using JavaToCSharp;
+
 using JavaToCSharpGui.Views;
+
 using Microsoft.Win32;
 
 namespace JavaToCSharpGui.ViewModels
@@ -24,14 +30,28 @@ namespace JavaToCSharpGui.ViewModels
         private bool _includeUsings = true;
         private bool _includeNamespace = true;
         private bool _useDebugAssertForAsserts;
+        private bool _useUnrecognizedCodeToComment;
+        private bool _isConvertEnabled = true;
+
+        #region UseFolder
+
+        private bool _useFolderConvert;
+        private IList<FileInfo> _javaFiles;
+        private string _currentJavaFile;
+
+        #endregion
 
         public ShellViewModel()
         {
             base.DisplayName = "Java to C# Converter";
 
+            _isConvertEnabled = true;
+            _useFolderConvert = false;
+
             _includeUsings = Properties.Settings.Default.UseUsingsPreference;
             _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
             _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
+            _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
         }
 
         public ObservableCollection<string> Usings { get; } = new(new JavaConversionOptions().Usings);
@@ -138,6 +158,38 @@ namespace JavaToCSharpGui.ViewModels
             }
         }
 
+        public bool UseUnrecognizedCodeToComment
+        {
+            get => _useUnrecognizedCodeToComment;
+            set
+            {
+                _useUnrecognizedCodeToComment = value;
+                NotifyOfPropertyChange(() => UseUnrecognizedCodeToComment);
+                Properties.Settings.Default.UseUnrecognizedCodeToComment = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        public bool IsConvertEnabled
+        {
+            get => _isConvertEnabled;
+            set
+            {
+                _isConvertEnabled = value;
+                NotifyOfPropertyChange(() => IsConvertEnabled);
+            }
+        }
+
+        public bool UseFolderConvert
+        {
+            get => _useFolderConvert;
+            set
+            {
+                _useFolderConvert = value;
+                NotifyOfPropertyChange(() => UseFolderConvert);
+            }
+        }
+
         public void AddUsing()
         {
             Usings.Add(_addUsingInput);
@@ -162,24 +214,33 @@ namespace JavaToCSharpGui.ViewModels
             options.IncludeUsings = _includeUsings;
             options.IncludeNamespace = _includeNamespace;
             options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
+            options.UseUnrecognizedCodeToComment = _useUnrecognizedCodeToComment;
 
             options.WarningEncountered += Options_WarningEncountered;
             options.StateChanged += Options_StateChanged;
 
+            this.IsConvertEnabled = false;
             Task.Run(() =>
             {
                 try
                 {
-                    var csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
-
-                    Dispatcher.CurrentDispatcher.Invoke(() => this.CSharpText = csharp);
+                    if (_useFolderConvert)
+                    {
+                        FolderConvert(options);
+                    }
+                    else
+                    {
+                        var csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
+                        DispatcherInvoke(() => this.CSharpText = csharp);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show("There was an error converting the text to C#: " + ex.Message);
-                    });
+                    DispatcherInvoke(() => MessageBox.Show("There was an error converting the text to C#: " + ex.Message));
+                }
+                finally
+                {
+                    DispatcherInvoke(() => this.IsConvertEnabled = true);
                 }
             });
         }
@@ -191,41 +252,169 @@ namespace JavaToCSharpGui.ViewModels
                 case ConversionState.Starting:
                     ConversionStateLabel = "Starting...";
                     break;
+
                 case ConversionState.ParsingJavaAst:
                     ConversionStateLabel = "Parsing Java code...";
                     break;
+
                 case ConversionState.BuildingCSharpAst:
                     ConversionStateLabel = "Building C# AST...";
                     break;
+
                 case ConversionState.Done:
                     ConversionStateLabel = "Done!";
                     break;
+
                 default:
                     break;
             }
         }
 
-        private static void Options_WarningEncountered(object sender, ConversionWarningEventArgs e)
+        private void Options_WarningEncountered(object sender, ConversionWarningEventArgs e)
         {
-            MessageBox.Show("Java Line " + e.JavaLineNumber + ": " + e.Message, "Warning Encountered");
+            if (_useFolderConvert)
+            {
+                DispatcherInvoke(() =>
+                {
+                    this.CSharpText = $"{ this.CSharpText } \r\n==================\r\n[WARN]out.path: { _currentJavaFile },\r\n\t\tConversionWarning-JavaLine:[{ e.JavaLineNumber}]-Message:[{ e.Message}]\r\n";
+                });
+            }
+            else
+            {
+                MessageBox.Show($"Java Line {e.JavaLineNumber}: {e.Message}", "Warning Encountered");
+            }
         }
 
         public void OpenFileDialog()
         {
-            var ofd = new OpenFileDialog
+            if (_useFolderConvert)
             {
-                Filter = "Java Files (*.java)|*.java", 
-                Title = "Open Java File"
-            };
-
-            var result = ofd.ShowDialog();
-
-            if (result.GetValueOrDefault())
+                OpenFolderDialog();
+            }
+            else
             {
-                OpenPath = ofd.FileName;
-                JavaText = File.ReadAllText(ofd.FileName);
+                var ofd = new OpenFileDialog
+                {
+                    Filter = "Java Files (*.java)|*.java",
+                    Title = "Open Java File"
+                };
+
+                var result = ofd.ShowDialog();
+                if (result.GetValueOrDefault())
+                {
+                    OpenPath = ofd.FileName;
+                    JavaText = File.ReadAllText(ofd.FileName);
+                }
             }
         }
+
+        #region FolderCodeConvert
+
+        /// <summary>
+        /// Folder Browser OpenFolderDialog
+        /// </summary>
+        private void OpenFolderDialog()
+        {
+            var dlg = new FolderBrowserForWPF.Dialog()
+            {
+                Title = "Folder Browser",
+            };
+
+            if (!(dlg.ShowDialog() ?? false))
+                return;
+
+            var path = dlg.FileName;
+            var dir = new DirectoryInfo(path);
+            if (!dir.Exists)
+            {
+                OpenPath = string.Empty;
+                JavaText = string.Empty;
+                _javaFiles = null;
+
+                return;
+            }
+
+            var pDir = dir.Parent;
+            if (pDir == null)
+            {
+                MessageBox.Show("Fail: Root Directory !!!");
+                return;
+            }
+
+            OpenPath = path;
+
+            Task.Run(() =>
+            {
+                //list all subdir *.java
+                var files = dir.GetFiles("*.java", SearchOption.AllDirectories);
+                _javaFiles = files;
+
+                //out java path
+                var subStartIndex = path.Length;
+                var javaTexts = string.Join("\r\n", files.Select(x => x.FullName.Substring(subStartIndex)));
+
+                DispatcherInvoke(() => this.JavaText = javaTexts);
+            });
+        }
+
+        /// <summary>
+        /// Folder Code Convert
+        /// </summary>
+        /// <param name="options"></param>
+        private void FolderConvert(JavaConversionOptions options)
+        {
+            if (_javaFiles == null || options == null)
+                return;
+
+            var dir = new DirectoryInfo(_openPath);
+            var pDir = dir.Parent;
+            if (pDir == null)
+                throw new FileNotFoundException($"dir {_openPath} parent");
+
+            var dirName = dir.Name;
+            var outDirName = $"{dirName}_net_{DateTime.Now.Millisecond}";
+            var outDir = pDir.CreateSubdirectory(outDirName);
+            if (outDir == null || !outDir.Exists)
+                throw new FileNotFoundException($"outDir {outDirName}");
+
+            var outDirFullName = outDir.FullName;
+            var subStartIndex = dir.FullName.Length;
+            foreach (var jFile in _javaFiles)
+            {
+                var jPath = jFile.Directory.FullName;
+                var jOutPath = outDirFullName + jPath.Substring(subStartIndex);
+                var jOutFileName = Path.GetFileNameWithoutExtension(jFile.Name) + ".cs";
+                var jOutFileFullName = Path.Combine(jOutPath, jOutFileName);
+
+                _currentJavaFile = jFile.FullName;
+                if (!Directory.Exists(jOutPath))
+                    Directory.CreateDirectory(jOutPath);
+
+                var jText = File.ReadAllText(_currentJavaFile);
+                if (string.IsNullOrEmpty(jText))
+                    continue;
+
+                try
+                {
+                    var csText = JavaToCSharpConverter.ConvertText(jText, options);
+                    File.WriteAllText(jOutFileFullName, csText);
+
+                    DispatcherInvoke(() =>
+                    {
+                        this.CSharpText = $"{ this.CSharpText } \r\n==================\r\nout.path: { jOutPath },\r\n\t\tfile: {jOutFileName}";
+                    });
+                }
+                catch (Exception ex)
+                {
+                    DispatcherInvoke(() =>
+                    {
+                        this.CSharpText = $"{ this.CSharpText } \r\n==================\r\n[ERROR]out.path: { jOutPath },\r\nex: { ex } \r\n";
+                    });
+                }
+            }
+        }
+
+        #endregion
 
         public void CopyOutput()
         {
@@ -247,6 +436,15 @@ namespace JavaToCSharpGui.ViewModels
                 FileName = "http://www.github.com/paulirwin/javatocsharp",
                 UseShellExecute = true
             });
+        }
+
+        /// <summary>
+        /// Dispatcher.CurrentDispatcher.Invoke
+        /// </summary>
+        /// <param name="callback"></param>
+        private void DispatcherInvoke(System.Action callback)
+        {
+            Dispatcher.CurrentDispatcher.Invoke(callback);
         }
     }
 }
