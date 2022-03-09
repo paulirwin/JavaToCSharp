@@ -1,18 +1,23 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using JavaToCSharp;
-using log4net;
-using log4net.Config;
+using Microsoft.Extensions.Logging;
 
 namespace JavaToCSharpCli
 {
     public class Program
     {
-        private static readonly ILog _logger = LogManager.GetLogger(typeof(Program));
+        private static readonly ILogger _logger;
+
+        static Program()
+        {
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole().SetMinimumLevel(LogLevel.Information));
+            _logger = loggerFactory.CreateLogger<Program>();
+        }
+
         public static void Main(string[] args)
         {
-            GlobalContext.Properties["appname"] = "JavaToCSharpCli";
-            XmlConfigurator.ConfigureAndWatch(new FileInfo("log4net.config"));
             try
             {
                 if (args == null || args.Length < 3)
@@ -31,10 +36,13 @@ namespace JavaToCSharpCli
                             break;
                     }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                _logger.LogError(ex.Message, ex);
             }
+
+            // allow logger background thread to flush
+            Thread.Sleep(TimeSpan.FromSeconds(1));
         }
 
         private static void ConvertToCSharpDir(string folderPath, string outputFolderPath)
@@ -46,17 +54,17 @@ namespace JavaToCSharpCli
                 foreach (var f in input.GetFiles("*.java", SearchOption.AllDirectories))
                     ConvertToCSharpFile(
                         f.FullName,
-                        Path.Combine(output.FullName, f.Name.Replace(f.Extension, ".cs")), 
+                        Path.Combine(output.FullName, f.Name.Replace(f.Extension, ".cs")),
                         false);
             }
             else
-                _logger.Info("Java input folder doesn't exist!");
+                _logger.LogError("Java input folder {path} doesn't exist!", folderPath);
         }
 
         private static void ConvertToCSharpFile(string filePath, string outputFilePath, bool overwrite = true)
         {
             if (!overwrite && File.Exists(outputFilePath))
-                _logger.Info($"{outputFilePath} exists, skip to next.");
+                _logger.LogInformation("{outputFilePath} exists, skip to next.", outputFilePath);
             else if (File.Exists(filePath))
             {
                 try
@@ -65,26 +73,26 @@ namespace JavaToCSharpCli
                     var options = new JavaConversionOptions();
 
                     options.WarningEncountered += (sender, eventArgs)
-                        => _logger.Warn($"[WARNING] Line {eventArgs.JavaLineNumber}: {eventArgs.Message}");
+                        => _logger.LogWarning("Line {line}: {message}", eventArgs.JavaLineNumber, eventArgs.Message);
 
                     var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
 
                     File.WriteAllText(outputFilePath, parsed);
-                    _logger.Info($"{filePath} was done!");
+                    _logger.LogInformation("{filePath} converted!", filePath);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"{filePath} was failed! err = " + ex.Message, ex);
+                    _logger.LogError("{filePath} failed! {type}: {message}", filePath, ex.GetType().Name, ex.Message);
                 }
             }
             else
-                _logger.Info("Java input file doesn't exist!");
+                _logger.LogError("Java input file {filePath} doesn't exist!", filePath);
         }
 
         private static void ShowHelp()
         {
             Console.WriteLine("Usage:\r\n\tJavaToCSharpCli.exe -f [pathToJavaFile] [pathToCsOutputFile]");
-            Console.WriteLine("Usage:\tJavaToCSharpCli.exe -d [pathToJavaFolder] [pathToCsOutputFolder]");
+            Console.WriteLine("\tJavaToCSharpCli.exe -d [pathToJavaFolder] [pathToCsOutputFolder]");
         }
     }
 }
