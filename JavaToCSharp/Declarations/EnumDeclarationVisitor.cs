@@ -50,8 +50,16 @@ namespace JavaToCSharp.Declarations
                         if (!constArgs.isEmpty() || !classBody.isEmpty())
                         {
                             var bodyCodes = CommentsHelper.ConvertToComment(new[] { itemConst }, "enum member body", false);
-                            var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
-                            memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
+
+                            if (memberDecl.HasLeadingTrivia)
+                            {
+                                var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
+                                memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
+                            }
+                            else
+                            {
+                                memberDecl = memberDecl.WithLeadingTrivia(bodyCodes);
+                            }
 
                             showNoPortedWarning = true;
                         }
