@@ -9,7 +9,7 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr)
         {
-            string value = Regex.Unescape(expr.getValue());
+            var value = Regex.Unescape(expr.getValue());
             return SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(value[0]));
         }
     }
