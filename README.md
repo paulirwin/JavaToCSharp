@@ -1,6 +1,12 @@
 Java to C# Converter
 ====================
 
+<p>
+  <a href="https://github.com/paulirwin/JavaToCSharp">
+     <img alt="GitHub Actions status" src="https://github.com/paulirwin/JavaToCSharp/workflows/.NET%20Core%20Build/badge.svg">
+  </a>
+</p>
+
 Java to C# converter. Uses javaparser with Java 8 
 support from https://github.com/before/javaparser, IKVM.NET to 
 convert the javaparser .jar into a .NET .dll, and Roslyn for C# AST generation. 

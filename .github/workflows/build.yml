@@ -1,0 +1,26 @@
+name: .NET Core Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 7.0.100
+    - name: Build JavaToCSharp
+      run: dotnet build ./JavaToCSharp/JavaToCSharp.csproj --configuration Release
+
+    - name: Build JavaToCSharp.Tests
+      run: dotnet build ./JavaToCSharp.Tests/JavaToCSharp.Tests.csproj --configuration Release
+
+    - name: Build JavaToCSharpCli
+      run: dotnet build ./JavaToCSharpCli/JavaToCSharpCli.csproj --configuration Release
+
+    - name: Build JavaToCSharpGui
+      run: dotnet build ./JavaToCSharpGui/JavaToCSharpGui.csproj --configuration Release
