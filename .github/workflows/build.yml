@@ -16,8 +16,8 @@ jobs:
     - name: Build JavaToCSharp
       run: dotnet build ./JavaToCSharp/JavaToCSharp.csproj --configuration Release
 
-    - name: Build JavaToCSharp.Tests
-      run: dotnet build ./JavaToCSharp.Tests/JavaToCSharp.Tests.csproj --configuration Release
+    - name: Test JavaToCSharp.Tests
+      run: dotnet test ./JavaToCSharp.Tests/JavaToCSharp.Tests.csproj --configuration Release
 
     - name: Build JavaToCSharpCli
       run: dotnet build ./JavaToCSharpCli/JavaToCSharpCli.csproj --configuration Release
