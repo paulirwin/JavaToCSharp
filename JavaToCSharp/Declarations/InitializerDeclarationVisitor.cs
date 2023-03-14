@@ -14,8 +14,8 @@ namespace JavaToCSharp.Declarations
             if (!declaration.isStatic())
             {
                 //throw new NotImplementedException("Support for non-static initializers is not understood or implemented");
-                Console.WriteLine("Support for non-static initializers is not understood or implemented");
-
+                context.Options.Warning("Support for non-static initializers is not understood or implemented",
+                                        declaration.getBegin().line);
             }
 
             var block = declaration.getBlock();
