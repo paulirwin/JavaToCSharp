@@ -12,7 +12,8 @@ namespace JavaToCSharpCli
 
         static Program()
         {
-            var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole().SetMinimumLevel(LogLevel.Information));
+            var loggerFactory =
+                LoggerFactory.Create(builder => builder.AddSimpleConsole().SetMinimumLevel(LogLevel.Information));
             _logger = loggerFactory.CreateLogger<Program>();
         }
 
@@ -50,12 +51,19 @@ namespace JavaToCSharpCli
             if (Directory.Exists(folderPath))
             {
                 var input = new DirectoryInfo(folderPath);
-                var output = new DirectoryInfo(outputFolderPath);
                 foreach (var f in input.GetFiles("*.java", SearchOption.AllDirectories))
-                    ConvertToCSharpFile(
-                        f.FullName,
-                        Path.Combine(output.FullName, f.Name.Replace(f.Extension, ".cs")),
-                        false);
+                {
+                    var newFolderPath =
+                        f.DirectoryName.Replace(folderPath, outputFolderPath, StringComparison.OrdinalIgnoreCase);
+                    if (!Directory.Exists(newFolderPath))
+                    {
+                        Directory.CreateDirectory(newFolderPath);
+                    }
+
+                    ConvertToCSharpFile(f.FullName,
+                                        Path.Combine(newFolderPath, Path.ChangeExtension(f.Name, ".cs")),
+                                        false);
+                }
             }
             else
                 _logger.LogError("Java input folder {path} doesn't exist!", folderPath);
@@ -72,17 +80,21 @@ namespace JavaToCSharpCli
                     var javaText = File.ReadAllText(filePath);
                     var options = new JavaConversionOptions();
 
-                    options.WarningEncountered += (sender, eventArgs)
-                        => _logger.LogWarning("Line {line}: {message}", eventArgs.JavaLineNumber, eventArgs.Message);
+                    options.WarningEncountered += (sender, eventArgs) =>
+                                                  {
+                                                      var message = $"Line {eventArgs.JavaLineNumber}: {eventArgs.Message}";
+                                                      _logger.LogWarning(message);
+                                                      File.AppendAllText(Path.ChangeExtension(outputFilePath, ".warning"), message + Environment.NewLine);
+                                                  };
 
                     var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
-
                     File.WriteAllText(outputFilePath, parsed);
                     _logger.LogInformation("{filePath} converted!", filePath);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("{filePath} failed! {type}: {message}", filePath, ex.GetType().Name, ex.Message);
+                    _logger.LogError("{filePath} failed! {type}: {message}", filePath, ex.GetType().Name, ex);
+                    File.WriteAllText(Path.ChangeExtension(outputFilePath, ".error"), ex.ToString());
                 }
             }
             else

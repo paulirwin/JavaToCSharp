@@ -34,10 +34,7 @@ namespace JavaToCSharp.Expressions
             else if (op == AssignExpr.Operator.rSignedShift)
                 kind = SyntaxKind.RightShiftAssignmentExpression;
             else if (op == AssignExpr.Operator.rUnsignedShift)
-            {
-                context.Options.Warning("Use of unsigned right shift assignment. Using signed right shift assignment instead. Check for correctness.", assignExpr.getBegin().line);
-                kind = SyntaxKind.RightShiftAssignmentExpression;
-            }
+                kind = SyntaxKind.UnsignedRightShiftAssignmentExpression;
             else if (op == AssignExpr.Operator.slash)
                 kind = SyntaxKind.DivideAssignmentExpression;
             else if (op == AssignExpr.Operator.star)

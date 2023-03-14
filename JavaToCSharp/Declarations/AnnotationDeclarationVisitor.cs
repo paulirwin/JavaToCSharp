@@ -9,7 +9,8 @@ namespace JavaToCSharp.Declarations
         public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
             AnnotationDeclaration declaration)
         {
-            Console.WriteLine("Declaring an annotation inside a class NotImplemented.");
+            context.Options.Warning("Declaring an annotation inside a class NotImplemented.",
+                                    declaration.getBegin().line);
             return null;
         }
 
