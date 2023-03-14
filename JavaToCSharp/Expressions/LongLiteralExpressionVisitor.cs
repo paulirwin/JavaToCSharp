@@ -9,13 +9,13 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, StringLiteralExpr expr)
         {
-            var data = expr.toString()
-                .Trim('\"')
-                .Replace("L", string.Empty)
-                .Replace("l", string.Empty)
-                .Replace("_", string.Empty);
+            var longText = expr is LongLiteralExpr longLiteralExpr ? longLiteralExpr.getValue() : expr.toString();
+            longText = longText.Trim('\"')
+                       .Replace("L", string.Empty)
+                       .Replace("l", string.Empty)
+                       .Replace("_", string.Empty);
 
-            var value = data.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Convert.ToInt64(data, 16) : Convert.ToInt64(data);
+            var value = longText.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Convert.ToInt64(longText, 16) : Convert.ToInt64(longText);
             return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
         }
     }
