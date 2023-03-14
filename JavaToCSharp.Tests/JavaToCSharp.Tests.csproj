@@ -29,4 +29,7 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Resources\*.java" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
