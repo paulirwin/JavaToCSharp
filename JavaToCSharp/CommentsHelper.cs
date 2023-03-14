@@ -33,8 +33,13 @@ namespace JavaToCSharp
             ["@throws"] = "exception"
         };
 
-        public static TSyntax AddCommentsTrivias<TSyntax>(TSyntax syntax, JavaAst.Node node, string commentEnding) where TSyntax : SyntaxNode
+        public static TSyntax? AddCommentsTrivias<TSyntax>(TSyntax? syntax, JavaAst.Node node, string commentEnding) where TSyntax : SyntaxNode
         {
+            if (syntax is null)
+            {
+                return null;
+            }
+            
             var comments = GatherComments(node);
             if (comments.Count > 0)
             {
