@@ -35,6 +35,11 @@ namespace JavaToCSharp
             ["RuntimeException"] = "Exception",
         };
 
+        public static void AddOrUpdateTypeNameConversions(string key, string value)
+        {
+            _typeNameConversions[key] = value;
+        }
+
         public static string ConvertTypeOf(ast.nodeTypes.NodeWithType typedNode)
         {
             return ConvertType(typedNode.getType().toString());
@@ -119,15 +124,9 @@ namespace JavaToCSharp
             }
         }
 
-        public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type, bool addI = false)
+        public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type)
         {
-            string typeName = type.getName();
-
-            string originalTypeName = typeName;
-            typeName = ConvertType(typeName);
-            if (addI && typeName == originalTypeName)
-                typeName = "I" + typeName;
-
+            string typeName = ConvertType(type.getName());
             var typeArgs = type.getTypeArgs().ToList<com.github.javaparser.ast.type.Type>();
 
             TypeSyntax typeSyntax;

@@ -24,14 +24,16 @@ namespace JavaToCSharp.Declarations
 
         public static InterfaceDeclarationSyntax VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
         {
-            string name = "I" + javai.getName();
+            string originalTypeName = javai.getName();
+            string newTypeName = $"I{originalTypeName}";
+            TypeHelper.AddOrUpdateTypeNameConversions(originalTypeName, newTypeName);
 
             if (!isNested)
-                context.RootTypeName = name;
+                context.RootTypeName = newTypeName;
 
-            context.LastTypeName = name;
+            context.LastTypeName = newTypeName;
 
-            var classSyntax = SyntaxFactory.InterfaceDeclaration(name);
+            var classSyntax = SyntaxFactory.InterfaceDeclaration(newTypeName);
 
             var typeParams = javai.getTypeParameters().ToList<TypeParameter>();
 
@@ -119,7 +121,7 @@ namespace JavaToCSharp.Declarations
             {
                 foreach (var implement in implements)
                 {
-                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement, true)));
+                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
                 }
             }
 
