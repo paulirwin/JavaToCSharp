@@ -10,13 +10,15 @@ namespace JavaToCSharp.Declarations
 {
     public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
     {
-        public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, FieldDeclaration fieldDecl)
+        public override MemberDeclarationSyntax VisitForClass(
+            ConversionContext context, ClassDeclarationSyntax? classSyntax, FieldDeclaration fieldDecl)
         {
             var variables = new List<VariableDeclaratorSyntax>();
 
             string typeName = fieldDecl.getType().toString();
 
-            foreach (var item in fieldDecl.getVariables().ToList<VariableDeclarator>())
+            var variableDeclarators = fieldDecl.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+            foreach (var item in variableDeclarators)
             {
                 var id = item.getId();
                 string name = id.getName();
@@ -34,8 +36,11 @@ namespace JavaToCSharp.Declarations
                 if (initExpr != null)
                 {
                     var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
-                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
-                    variables.Add(varDeclarationSyntax);
+                    if (initSyntax is not null)
+                    {
+                        var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                        variables.Add(varDeclarationSyntax);
+                    }
                 }
                 else
                     variables.Add(SyntaxFactory.VariableDeclarator(name));

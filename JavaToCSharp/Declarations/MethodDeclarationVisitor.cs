@@ -66,7 +66,7 @@ namespace JavaToCSharp.Declarations
                 && !mods.HasFlag(Modifier.STATIC)
                 && !mods.HasFlag(Modifier.PRIVATE)
                 && !isOverride
-                && !classSyntax.Modifiers.Any(i => i.Kind() == SyntaxKind.SealedKeyword))
+                && !classSyntax.Modifiers.Any(i => i.IsKind(SyntaxKind.SealedKeyword)))
                 methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VirtualKeyword));
 
             var parameters = methodDecl.getParameters().ToList<Parameter>();
@@ -119,11 +119,24 @@ namespace JavaToCSharp.Declarations
             {
                 var lockBlock = SyntaxFactory.Block(statementSyntax);
 
-                var lockSyntax = mods.HasFlag(Modifier.STATIC) 
-                    ? SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(classSyntax.Identifier.Value.ToString())), lockBlock) 
-                    : SyntaxFactory.LockStatement(SyntaxFactory.ThisExpression(), lockBlock);
+                LockStatementSyntax? lockSyntax = null;
+                if (mods.HasFlag(Modifier.STATIC))
+                {
+                    string? identifier = classSyntax.Identifier.Value?.ToString();
+                    if (identifier is not null)
+                    {
+                        lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(identifier)), lockBlock);
+                    }
+                }
+                else
+                {
+                    lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.ThisExpression(), lockBlock);
+                }
 
-                methodSyntax = methodSyntax.AddBodyStatements(lockSyntax);
+                if (lockSyntax is not null)
+                {
+                    methodSyntax = methodSyntax.AddBodyStatements(lockSyntax);
+                }
             }
             else
             {

@@ -5,14 +5,14 @@ namespace JavaToCSharp.Declarations
 {
     public class EmptyMemberDeclarationVisitor : BodyDeclarationVisitor<EmptyMemberDeclaration>
     {
-        public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
-            EmptyMemberDeclaration declaration)
+        public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
+                                                               EmptyMemberDeclaration declaration)
         {
             return null;
         }
 
-        public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax,
-            EmptyMemberDeclaration declaration)
+        public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax,
+                                                                   EmptyMemberDeclaration declaration)
         {
             return null;
         }

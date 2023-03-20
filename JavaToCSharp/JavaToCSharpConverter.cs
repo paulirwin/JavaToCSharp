@@ -14,7 +14,7 @@ namespace JavaToCSharp
 {
     public static class JavaToCSharpConverter
     {
-        public static string ConvertText(string javaText, JavaConversionOptions options = null)
+        public static string? ConvertText(string? javaText, JavaConversionOptions? options = null)
         {
             options ??= new JavaConversionOptions();
 
@@ -33,7 +33,7 @@ namespace JavaToCSharp
 
             options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
-            var types = parsed.getTypes().ToList<TypeDeclaration>();
+            var types = parsed.getTypes()?.ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
             var imports = parsed.getImports().ToList<ImportDeclaration>();
             var package = parsed.getPackage();
 
@@ -55,7 +55,7 @@ namespace JavaToCSharp
             }
 
             var rootMembers = new List<MemberDeclarationSyntax>();
-            NamespaceDeclarationSyntax namespaceSyntax = null;
+            NamespaceDeclarationSyntax? namespaceSyntax = null;
 
             if (options.IncludeNamespace)
             {
@@ -63,7 +63,12 @@ namespace JavaToCSharp
 
                 foreach (var packageReplacement in options.PackageReplacements)
                 {
-                    packageName = packageReplacement.Replace(packageName);
+                    if (string.IsNullOrWhiteSpace(packageName))
+                    {
+                        continue;
+                    }
+                    
+                    packageName = packageReplacement.Replace(packageName)!;
                 }
 
                 packageName = TypeHelper.Capitalize(packageName);
@@ -78,20 +83,20 @@ namespace JavaToCSharp
                 {
                     if (classOrIntType.isInterface())
                     {
-                        var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType, false);
+                        var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType);
 
-                        if (namespaceSyntax != null)
+                        if (namespaceSyntax != null && interfaceSyntax != null)
                             namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
-                        else
+                        else if(interfaceSyntax != null)
                             rootMembers.Add(interfaceSyntax);
                     }
                     else
                     {
-                        var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType, false);
+                        var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType);
 
-                        if (namespaceSyntax != null)
+                        if (namespaceSyntax != null && classSyntax != null)
                             namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                        else
+                        else if(classSyntax != null)
                             rootMembers.Add(classSyntax);
                     }
                 }
@@ -99,9 +104,9 @@ namespace JavaToCSharp
                 {
                     var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
 
-                    if (namespaceSyntax != null)
+                    if (namespaceSyntax != null && classSyntax != null)
                         namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                    else
+                    else if(classSyntax != null)
                         rootMembers.Add(classSyntax);
                 }
             }
@@ -113,14 +118,22 @@ namespace JavaToCSharp
                     externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
                     usings: SyntaxFactory.List(usings.ToArray()),
                     attributeLists: new SyntaxList<AttributeListSyntax>(),
-                    members: SyntaxFactory.List<MemberDeclarationSyntax>(rootMembers)
+                    members: SyntaxFactory.List(rootMembers)
                 )
                 .NormalizeWhitespace();
 
             root = root.WithJavaComments(parsed, "\r\n");
+            if (root is null)
+            {
+                return null;
+            }
 
             var postConversionSanitizer = new SanitizingSyntaxRewriter();
             var sanitizedRoot = postConversionSanitizer.VisitCompilationUnit(root);
+            if (sanitizedRoot is null)
+            {
+                return null;
+            }
 
             var tree = SyntaxFactory.SyntaxTree(sanitizedRoot);
 

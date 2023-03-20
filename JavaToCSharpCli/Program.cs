@@ -53,8 +53,13 @@ namespace JavaToCSharpCli
                 var input = new DirectoryInfo(folderPath);
                 foreach (var f in input.GetFiles("*.java", SearchOption.AllDirectories))
                 {
-                    var newFolderPath =
-                        f.DirectoryName.Replace(folderPath, outputFolderPath, StringComparison.OrdinalIgnoreCase);
+                    string directoryName = f.DirectoryName;
+                    if (string.IsNullOrWhiteSpace(directoryName))
+                    {
+                        continue;
+                    }
+                    
+                    var newFolderPath = directoryName.Replace(folderPath, outputFolderPath, StringComparison.OrdinalIgnoreCase);
                     if (!Directory.Exists(newFolderPath))
                     {
                         Directory.CreateDirectory(newFolderPath);
@@ -80,7 +85,7 @@ namespace JavaToCSharpCli
                     var javaText = File.ReadAllText(filePath);
                     var options = new JavaConversionOptions();
 
-                    options.WarningEncountered += (sender, eventArgs) =>
+                    options.WarningEncountered += (_, eventArgs) =>
                                                   {
                                                       var message = $"Line {eventArgs.JavaLineNumber}: {eventArgs.Message}";
                                                       _logger.LogWarning(message);

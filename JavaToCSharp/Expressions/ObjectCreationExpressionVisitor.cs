@@ -67,20 +67,24 @@ namespace JavaToCSharp.Expressions
                     SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseTypeName))
                 })));
 
-            var parentField = SyntaxFactory.FieldDeclaration(
-                SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(context.LastTypeName)).AddVariables(SyntaxFactory.VariableDeclarator("parent")))
-                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
+            string? contextLastTypeName = context.LastTypeName;
+            if (contextLastTypeName is not null)
+            {
+                var parentField = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(contextLastTypeName))
+                                                                              .AddVariables(SyntaxFactory.VariableDeclarator("parent")))
+                                               .AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
 
-            var ctorSyntax = SyntaxFactory.ConstructorDeclaration(anonTypeName)
-                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-                .AddParameterListParameters(SyntaxFactory.Parameter(SyntaxFactory.ParseToken("parent")).WithType(SyntaxFactory.ParseTypeName(context.LastTypeName)))
-                .AddBodyStatements(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("parent")), SyntaxFactory.IdentifierName("parent"))));
+                var ctorSyntax = SyntaxFactory.ConstructorDeclaration(anonTypeName)
+                                              .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                                              .AddParameterListParameters(SyntaxFactory.Parameter(SyntaxFactory.ParseToken("parent")).WithType(SyntaxFactory.ParseTypeName(contextLastTypeName)))
+                                              .AddBodyStatements(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("parent")), SyntaxFactory.IdentifierName("parent"))));
 
-            classSyntax = classSyntax.AddMembers(ctorSyntax, parentField);
+                classSyntax = classSyntax.AddMembers(ctorSyntax, parentField);
+            }
 
             foreach (var memberSyntax in anonBody.Select(member => BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member)).Where(memberSyntax => memberSyntax != null))
             {
-                classSyntax = classSyntax.AddMembers(memberSyntax);
+                classSyntax = classSyntax.AddMembers(memberSyntax!);
             }
 
             context.PendingAnonymousTypes.Enqueue(classSyntax);

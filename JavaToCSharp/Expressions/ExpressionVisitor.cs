@@ -8,9 +8,9 @@ namespace JavaToCSharp.Expressions
     public abstract class ExpressionVisitor<T> : ExpressionVisitor
         where T : Expression
     {
-        public abstract ExpressionSyntax Visit(ConversionContext context, T expr);
+        public abstract ExpressionSyntax? Visit(ConversionContext context, T expr);
 
-        protected sealed override ExpressionSyntax Visit(ConversionContext context, Expression expr) => Visit(context, (T)expr);
+        protected sealed override ExpressionSyntax? Visit(ConversionContext context, Expression expr) => Visit(context, (T)expr);
     }
 
     public abstract class ExpressionVisitor
@@ -51,14 +51,14 @@ namespace JavaToCSharp.Expressions
             };
         }
 
-        protected abstract ExpressionSyntax Visit(ConversionContext context, Expression expr);
+        protected abstract ExpressionSyntax? Visit(ConversionContext context, Expression expr);
 
-        public static ExpressionSyntax VisitExpression(ConversionContext context, Expression expr)
+        public static ExpressionSyntax? VisitExpression(ConversionContext context, Expression? expr)
         {
             if (expr == null)
                 return null;
 
-            ExpressionVisitor visitor = null;
+            ExpressionVisitor? visitor = null;
             var t = expr.GetType();
 
             while (t != null && !_visitors.TryGetValue(t, out visitor))

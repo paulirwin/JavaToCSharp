@@ -6,10 +6,14 @@ namespace JavaToCSharp.Expressions
 {
     public class UnaryExpressionVisitor : ExpressionVisitor<UnaryExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, UnaryExpr unaryExpr)
+        public override ExpressionSyntax? Visit(ConversionContext context, UnaryExpr unaryExpr)
         {
             var expr = unaryExpr.getExpr();
             var exprSyntax = VisitExpression(context, expr);
+            if (exprSyntax is null)
+            {
+                return null;
+            }
 
             var op = unaryExpr.getOperator();
             var kind = SyntaxKind.None;
@@ -38,10 +42,9 @@ namespace JavaToCSharp.Expressions
             else if (op == UnaryExpr.Operator.preIncrement)
                 kind = SyntaxKind.PreIncrementExpression;
 
-            if (isPostfix)
-                return SyntaxFactory.PostfixUnaryExpression(kind, exprSyntax);
-            else
-                return SyntaxFactory.PrefixUnaryExpression(kind, exprSyntax);
+            return isPostfix
+                       ? SyntaxFactory.PostfixUnaryExpression(kind, exprSyntax)
+                       : SyntaxFactory.PrefixUnaryExpression(kind, exprSyntax);
         }
     }
 }

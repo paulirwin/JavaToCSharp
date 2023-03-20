@@ -13,9 +13,9 @@ namespace JavaToCSharp
             UseUnrecognizedCodeToComment = true;
         }
 
-        public event EventHandler<ConversionWarningEventArgs> WarningEncountered;
+        public event EventHandler<ConversionWarningEventArgs>? WarningEncountered;
 
-        public event EventHandler<ConversionStateChangedEventArgs> StateChanged;
+        public event EventHandler<ConversionStateChangedEventArgs>? StateChanged;
 
         public IList<Replacement> PackageReplacements { get; } = new List<Replacement>();
 

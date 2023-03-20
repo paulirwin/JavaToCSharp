@@ -11,17 +11,17 @@ namespace JavaToCSharp.Declarations
 {
     public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
     {
-        public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, EnumDeclaration enumDecl)
+        public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax? classSyntax, EnumDeclaration enumDecl)
         {
             return VisitEnumDeclaration(context, enumDecl);
         }
 
-        public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, EnumDeclaration declaration)
+        public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, EnumDeclaration declaration)
         {
             return VisitForClass(context, null, declaration);
         }
 
-        public static EnumDeclarationSyntax VisitEnumDeclaration(ConversionContext context, EnumDeclaration javai)
+        public static EnumDeclarationSyntax? VisitEnumDeclaration(ConversionContext context, EnumDeclaration javai)
         {
             var name = javai.getName();
             context.LastTypeName = name;
@@ -51,25 +51,25 @@ namespace JavaToCSharp.Declarations
                         {
                             var bodyCodes = CommentsHelper.ConvertToComment(new[] { itemConst }, "enum member body", false);
 
-                            if (memberDecl.HasLeadingTrivia)
+                            if (memberDecl is not null && memberDecl.HasLeadingTrivia)
                             {
                                 var firstLeadingTrivia = memberDecl.GetLeadingTrivia().Last();
                                 memberDecl = memberDecl.InsertTriviaAfter(firstLeadingTrivia, bodyCodes);
                             }
                             else
                             {
-                                memberDecl = memberDecl.WithLeadingTrivia(bodyCodes);
+                                memberDecl = memberDecl?.WithLeadingTrivia(bodyCodes);
                             }
 
                             showNoPortedWarning = true;
                         }
 
                         //java-enum `method-body` to `code Comment`
-                        if (i == lastMembersIndex)
+                        if (i == lastMembersIndex && memberDecl != null)
                             memberDecl = MembersToCommentTrivia(memberDecl, ref showNoPortedWarning);
                     }
 
-                    enumMembers.Add(memberDecl);
+                    if (memberDecl is not null) enumMembers.Add(memberDecl);
                 }
 
                 if (showNoPortedWarning)
@@ -94,16 +94,11 @@ namespace JavaToCSharp.Declarations
                 if (members is { Count: > 0 })
                 {
                     var todoCodes = CommentsHelper.ConvertToComment(members, "enum body members");
-                    if (todoCodes != null)
-                    {
                         var lastMemberTrailingTrivia = lastMemberDecl.GetTrailingTrivia();
-                        if (lastMemberTrailingTrivia.Count > 0)
-                            lastMemberDecl = lastMemberDecl.InsertTriviaAfter(lastMemberTrailingTrivia.Last(), todoCodes);
-                        else
-                            lastMemberDecl = lastMemberDecl.WithTrailingTrivia(todoCodes);
-
+                        lastMemberDecl = lastMemberTrailingTrivia.Count > 0 ? 
+                                             lastMemberDecl.InsertTriviaAfter(lastMemberTrailingTrivia.Last(), todoCodes) : 
+                                             lastMemberDecl.WithTrailingTrivia(todoCodes);
                         showNoPortedWarning = true;
-                    }
                 }
 
                 return lastMemberDecl;

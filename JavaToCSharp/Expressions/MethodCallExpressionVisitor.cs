@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions
 {
     public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, MethodCallExpr methodCallExpr)
+        public override ExpressionSyntax? Visit(ConversionContext context, MethodCallExpr methodCallExpr)
         {
             if (TypeHelper.TryTransformMethodCall(context, methodCallExpr, out var transformedSyntax))
             {
@@ -14,7 +14,7 @@ namespace JavaToCSharp.Expressions
             }
 
             var scope = methodCallExpr.getScope();
-            ExpressionSyntax scopeSyntax = null;
+            ExpressionSyntax? scopeSyntax = null;
 
             if (scope != null)
             {

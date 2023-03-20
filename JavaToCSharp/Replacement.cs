@@ -10,22 +10,22 @@ namespace JavaToCSharp
             ReplacementValue = replacement;
         }
 
-        public Regex Regex { get; }
+        public Regex? Regex { get; }
 
-        public string ReplacementValue { get; }
+        public string? ReplacementValue { get; }
 
-        public string Replace(string input) => Regex.Replace(input, ReplacementValue);
+        public string? Replace(string input) => string.IsNullOrWhiteSpace(ReplacementValue) ? null : Regex?.Replace(input, ReplacementValue);
 
         protected bool Equals(Replacement other)
         {
             return Equals(Regex, other.Regex) && ReplacementValue == other.ReplacementValue;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Replacement) obj);
         }
 

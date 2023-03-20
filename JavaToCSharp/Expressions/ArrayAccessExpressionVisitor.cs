@@ -6,13 +6,21 @@ namespace JavaToCSharp.Expressions
 {
     public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, ArrayAccessExpr expr)
+        public override ExpressionSyntax? Visit(ConversionContext context, ArrayAccessExpr expr)
         {
             var nameExpr = expr.getName();
             var nameSyntax = VisitExpression(context, nameExpr);
+            if (nameSyntax is null)
+            {
+                return null;
+            }
 
             var indexExpr = expr.getIndex();
             var indexSyntax = VisitExpression(context, indexExpr);
+            if (indexSyntax is null)
+            {
+                return null;
+            }
 
             return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(new[]
             {

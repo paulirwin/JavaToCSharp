@@ -11,7 +11,7 @@ namespace JavaToCSharp.Statements
 {
     public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, ExpressionStmt exprStmt)
+        public override StatementSyntax? Visit(ConversionContext context, ExpressionStmt exprStmt)
         {
             var expression = exprStmt.getExpression();
 
@@ -20,6 +20,10 @@ namespace JavaToCSharp.Statements
                 return VisitVariableDeclarationStatement(context, expr);
 
             var expressionSyntax = ExpressionVisitor.VisitExpression(context, expression);
+            if (expressionSyntax is null)
+            {
+                return null;
+            }
 
             return SyntaxFactory.ExpressionStatement(expressionSyntax);
         }
@@ -30,7 +34,8 @@ namespace JavaToCSharp.Statements
 
             var variables = new List<VariableDeclaratorSyntax>();
 
-            foreach (var item in varExpr.getVars().ToList<VariableDeclarator>())
+            var variableDeclarators = varExpr.getVars()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+            foreach (var item in variableDeclarators)
             {
                 var id = item.getId();
                 string name = id.getName();
@@ -48,8 +53,11 @@ namespace JavaToCSharp.Statements
                 if (initExpr != null)
                 {
                     var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
-                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
-                    variables.Add(varDeclarationSyntax);
+                    if (initSyntax is not null)
+                    {
+                        var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                        variables.Add(varDeclarationSyntax);
+                    }
                 }
                 else
                     variables.Add(SyntaxFactory.VariableDeclarator(name));

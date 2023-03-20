@@ -7,15 +7,18 @@ namespace JavaToCSharp.Statements
 {
     public class SynchronizedStatementVisitor : StatementVisitor<SynchronizedStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, SynchronizedStmt synchronizedStmt)
+        public override StatementSyntax? Visit(ConversionContext context, SynchronizedStmt synchronizedStmt)
         {
             var lockExpr = synchronizedStmt.getExpr();
             var lockSyntax = ExpressionVisitor.VisitExpression(context, lockExpr);
+            if (lockSyntax is null)
+            {
+                return null;
+            }
 
             var body = synchronizedStmt.getBlock();
             var bodySyntax = new BlockStatementVisitor().Visit(context, body);
-
-            return bodySyntax == null ? null : SyntaxFactory.LockStatement(lockSyntax, bodySyntax);
+            return SyntaxFactory.LockStatement(lockSyntax, bodySyntax);
         }
     }
 }

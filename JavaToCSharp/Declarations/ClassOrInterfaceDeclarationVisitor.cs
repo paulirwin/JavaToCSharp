@@ -9,20 +9,20 @@ namespace JavaToCSharp.Declarations
 {
     public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOrInterfaceDeclaration>
     {
-        public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
-            ClassOrInterfaceDeclaration declaration)
+        public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
+                                                               ClassOrInterfaceDeclaration declaration)
         {
             return VisitClassDeclaration(context, declaration);
         }
 
 
-        public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax,
-            ClassOrInterfaceDeclaration declaration)
+        public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax,
+                                                                   ClassOrInterfaceDeclaration declaration)
         {
             return VisitClassDeclaration(context, declaration);
         }
 
-        public static InterfaceDeclarationSyntax VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
+        public static InterfaceDeclarationSyntax? VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
         {
             string originalTypeName = javai.getName();
             string newTypeName = $"I{originalTypeName}";
@@ -63,18 +63,23 @@ namespace JavaToCSharp.Declarations
                 }
             }
 
-            var members = javai.getMembers().ToList<BodyDeclaration>();
+            var members = javai.getMembers()?.ToList<BodyDeclaration>();
 
-            foreach (var member in members)
-            {
-                var syntax = VisitBodyDeclarationForInterface(context, classSyntax, member);
-                if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
-            }
+            if (members is not null)
+                foreach (var member in members)
+                {
+                    var syntax = VisitBodyDeclarationForInterface(context, classSyntax, member);
+                    var memberWithComments = syntax?.WithJavaComments(member);
+                    if (memberWithComments != null)
+                    {
+                        classSyntax = classSyntax.AddMembers(memberWithComments);
+                    }
+                }
 
             return classSyntax.WithJavaComments(javai);
         }
 
-        public static ClassDeclarationSyntax VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
+        public static ClassDeclarationSyntax? VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
         {
             string name = javac.getName();
 
@@ -125,37 +130,46 @@ namespace JavaToCSharp.Declarations
                 }
             }
 
-            var members = javac.getMembers().ToList<BodyDeclaration>();
+            var members = javac.getMembers()?.ToList<BodyDeclaration>();
 
-            foreach (var member in members)
-            {
-                if (member is ClassOrInterfaceDeclaration childType)
+            if (members is not null)
+                foreach (var member in members)
                 {
-                    if (childType.isInterface())
+                    if (member is ClassOrInterfaceDeclaration childType)
                     {
-                        var childInt = VisitInterfaceDeclaration(context, childType, true);
-
-                        classSyntax = classSyntax.AddMembers(childInt);
+                        if (childType.isInterface())
+                        {
+                            var childInt = VisitInterfaceDeclaration(context, childType, true);
+                            if (childInt is not null)
+                            {
+                                classSyntax = classSyntax.AddMembers(childInt);
+                            }
+                        }
+                        else
+                        {
+                            var childClass = VisitClassDeclaration(context, childType, true);
+                            if (childClass is not null)
+                            {
+                                classSyntax = classSyntax.AddMembers(childClass);
+                            }
+                        }
                     }
                     else
                     {
-                        var childClass = VisitClassDeclaration(context, childType, true);
+                        var syntax = VisitBodyDeclarationForClass(context, classSyntax, member);
+                        var withJavaComments = syntax?.WithJavaComments(member);
+                        if (withJavaComments != null)
+                        {
+                            classSyntax = classSyntax.AddMembers(withJavaComments);
+                        }
+                    }
 
-                        classSyntax = classSyntax.AddMembers(childClass);
+                    while (context.PendingAnonymousTypes.Count > 0)
+                    {
+                        var anon = context.PendingAnonymousTypes.Dequeue();
+                        classSyntax = classSyntax.AddMembers(anon);
                     }
                 }
-                else
-                {
-                    var syntax = VisitBodyDeclarationForClass(context, classSyntax, member);
-                    if (syntax != null) classSyntax = classSyntax.AddMembers(syntax.WithJavaComments(member));
-                }
-
-                while (context.PendingAnonymousTypes.Count > 0)
-                {
-                    var anon = context.PendingAnonymousTypes.Dequeue();
-                    classSyntax = classSyntax.AddMembers(anon);
-                }
-            }
 
             return classSyntax.WithJavaComments(javac);
         }

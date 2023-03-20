@@ -9,11 +9,16 @@ namespace JavaToCSharp.Statements
 {
     public class TypeDeclarationStatementVisitor : StatementVisitor<TypeDeclarationStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, TypeDeclarationStmt statement)
+        public override StatementSyntax? Visit(ConversionContext context, TypeDeclarationStmt statement)
         {
             var typeDeclaration = (ClassOrInterfaceDeclaration)statement.getTypeDeclaration();
             var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, typeDeclaration);
-            var text = classSyntax.NormalizeWhitespace().GetText().ToString();
+            var text = classSyntax?.NormalizeWhitespace().GetText().ToString();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return null;
+            }
+            
             return SyntaxFactory.ParseStatement(text);
         }
     }
