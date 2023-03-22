@@ -24,9 +24,13 @@ namespace JavaToCSharp.Declarations
 
         public static InterfaceDeclarationSyntax? VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
         {
-            string originalTypeName = javai.getName();
-            string newTypeName = $"I{originalTypeName}";
-            TypeHelper.AddOrUpdateTypeNameConversions(originalTypeName, newTypeName);
+            var originalTypeName = javai.getName();
+            var newTypeName = context.Options.StartInterfaceNamesWithI ? $"I{originalTypeName}" : originalTypeName;
+
+            if (context.Options.StartInterfaceNamesWithI)
+            {
+                TypeHelper.AddOrUpdateTypeNameConversions(originalTypeName, newTypeName);
+            }
 
             if (!isNested)
                 context.RootTypeName = newTypeName;

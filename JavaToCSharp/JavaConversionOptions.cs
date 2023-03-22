@@ -32,6 +32,8 @@ namespace JavaToCSharp
         public bool IncludeNamespace { get; set; }
 
         public bool UseDebugAssertForAsserts { get; set; }
+        
+        public bool StartInterfaceNamesWithI { get; set; }
 
         /// <summary>
         /// Unrecognized code is translated into comments

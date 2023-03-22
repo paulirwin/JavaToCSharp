@@ -20,8 +20,12 @@ public class InferenceVariableType implements ResolvedType {
     public void registerEquivalentType(ResolvedType type) {
     }
 }
+
+public interface ResolvedValueDeclaration extends ResolvedDeclaration {
+    ResolvedType getType();
+}
 ";
-            var options = new JavaConversionOptions();
+            var options = new JavaConversionOptions { StartInterfaceNamesWithI = true };
             options.WarningEncountered += (_, eventArgs)
                                               => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
             var parsed = JavaToCSharpConverter.ConvertText(javaCode, options);
@@ -44,6 +48,11 @@ namespace MyApp
         public virtual void RegisterEquivalentType(IResolvedType type)
         {
         }
+    }
+
+    public interface IResolvedValueDeclaration
+    {
+        IResolvedType GetType();
     }
 }"; 
             
