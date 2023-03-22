@@ -5,6 +5,7 @@ using System.Text;
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using ikvm.io;
 using JavaToCSharp.Declarations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -25,7 +26,7 @@ namespace JavaToCSharp
             var textBytes = Encoding.UTF8.GetBytes(javaText ?? string.Empty);
 
             using var memoryStream = new MemoryStream(textBytes);
-            using var wrapper = new ikvm.io.InputStreamWrapper(memoryStream);
+            using var wrapper = new InputStreamWrapper(memoryStream);
 
             options.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
@@ -34,25 +35,8 @@ namespace JavaToCSharp
             options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
             var types = parsed.getTypes()?.ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
-            var imports = parsed.getImports().ToList<ImportDeclaration>();
+            var imports = parsed.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
             var package = parsed.getPackage();
-
-            var usings = new List<UsingDirectiveSyntax>();
-
-            //foreach (var import in imports)
-            //{
-            //    var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(import.getName().toString()));
-            //    usings.Add(usingSyntax);
-            //}
-
-            if (options.IncludeUsings)
-            {
-                foreach (string ns in options.Usings.Where(x => !string.IsNullOrWhiteSpace(x)))
-                {
-                    var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns));
-                    usings.Add(usingSyntax);
-                }
-            }
 
             var rootMembers = new List<MemberDeclarationSyntax>();
             NamespaceDeclarationSyntax? namespaceSyntax = null;
@@ -116,7 +100,7 @@ namespace JavaToCSharp
 
             var root = SyntaxFactory.CompilationUnit(
                     externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
-                    usings: SyntaxFactory.List(usings.ToArray()),
+                    usings: SyntaxFactory.List(UsingsHelper.GetUsings(imports, options)),
                     attributeLists: new SyntaxList<AttributeListSyntax>(),
                     members: SyntaxFactory.List(rootMembers)
                 )

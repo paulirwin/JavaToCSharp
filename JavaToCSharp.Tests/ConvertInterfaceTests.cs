@@ -8,7 +8,9 @@ namespace JavaToCSharp.Tests
         [Fact]
         public void Verify_Method_Param_Types_Use_New_Interface_Name_Types()
         {
-            var javaCode = @"public interface ResolvedType {
+            var javaCode = @"import com.github.javaparser.resolution.Context;
+import com.github.javaparser.resolution.Test;
+public interface ResolvedType {
     default boolean isArray() {
         return false;
     }
@@ -24,7 +26,8 @@ public class InferenceVariableType implements ResolvedType {
                                               => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
             var parsed = JavaToCSharpConverter.ConvertText(javaCode, options);
 
-            var expectedCSharpCode = @"using System;
+            var expectedCSharpCode = @"using Com.Github.Javaparser.Resolution;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
