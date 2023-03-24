@@ -26,6 +26,7 @@ namespace JavaToCSharp
             // Generic types
             ["ArrayList"] = "List",
             ["List"] = "IList",
+            ["Map"] = "Dictionary",
 
             // Exceptions
             ["AlreadyClosedException"] = "ObjectDisposedException",
