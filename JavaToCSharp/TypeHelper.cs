@@ -29,6 +29,7 @@ namespace JavaToCSharp
             ["List"] = "IList",
             ["Map"] = "Dictionary",
             ["Set"] = "HashSet",
+            ["Iterator"] = "IEnumerator",
 
             // Exceptions
             ["AlreadyClosedException"] = "ObjectDisposedException",
