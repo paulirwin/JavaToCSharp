@@ -23,6 +23,7 @@ namespace JavaToCSharp
         {
             "System",
             "System.Collections.Generic",
+            "System.Collections.ObjectModel",
             "System.Linq",
             "System.Text"
         };
