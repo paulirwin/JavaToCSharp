@@ -5,6 +5,6 @@ namespace JavaToCSharp.Statements
 {
     public class EmptyStatementVisitor : StatementVisitor<EmptyStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, EmptyStmt statement) => null;
+        public override StatementSyntax? Visit(ConversionContext context, EmptyStmt statement) => null;
     }
 }

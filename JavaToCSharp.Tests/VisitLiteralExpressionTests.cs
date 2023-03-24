@@ -2,7 +2,7 @@
 using JavaToCSharp.Expressions;
 using Xunit;
 
-namespace LiteralExpressionTests
+namespace JavaToCSharp.Tests
 {
     public class VisitLiteralExpressionTests
     {

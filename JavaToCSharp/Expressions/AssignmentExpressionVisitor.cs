@@ -6,13 +6,21 @@ namespace JavaToCSharp.Expressions
 {
     public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, AssignExpr assignExpr)
+        public override ExpressionSyntax? Visit(ConversionContext context, AssignExpr assignExpr)
         {
             var left = assignExpr.getTarget();
             var leftSyntax = VisitExpression(context, left);
+            if (leftSyntax is null)
+            {
+                return null;
+            }
 
             var right = assignExpr.getValue();
             var rightSyntax = VisitExpression(context, right);
+            if (rightSyntax is null)
+            {
+                return null;
+            }
 
             var op = assignExpr.getOperator();
             var kind = SyntaxKind.None;

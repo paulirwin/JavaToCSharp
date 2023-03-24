@@ -1,7 +1,6 @@
-using JavaToCSharp;
 using Xunit;
 
-namespace TypeHelperTests
+namespace JavaToCSharp.Tests
 {
     public class ConvertTypeTests
     {

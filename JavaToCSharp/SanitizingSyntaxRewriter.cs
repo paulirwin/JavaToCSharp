@@ -9,7 +9,7 @@ namespace JavaToCSharp
     /// <remarks>Works on the C# Roslyn syntax tree, not on the Java ast.</remarks>
     internal class SanitizingSyntaxRewriter : CSharpSyntaxRewriter
     {
-        public override SyntaxNode Visit(SyntaxNode node)
+        public override SyntaxNode? Visit(SyntaxNode? node)
         {
             if (node != null)
             {

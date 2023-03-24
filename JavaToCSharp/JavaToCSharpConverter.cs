@@ -5,6 +5,7 @@ using System.Text;
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using ikvm.io;
 using JavaToCSharp.Declarations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,7 +15,7 @@ namespace JavaToCSharp
 {
     public static class JavaToCSharpConverter
     {
-        public static string ConvertText(string javaText, JavaConversionOptions options = null)
+        public static string? ConvertText(string? javaText, JavaConversionOptions? options = null)
         {
             options ??= new JavaConversionOptions();
 
@@ -25,7 +26,7 @@ namespace JavaToCSharp
             var textBytes = Encoding.UTF8.GetBytes(javaText ?? string.Empty);
 
             using var memoryStream = new MemoryStream(textBytes);
-            using var wrapper = new ikvm.io.InputStreamWrapper(memoryStream);
+            using var wrapper = new InputStreamWrapper(memoryStream);
 
             options.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
@@ -33,29 +34,12 @@ namespace JavaToCSharp
 
             options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
-            var types = parsed.getTypes().ToList<TypeDeclaration>();
-            var imports = parsed.getImports().ToList<ImportDeclaration>();
+            var types = parsed.getTypes()?.ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
+            var imports = parsed.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
             var package = parsed.getPackage();
 
-            var usings = new List<UsingDirectiveSyntax>();
-
-            //foreach (var import in imports)
-            //{
-            //    var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(import.getName().toString()));
-            //    usings.Add(usingSyntax);
-            //}
-
-            if (options.IncludeUsings)
-            {
-                foreach (string ns in options.Usings.Where(x => !string.IsNullOrWhiteSpace(x)))
-                {
-                    var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns));
-                    usings.Add(usingSyntax);
-                }
-            }
-
             var rootMembers = new List<MemberDeclarationSyntax>();
-            NamespaceDeclarationSyntax namespaceSyntax = null;
+            NamespaceDeclarationSyntax? namespaceSyntax = null;
 
             if (options.IncludeNamespace)
             {
@@ -63,7 +47,12 @@ namespace JavaToCSharp
 
                 foreach (var packageReplacement in options.PackageReplacements)
                 {
-                    packageName = packageReplacement.Replace(packageName);
+                    if (string.IsNullOrWhiteSpace(packageName))
+                    {
+                        continue;
+                    }
+                    
+                    packageName = packageReplacement.Replace(packageName)!;
                 }
 
                 packageName = TypeHelper.Capitalize(packageName);
@@ -78,20 +67,20 @@ namespace JavaToCSharp
                 {
                     if (classOrIntType.isInterface())
                     {
-                        var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType, false);
+                        var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType);
 
-                        if (namespaceSyntax != null)
+                        if (namespaceSyntax != null && interfaceSyntax != null)
                             namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
-                        else
+                        else if(interfaceSyntax != null)
                             rootMembers.Add(interfaceSyntax);
                     }
                     else
                     {
-                        var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType, false);
+                        var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType);
 
-                        if (namespaceSyntax != null)
+                        if (namespaceSyntax != null && classSyntax != null)
                             namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                        else
+                        else if(classSyntax != null)
                             rootMembers.Add(classSyntax);
                     }
                 }
@@ -99,9 +88,9 @@ namespace JavaToCSharp
                 {
                     var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
 
-                    if (namespaceSyntax != null)
+                    if (namespaceSyntax != null && classSyntax != null)
                         namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                    else
+                    else if(classSyntax != null)
                         rootMembers.Add(classSyntax);
                 }
             }
@@ -111,16 +100,24 @@ namespace JavaToCSharp
 
             var root = SyntaxFactory.CompilationUnit(
                     externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
-                    usings: SyntaxFactory.List(usings.ToArray()),
+                    usings: SyntaxFactory.List(UsingsHelper.GetUsings(imports, options)),
                     attributeLists: new SyntaxList<AttributeListSyntax>(),
-                    members: SyntaxFactory.List<MemberDeclarationSyntax>(rootMembers)
+                    members: SyntaxFactory.List(rootMembers)
                 )
                 .NormalizeWhitespace();
 
             root = root.WithJavaComments(parsed, "\r\n");
+            if (root is null)
+            {
+                return null;
+            }
 
             var postConversionSanitizer = new SanitizingSyntaxRewriter();
             var sanitizedRoot = postConversionSanitizer.VisitCompilationUnit(root);
+            if (sanitizedRoot is null)
+            {
+                return null;
+            }
 
             var tree = SyntaxFactory.SyntaxTree(sanitizedRoot);
 

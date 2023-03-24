@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
@@ -9,18 +10,22 @@ namespace JavaToCSharp.Statements
 {
     public class ForEachStatementVisitor : StatementVisitor<ForeachStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, ForeachStmt foreachStmt)
+        public override StatementSyntax? Visit(ConversionContext context, ForeachStmt foreachStmt)
         {
             var iterableExpr = foreachStmt.getIterable();
             var iterableSyntax = ExpressionVisitor.VisitExpression(context, iterableExpr);
+            if (iterableSyntax is null)
+            {
+                return null;
+            }
 
             var varExpr = foreachStmt.getVariable();
             var type = TypeHelper.ConvertTypeOf(varExpr);
 
-            var vars = varExpr.getVars()
-                .ToList<VariableDeclarator>()
-                .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
-                .ToArray();
+            var variableDeclarators = varExpr.getVars()?.ToList<VariableDeclarator>()?? new List<VariableDeclarator>();
+            var vars = variableDeclarators
+                       .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
+                       .ToArray();
 
             var body = foreachStmt.getBody();
             var bodySyntax = VisitStatement(context, body);

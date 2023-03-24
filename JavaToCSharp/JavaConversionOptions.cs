@@ -13,9 +13,9 @@ namespace JavaToCSharp
             UseUnrecognizedCodeToComment = true;
         }
 
-        public event EventHandler<ConversionWarningEventArgs> WarningEncountered;
+        public event EventHandler<ConversionWarningEventArgs>? WarningEncountered;
 
-        public event EventHandler<ConversionStateChangedEventArgs> StateChanged;
+        public event EventHandler<ConversionStateChangedEventArgs>? StateChanged;
 
         public IList<Replacement> PackageReplacements { get; } = new List<Replacement>();
 
@@ -23,6 +23,7 @@ namespace JavaToCSharp
         {
             "System",
             "System.Collections.Generic",
+            "System.Collections.ObjectModel",
             "System.Linq",
             "System.Text"
         };
@@ -32,6 +33,8 @@ namespace JavaToCSharp
         public bool IncludeNamespace { get; set; }
 
         public bool UseDebugAssertForAsserts { get; set; }
+        
+        public bool StartInterfaceNamesWithI { get; set; }
 
         /// <summary>
         /// Unrecognized code is translated into comments

@@ -12,10 +12,16 @@ namespace JavaToCSharp.Declarations
 {
     public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorDeclaration>
     {
-        public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, ConstructorDeclaration ctorDecl)
+        public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, ConstructorDeclaration ctorDecl)
         {
-            var ctorSyntax = SyntaxFactory.ConstructorDeclaration(classSyntax.Identifier.Value.ToString())
-                .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
+            string? identifier = classSyntax.Identifier.Value?.ToString();
+            if (identifier is null)
+            {
+                return null;
+            }
+            
+            var ctorSyntax = SyntaxFactory.ConstructorDeclaration(identifier)
+                                          .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
             var mods = ctorDecl.getModifiers();
 
@@ -62,7 +68,7 @@ namespace JavaToCSharp.Declarations
                 var ctorInvStmt = (ExplicitConstructorInvocationStmt)statements[0];
                 statements.RemoveAt(0);
 
-                ArgumentListSyntax argsSyntax = null;
+                ArgumentListSyntax? argsSyntax = null;
 
                 var initArgs = ctorInvStmt.getArgs();
                 if (initArgs != null && initArgs.size() > 0)

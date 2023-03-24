@@ -219,7 +219,7 @@ namespace JavaToCSharpGui.ViewModels
             options.WarningEncountered += Options_WarningEncountered;
             options.StateChanged += Options_StateChanged;
 
-            this.IsConvertEnabled = false;
+            IsConvertEnabled = false;
             Task.Run(() =>
             {
                 try
@@ -231,7 +231,7 @@ namespace JavaToCSharpGui.ViewModels
                     else
                     {
                         var csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
-                        DispatcherInvoke(() => this.CSharpText = csharp);
+                        DispatcherInvoke(() => CSharpText = csharp);
                     }
                 }
                 catch (Exception ex)
@@ -240,7 +240,7 @@ namespace JavaToCSharpGui.ViewModels
                 }
                 finally
                 {
-                    DispatcherInvoke(() => this.IsConvertEnabled = true);
+                    DispatcherInvoke(() => IsConvertEnabled = true);
                 }
             });
         }
@@ -276,7 +276,7 @@ namespace JavaToCSharpGui.ViewModels
             {
                 DispatcherInvoke(() =>
                 {
-                    this.CSharpText = $"{ this.CSharpText } \r\n==================\r\n[WARN]out.path: { _currentJavaFile },\r\n\t\tConversionWarning-JavaLine:[{ e.JavaLineNumber}]-Message:[{ e.Message}]\r\n";
+                    CSharpText = $"{ CSharpText } \r\n==================\r\n[WARN]out.path: { _currentJavaFile },\r\n\t\tConversionWarning-JavaLine:[{ e.JavaLineNumber}]-Message:[{ e.Message}]\r\n";
                 });
             }
             else
@@ -353,7 +353,7 @@ namespace JavaToCSharpGui.ViewModels
                 var subStartIndex = path.Length;
                 var javaTexts = string.Join("\r\n", files.Select(x => x.FullName.Substring(subStartIndex)));
 
-                DispatcherInvoke(() => this.JavaText = javaTexts);
+                DispatcherInvoke(() => JavaText = javaTexts);
             });
         }
 
@@ -401,14 +401,14 @@ namespace JavaToCSharpGui.ViewModels
 
                     DispatcherInvoke(() =>
                     {
-                        this.CSharpText = $"{ this.CSharpText } \r\n==================\r\nout.path: { jOutPath },\r\n\t\tfile: {jOutFileName}";
+                        CSharpText = $"{ CSharpText } \r\n==================\r\nout.path: { jOutPath },\r\n\t\tfile: {jOutFileName}";
                     });
                 }
                 catch (Exception ex)
                 {
                     DispatcherInvoke(() =>
                     {
-                        this.CSharpText = $"{ this.CSharpText } \r\n==================\r\n[ERROR]out.path: { jOutPath },\r\nex: { ex } \r\n";
+                        CSharpText = $"{ CSharpText } \r\n==================\r\n[ERROR]out.path: { jOutPath },\r\nex: { ex } \r\n";
                     });
                 }
             }

@@ -11,7 +11,7 @@ namespace JavaToCSharp.Tests
         public void TestCommentsCanBeConverted(string filePath)
         {
             var options = new JavaConversionOptions();
-            options.WarningEncountered += (sender, eventArgs)
+            options.WarningEncountered += (_, eventArgs)
                                               => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
             var parsed = JavaToCSharpConverter.ConvertText(System.IO.File.ReadAllText(filePath), options);
             Assert.NotNull(parsed);

@@ -6,13 +6,16 @@ namespace JavaToCSharp.Expressions
 {
     public class CastExpressionVisitor : ExpressionVisitor<CastExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, CastExpr castExpr)
+        public override ExpressionSyntax? Visit(ConversionContext context, CastExpr castExpr)
         {
             var expr = castExpr.getExpr();
             var exprSyntax = VisitExpression(context, expr);
+            if (exprSyntax is null)
+            {
+                return null;
+            }
 
             var type = TypeHelper.ConvertTypeOf(castExpr);
-
             return SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(type), exprSyntax);
         }
     }

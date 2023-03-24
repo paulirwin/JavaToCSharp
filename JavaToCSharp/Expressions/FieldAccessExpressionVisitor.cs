@@ -6,18 +6,22 @@ namespace JavaToCSharp.Expressions
 {
     public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, FieldAccessExpr fieldAccessExpr)
+        public override ExpressionSyntax? Visit(ConversionContext context, FieldAccessExpr fieldAccessExpr)
         {
             var scope = fieldAccessExpr.getScope();
-            ExpressionSyntax scopeSyntax = null;
+            ExpressionSyntax? scopeSyntax = null;
 
             if (scope != null)
             {
                 scopeSyntax = VisitExpression(context, scope);
             }
 
-            var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getField());
+            if (scopeSyntax is null)
+            {
+                return null;
+            }
 
+            var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getField());
             return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(field));
         }
     }

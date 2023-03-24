@@ -22,11 +22,11 @@ namespace JavaToCSharp
 
         private static readonly Regex _tokenizePattern = new(@"\w+|\[|\]|<|>|,|\?", RegexOptions.Compiled);
 
-        private static (string, TokenType)[] _tokens;
+        private static (string, TokenType)[]? _tokens;
         private static (string text, TokenType type) _token;
         private static int _currentIndex;
         private static readonly StringBuilder _sb = new();
-        private static Func<string, string> _translate;
+        private static Func<string, string>? _translate;
 
         internal static string ParseTypeName(string typename, Func<string, string> translateIdentifier)
         {
@@ -78,7 +78,7 @@ namespace JavaToCSharp
         private static void NextToken()
         {
             _currentIndex++;
-            _token = _currentIndex < _tokens.Length ? _tokens[_currentIndex] : default;
+            _token = _tokens is not null && _currentIndex < _tokens.Length ? _tokens[_currentIndex] : default;
         }
 
         private static bool TypeName()
@@ -86,7 +86,7 @@ namespace JavaToCSharp
             // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ].
             if (_token.type is TokenType.Identifier)
             {
-                _sb.Append(_translate(_token.text));
+                _sb.Append(_translate?.Invoke(_token.text));
                 NextToken();
                 if (_token.type is TokenType.LeftAngleBracket)
                 {

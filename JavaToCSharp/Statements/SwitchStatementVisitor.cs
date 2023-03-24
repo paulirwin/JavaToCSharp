@@ -9,10 +9,14 @@ namespace JavaToCSharp.Statements
 {
     public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, SwitchStmt switchStmt)
+        public override StatementSyntax? Visit(ConversionContext context, SwitchStmt switchStmt)
         {
             var selector = switchStmt.getSelector();
             var selectorSyntax = ExpressionVisitor.VisitExpression(context, selector);
+            if (selectorSyntax is null)
+            {
+                return null;
+            }
 
             var cases = switchStmt.getEntries().ToList<SwitchEntryStmt>();
 
@@ -52,6 +56,10 @@ namespace JavaToCSharp.Statements
                 else
                 {
                     var labelSyntax = ExpressionVisitor.VisitExpression(context, label);
+                    if (labelSyntax is null)
+                    {
+                        return null;
+                    }
 
                     var caseSyntax = SyntaxFactory.SwitchSection(
                         SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.CaseSwitchLabel(labelSyntax) }),
