@@ -22,6 +22,7 @@ namespace JavaToCSharp
             ["Float"] = "float",
             ["String"] = "string",
             ["Object"] = "object",
+            ["AutoCloseable"] = "IDisposable",
 
             // Generic types
             ["ArrayList"] = "List",
