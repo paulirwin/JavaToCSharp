@@ -36,6 +36,12 @@ namespace JavaToCSharp
             ["IllegalStateException"] = "InvalidOperationException",
             ["UnsupportedOperationException"] = "NotSupportedException",
             ["RuntimeException"] = "Exception",
+            ["AccessDeniedException"] = "UnauthorizedAccessException",
+            ["AssertionError"] = "InvalidOperationException",
+            ["NullPointerException"] = "NullReferenceException",
+            ["UncheckedIOException"] = "IOException",
+            ["EOFException"] = "EndOfStreamException",
+            ["NoSuchFileException"] = "FileNotFoundException",
         };
 
         public static void AddOrUpdateTypeNameConversions(string key, string value)
