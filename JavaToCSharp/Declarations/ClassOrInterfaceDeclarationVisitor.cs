@@ -40,7 +40,6 @@ namespace JavaToCSharp.Declarations
             var classSyntax = SyntaxFactory.InterfaceDeclaration(newTypeName);
 
             var typeParams = javai.getTypeParameters().ToList<TypeParameter>();
-
             if (typeParams is {Count: > 0})
             {
                 classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
@@ -57,8 +56,16 @@ namespace JavaToCSharp.Declarations
             if (mods.HasFlag(Modifier.FINAL))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-            var implements = javai.getImplements().ToList<ClassOrInterfaceType>();
+            var extends = javai.getExtends().ToList<ClassOrInterfaceType>();
+            if (extends != null)
+            {
+                foreach (var extend in extends)
+                {
+                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
+                }
+            }
 
+            var implements = javai.getImplements().ToList<ClassOrInterfaceType>();
             if (implements != null)
             {
                 foreach (var implement in implements)

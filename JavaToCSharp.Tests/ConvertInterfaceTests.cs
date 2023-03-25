@@ -33,6 +33,7 @@ public interface ResolvedValueDeclaration extends ResolvedDeclaration {
             var expectedCSharpCode = @"using Com.Github.Javaparser.Resolution;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -50,9 +51,35 @@ namespace MyApp
         }
     }
 
-    public interface IResolvedValueDeclaration
+    public interface IResolvedValueDeclaration : ResolvedDeclaration
     {
         IResolvedType GetType();
+    }
+}"; 
+            
+            Assert.Equal(expectedCSharpCode, parsed);
+        }
+
+        [Fact]
+        public void Verify_Interface_Extends_Are_Converted()
+        {
+            var javaCode = @"public interface CharTermAttribute extends Attribute, CharSequence, Appendable {
+}";
+            var options = new JavaConversionOptions { StartInterfaceNamesWithI = true };
+            options.WarningEncountered += (_, eventArgs)
+                                              => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
+            var parsed = JavaToCSharpConverter.ConvertText(javaCode, options);
+
+            var expectedCSharpCode = @"using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+
+namespace MyApp
+{
+    public interface ICharTermAttribute : Attribute, CharSequence, Appendable
+    {
     }
 }"; 
             
