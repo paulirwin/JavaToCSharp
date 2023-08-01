@@ -3,14 +3,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text.RegularExpressions;
 
-namespace JavaToCSharp.Expressions
+namespace JavaToCSharp.Expressions;
+
+public class CharLiteralExpressionVisitor : ExpressionVisitor<CharLiteralExpr>
 {
-    public class CharLiteralExpressionVisitor : ExpressionVisitor<CharLiteralExpr>
+    public override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr)
     {
-        public override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr)
-        {
-            var value = Regex.Unescape(expr.getValue());
-            return SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(value[0]));
-        }
+        var value = Regex.Unescape(expr.getValue());
+        return SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(value[0]));
     }
 }

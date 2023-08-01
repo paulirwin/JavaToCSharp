@@ -1,15 +1,17 @@
-﻿using System.Windows;
+﻿using System.Resources;
+using System.Windows;
 
-namespace JavaToCSharpGui
+[assembly: NeutralResourcesLanguage("en")]
+
+namespace JavaToCSharpGui;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    public App()
     {
-        public App()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

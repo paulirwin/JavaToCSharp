@@ -3,20 +3,19 @@ using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp.Statements
+namespace JavaToCSharp.Statements;
+
+public class ReturnStatementVisitor : StatementVisitor<ReturnStmt>
 {
-    public class ReturnStatementVisitor : StatementVisitor<ReturnStmt>
+    public override StatementSyntax Visit(ConversionContext context, ReturnStmt returnStmt)
     {
-        public override StatementSyntax Visit(ConversionContext context, ReturnStmt returnStmt)
-        {
-            var expr = returnStmt.getExpr();
+        var expr = returnStmt.getExpr();
 
-            if (expr == null)
-                return SyntaxFactory.ReturnStatement(); // i.e. "return" in a void method
+        if (expr == null)
+            return SyntaxFactory.ReturnStatement(); // i.e. "return" in a void method
 
-            var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
+        var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
 
-            return SyntaxFactory.ReturnStatement(exprSyntax);
-        }
+        return SyntaxFactory.ReturnStatement(exprSyntax);
     }
 }

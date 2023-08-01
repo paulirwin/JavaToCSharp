@@ -5,21 +5,20 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp.Statements
+namespace JavaToCSharp.Statements;
+
+public class TypeDeclarationStatementVisitor : StatementVisitor<TypeDeclarationStmt>
 {
-    public class TypeDeclarationStatementVisitor : StatementVisitor<TypeDeclarationStmt>
+    public override StatementSyntax? Visit(ConversionContext context, TypeDeclarationStmt statement)
     {
-        public override StatementSyntax? Visit(ConversionContext context, TypeDeclarationStmt statement)
+        var typeDeclaration = (ClassOrInterfaceDeclaration)statement.getTypeDeclaration();
+        var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, typeDeclaration);
+        var text = classSyntax?.NormalizeWhitespace().GetText().ToString();
+        if (System.String.IsNullOrWhiteSpace(text))
         {
-            var typeDeclaration = (ClassOrInterfaceDeclaration)statement.getTypeDeclaration();
-            var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, typeDeclaration);
-            var text = classSyntax?.NormalizeWhitespace().GetText().ToString();
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return null;
-            }
-            
-            return SyntaxFactory.ParseStatement(text);
+            return null;
         }
+        
+        return SyntaxFactory.ParseStatement(text);
     }
 }

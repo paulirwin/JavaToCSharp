@@ -1,65 +1,63 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Caliburn.Micro;
 using JavaToCSharpGui.ViewModels;
 
-namespace JavaToCSharpGui
+namespace JavaToCSharpGui;
+
+public class AppBootstrapper : BootstrapperBase
 {
-    using System;
-    using System.Collections.Generic;
-    using Caliburn.Micro;
+    SimpleContainer _container;
 
-    public class AppBootstrapper : BootstrapperBase
+    public AppBootstrapper()
     {
-        SimpleContainer container;
+        StartRuntime();
+    }
 
-        public AppBootstrapper()
+    protected override void PrepareApplication()
+    {
+        var baseLocate = ViewLocator.LocateTypeForModelType;
+
+        ViewLocator.LocateTypeForModelType = (modelType, displayLocation, context) =>
         {
-            StartRuntime();
-        }
+            var attribute = modelType.GetCustomAttributes(typeof(ViewAttribute), false).OfType<ViewAttribute>().FirstOrDefault(x => x.Context == context);
+            return attribute != null ? attribute.ViewType : baseLocate(modelType, displayLocation, context);
+        };
 
-        protected override void PrepareApplication()
-        {
-            var baseLocate = ViewLocator.LocateTypeForModelType;
+        base.PrepareApplication();
+    }
 
-            ViewLocator.LocateTypeForModelType = (modelType, displayLocation, context) =>
-            {
-                var attribute = modelType.GetCustomAttributes(typeof(ViewAttribute), false).OfType<ViewAttribute>().FirstOrDefault(x => x.Context == context);
-                return attribute != null ? attribute.ViewType : baseLocate(modelType, displayLocation, context);
-            };
+    protected override void Configure()
+    {
+        _container = new SimpleContainer();
 
-            base.PrepareApplication();
-        }
+        _container.Singleton<IWindowManager, WindowManager>();
+        _container.Singleton<IEventAggregator, EventAggregator>();
+        _container.PerRequest<IShell, ShellViewModel>();
+    }
 
-        protected override void Configure()
-        {
-            container = new SimpleContainer();
+    protected override object GetInstance(Type service, string key)
+    {
+        var instance = _container.GetInstance(service, key);
+        if (instance != null)
+            return instance;
 
-            container.Singleton<IWindowManager, WindowManager>();
-            container.Singleton<IEventAggregator, EventAggregator>();
-            container.PerRequest<IShell, ShellViewModel>();
-        }
+        throw new InvalidOperationException("Could not locate any instances.");
+    }
 
-        protected override object GetInstance(Type service, string key)
-        {
-            var instance = container.GetInstance(service, key);
-            if (instance != null)
-                return instance;
+    protected override IEnumerable<object> GetAllInstances(Type service)
+    {
+        return _container.GetAllInstances(service);
+    }
 
-            throw new InvalidOperationException("Could not locate any instances.");
-        }
+    protected override void BuildUp(object instance)
+    {
+        _container.BuildUp(instance);
+    }
 
-        protected override IEnumerable<object> GetAllInstances(Type service)
-        {
-            return container.GetAllInstances(service);
-        }
-
-        protected override void BuildUp(object instance)
-        {
-            container.BuildUp(instance);
-        }
-
-        protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
-        {
-            DisplayRootViewFor<IShell>();
-        }
+    protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
+    {
+        DisplayRootViewFor<IShell>();
     }
 }
