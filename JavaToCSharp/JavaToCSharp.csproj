@@ -14,7 +14,8 @@
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="IKVM" Version="8.4.5" />
+    <PackageReference Include="IKVM" Version="8.6.2" />
+    <PackageReference Include="IKVM.Image.JDK" Version="8.6.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
