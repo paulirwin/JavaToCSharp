@@ -15,19 +15,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="IKVM" Version="8.6.2" />
-    <PackageReference Include="IKVM.Image.JDK" Version="8.6.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="javaparser-core-3.0.0-SNAPSHOT">
-      <HintPath>..\Lib\javaparser-core-3.0.0-SNAPSHOT.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\Lib\javaparser-core-3.0.0-SNAPSHOT.dll">
-      <Pack>true</Pack>
-      <PackagePath>lib\$(TargetFramework)</PackagePath>
-    </Content>
+    <IkvmReference Include="../Lib/javaparser-core-3.0.0-SNAPSHOT.jar" />
   </ItemGroup>
 </Project>

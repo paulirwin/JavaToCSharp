@@ -17,16 +17,15 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="IKVM" Version="8.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <Reference Include="javaparser-core-3.0.0-SNAPSHOT">
-      <HintPath>..\Lib\javaparser-core-3.0.0-SNAPSHOT.dll</HintPath>
-    </Reference>
+    <IkvmReference Include="../Lib/javaparser-core-3.0.0-SNAPSHOT.jar" />
   </ItemGroup>
 
   <ItemGroup>
