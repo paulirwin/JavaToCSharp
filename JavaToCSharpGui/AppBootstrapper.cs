@@ -57,9 +57,9 @@ namespace JavaToCSharpGui
             container.BuildUp(instance);
         }
 
-        protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
+        protected override async void OnStartup(object sender, System.Windows.StartupEventArgs e)
         {
-            DisplayRootViewForAsync<IShell>();
+            await DisplayRootViewForAsync<IShell>();
         }
     }
 }
