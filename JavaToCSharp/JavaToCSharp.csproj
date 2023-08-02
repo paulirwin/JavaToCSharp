@@ -15,8 +15,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="IKVM" Version="8.6.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <IkvmReference Include="../Lib/javaparser-core-3.0.0-SNAPSHOT.jar" />
