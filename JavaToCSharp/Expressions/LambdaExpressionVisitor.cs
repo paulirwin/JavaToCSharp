@@ -10,18 +10,18 @@ namespace JavaToCSharp.Expressions
 {
     public class LambdaExpressionVisitor : ExpressionVisitor<LambdaExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, LambdaExpr expr)
+        public override ExpressionSyntax? Visit(ConversionContext context, LambdaExpr expr)
         {
             var bodyStatement = expr.getBody();
             var bodyStatementSyntax = StatementVisitor.VisitStatement(context, bodyStatement);
             
-            ParenthesizedLambdaExpressionSyntax lambdaExpressionSyntax;
+            ParenthesizedLambdaExpressionSyntax? lambdaExpressionSyntax = null;
 
             if (bodyStatementSyntax is ExpressionStatementSyntax ess)
             {
                 lambdaExpressionSyntax = SyntaxFactory.ParenthesizedLambdaExpression(ess.Expression);
             }
-            else
+            else if(bodyStatementSyntax is not null)
             {
                 lambdaExpressionSyntax = SyntaxFactory.ParenthesizedLambdaExpression(bodyStatementSyntax);
             }
@@ -56,8 +56,7 @@ namespace JavaToCSharp.Expressions
                 paramSyntaxes.Add(paramSyntax);
             }
 
-            lambdaExpressionSyntax = lambdaExpressionSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
-
+            lambdaExpressionSyntax = lambdaExpressionSyntax?.AddParameterListParameters(paramSyntaxes.ToArray());
             return lambdaExpressionSyntax;
         }
     }

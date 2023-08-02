@@ -11,12 +11,12 @@ namespace JavaToCSharp.Statements
 {
     public class ForStatementVisitor : StatementVisitor<ForStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, ForStmt forStmt)
+        public override StatementSyntax? Visit(ConversionContext context, ForStmt forStmt)
         {
             var inits = forStmt.getInit().ToList<Expression>();
 
             var initSyntaxes = new List<ExpressionSyntax>();
-            VariableDeclarationSyntax varSyntax = null;
+            VariableDeclarationSyntax? varSyntax = null;
 
             if (inits != null)
             {
@@ -26,17 +26,20 @@ namespace JavaToCSharp.Statements
                     {
                         var type = TypeHelper.ConvertTypeOf(varExpr);
 
-                        var vars = varExpr.getVars()
-                            .ToList<VariableDeclarator>()
-                            .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
-                            .ToArray();
+                        var variableDeclarators = varExpr.getVars()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+                        var vars = variableDeclarators
+                                   .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
+                                   .ToArray();
 
                         varSyntax = SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(type), SyntaxFactory.SeparatedList(vars, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), vars.Length - 1)));
                     }
                     else
                     {
                         var initSyntax = ExpressionVisitor.VisitExpression(context, init);
-                        initSyntaxes.Add(initSyntax);
+                        if (initSyntax is not null)
+                        {
+                            initSyntaxes.Add(initSyntax);
+                        }
                     }
                 }
             }
@@ -49,7 +52,8 @@ namespace JavaToCSharp.Statements
 
             if (increments != null)
             {
-                incrementSyntaxes.AddRange(increments.Select(increment => ExpressionVisitor.VisitExpression(context, increment)));
+                var expressionSyntaxes = increments.Select(increment => ExpressionVisitor.VisitExpression(context, increment));
+                incrementSyntaxes.AddRange(expressionSyntaxes.Where(expressionSyntax => expressionSyntax != null)!);
             }
 
             var body = forStmt.getBody();

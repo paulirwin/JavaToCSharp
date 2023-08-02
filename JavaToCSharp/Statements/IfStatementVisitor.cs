@@ -7,10 +7,14 @@ namespace JavaToCSharp.Statements
 {
     public class IfStatementVisitor : StatementVisitor<IfStmt>
     {
-        public override StatementSyntax Visit(ConversionContext context, IfStmt ifStmt)
+        public override StatementSyntax? Visit(ConversionContext context, IfStmt ifStmt)
         {
             var condition = ifStmt.getCondition();
             var conditionSyntax = ExpressionVisitor.VisitExpression(context, condition);
+            if (conditionSyntax is null)
+            {
+                return null;
+            }
 
             var thenStmt = ifStmt.getThenStmt();
             var thenSyntax = VisitStatement(context, thenStmt);
@@ -24,11 +28,13 @@ namespace JavaToCSharp.Statements
                 return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);
 
             var elseStatementSyntax = VisitStatement(context, elseStmt);
+            if (elseStatementSyntax is null)
+            {
+                return null;
+            }
+            
             var elseSyntax = SyntaxFactory.ElseClause(elseStatementSyntax);
-
-            return elseSyntax == null 
-                ? SyntaxFactory.IfStatement(conditionSyntax, thenSyntax) 
-                : SyntaxFactory.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
+            return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
         }
     }
 }

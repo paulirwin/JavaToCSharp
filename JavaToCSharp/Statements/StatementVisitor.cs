@@ -9,9 +9,9 @@ namespace JavaToCSharp.Statements
     public abstract class StatementVisitor<T> : StatementVisitor
         where T : Statement
     {
-        public abstract StatementSyntax Visit(ConversionContext context, T statement);
+        public abstract StatementSyntax? Visit(ConversionContext context, T statement);
 
-        protected sealed override StatementSyntax Visit(ConversionContext context, Statement statement)
+        protected sealed override StatementSyntax? Visit(ConversionContext context, Statement statement)
         {
             return Visit(context, (T)statement);
         }
@@ -46,14 +46,15 @@ namespace JavaToCSharp.Statements
             };
         }
 
-        protected abstract StatementSyntax Visit(ConversionContext context, Statement statement);
+        protected abstract StatementSyntax? Visit(ConversionContext context, Statement statement);
 
-        public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement> statements) => 
-            statements == null 
-                ? new List<StatementSyntax>() 
-                : statements.Select(statement => VisitStatement(context, statement)).Where(syntax => syntax != null).ToList();
+        public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement>? statements) =>
+            statements == null
+                ? new List<StatementSyntax>()
+                : statements.Select(statement => VisitStatement(context, statement))
+                            .Where(syntax => syntax != null)!.ToList<StatementSyntax>();
 
-        public static StatementSyntax VisitStatement(ConversionContext context, Statement statement)
+        public static StatementSyntax? VisitStatement(ConversionContext context, Statement statement)
         {
             if (!_visitors.TryGetValue(statement.GetType(), out var visitor))
             {

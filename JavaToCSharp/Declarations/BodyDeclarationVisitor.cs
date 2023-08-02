@@ -8,16 +8,16 @@ namespace JavaToCSharp.Declarations
     public abstract class BodyDeclarationVisitor<T> : BodyDeclarationVisitor
         where T : BodyDeclaration
     {
-        public abstract MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, T declaration);
+        public abstract MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, T declaration);
 
-        public abstract MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, T declaration);
+        public abstract MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, T declaration);
 
-        protected sealed override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
+        protected sealed override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
         {
             return VisitForClass(context, classSyntax, (T)declaration);
         }
 
-        protected sealed override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
+        protected sealed override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
         {
             return VisitForInterface(context, interfaceSyntax, (T)declaration);
         }
@@ -42,11 +42,11 @@ namespace JavaToCSharp.Declarations
             };
         }
 
-        protected abstract MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration);
+        protected abstract MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration);
 
-        protected abstract MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration);
+        protected abstract MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration);
 
-        public static MemberDeclarationSyntax VisitBodyDeclarationForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
+        public static MemberDeclarationSyntax? VisitBodyDeclarationForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
         {
             if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
             {
@@ -58,7 +58,7 @@ namespace JavaToCSharp.Declarations
                 .WithJavaComments(declaration);
         }
 
-        public static MemberDeclarationSyntax VisitBodyDeclarationForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
+        public static MemberDeclarationSyntax? VisitBodyDeclarationForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
         {
             if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
             {

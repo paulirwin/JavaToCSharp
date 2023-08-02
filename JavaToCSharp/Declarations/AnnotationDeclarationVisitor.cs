@@ -6,8 +6,8 @@ namespace JavaToCSharp.Declarations
 {
     public class AnnotationDeclarationVisitor : BodyDeclarationVisitor<AnnotationDeclaration>
     {
-        public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
-            AnnotationDeclaration declaration)
+        public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
+                                                               AnnotationDeclaration declaration)
         {
             context.Options.Warning("Declaring an annotation inside a class NotImplemented.",
                                     declaration.getBegin().line);

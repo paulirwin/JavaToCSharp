@@ -18,8 +18,8 @@ namespace JavaToCSharp
 
         public JavaConversionOptions Options { get; }
 
-        public string RootTypeName { get; set; }
+        public string? RootTypeName { get; set; }
 
-        public string LastTypeName { get; set; }
+        public string? LastTypeName { get; set; }
     }
 }

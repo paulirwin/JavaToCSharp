@@ -1,4 +1,5 @@
-﻿using com.github.javaparser.ast.stmt;
+﻿using System.Collections.Generic;
+using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,8 +27,8 @@ namespace JavaToCSharp.Statements
                     var paramType = catchClause.getParam().getType();
                     if (paramType is UnionType)
                     {
-                        var nodes = paramType.getChildrenNodes();
-                        foreach (var node in nodes.ToList<ReferenceType>())
+                        var nodes = paramType.getChildrenNodes()?.ToList<ReferenceType>() ?? new List<ReferenceType>();
+                        foreach (var node in nodes)
                         {
                             var referenceTypeName = node.getType().ToString();
                             trySyn = AddCatches(context, catchClause, referenceTypeName, trySyn);

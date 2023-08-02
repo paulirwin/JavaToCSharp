@@ -9,7 +9,7 @@ namespace JavaToCSharp.Expressions
         public override ExpressionSyntax Visit(ConversionContext context, MethodReferenceExpr expr)
         {
             var scope = expr.getScope();
-            ExpressionSyntax scopeSyntax = null;
+            ExpressionSyntax? scopeSyntax = null;
 
             if (scope != null)
             {

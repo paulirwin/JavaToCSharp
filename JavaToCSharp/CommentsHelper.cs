@@ -33,7 +33,7 @@ namespace JavaToCSharp
             ["@throws"] = "exception"
         };
 
-        public static TSyntax? AddCommentsTrivias<TSyntax>(TSyntax? syntax, JavaAst.Node node, string commentEnding) where TSyntax : SyntaxNode
+        public static TSyntax? AddCommentsTrivias<TSyntax>(TSyntax? syntax, JavaAst.Node? node, string? commentEnding) where TSyntax : SyntaxNode
         {
             if (syntax is null)
             {
@@ -74,7 +74,9 @@ namespace JavaToCSharp
             return syntax;
         }
 
-        private static (SyntaxKind kind, string pre, string post) GetCommentInfo(JavaComments.Comment comment, string commentEnding)
+        private static (SyntaxKind kind, string? pre, string? post) GetCommentInfo(
+            JavaComments.Comment comment, 
+            string? commentEnding)
         {
             return comment switch
             {
@@ -84,7 +86,7 @@ namespace JavaToCSharp
             };
         }
 
-        private static List<(JavaComments.Comment c, CommentPosition pos)> GatherComments(JavaAst.Node node)
+        private static List<(JavaComments.Comment c, CommentPosition pos)> GatherComments(JavaAst.Node? node)
         {
             var result = new List<(JavaComments.Comment c, CommentPosition pos)>();
             if (node == null) return result;
@@ -165,7 +167,7 @@ namespace JavaToCSharp
                 .Select(c => (c, CommentPosition.Leading));
         }
 
-        private static JavaAst.Node GetPreviousSibling(JavaAst.Node parentNode, JavaParser.Position nodeBegin)
+        private static JavaAst.Node? GetPreviousSibling(JavaAst.Node parentNode, JavaParser.Position nodeBegin)
         {
             return parentNode.getChildrenNodes()
                 .OfType<JavaAst.Node>()
@@ -212,13 +214,13 @@ namespace JavaToCSharp
             }
         }
 
-        private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string post)
+        private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string? post)
         {
             string[] input = comment.getContent().Split(new[] { "\r\n" }, StringSplitOptions.None);
             var output = new List<string>();
             var remarks = new List<string>(); // For Java tags unknown in C#
             var currentOutput = output;
-            string tag = null;
+            string? tag = null;
             foreach (string inputLine in input)
             {
                 var match = _analyzeDocString.Match(inputLine);
@@ -282,7 +284,7 @@ namespace JavaToCSharp
             output.AddRange(remarks);
         }
 
-        private static void CloseSection(IList<string> output, string tag)
+        private static void CloseSection(IList<string> output, string? tag)
         {
             if (output.Count > 0 && tag != "remarks")
             {
@@ -380,7 +382,7 @@ namespace JavaToCSharp
                     var index = leading.IndexOf(SyntaxKind.SingleLineCommentTrivia);
                     if (index >= 0)
                     {
-                        if (index > 0 && leading[index - 1].Kind() == SyntaxKind.WhitespaceTrivia)
+                        if (index > 0 && leading[index - 1].IsKind(SyntaxKind.WhitespaceTrivia))
                         {
                             index--;
                         }
@@ -402,7 +404,7 @@ namespace JavaToCSharp
             for (int i = 0; i < leading.Count; i++)
             {
                 var t = leading[i];
-                if (t.Kind() == SyntaxKind.MultiLineCommentTrivia)
+                if (t.IsKind(SyntaxKind.MultiLineCommentTrivia))
                 {
                     int indentation = GetIndentation(leading, i) + 1; // Add one to align stars.
                     string[] lines = t.ToFullString().Split(new[] { "\r\n" }, StringSplitOptions.None);
@@ -423,12 +425,12 @@ namespace JavaToCSharp
         private static int GetIndentation(SyntaxTriviaList leading, int commentIndex)
         {
             SyntaxTrivia whiteSpaceTrivia;
-            if (commentIndex > 0 && leading[commentIndex - 1].Kind() == SyntaxKind.WhitespaceTrivia)
+            if (commentIndex > 0 && leading[commentIndex - 1].IsKind(SyntaxKind.WhitespaceTrivia))
             {
                 // Try to get the indentation from the whitespace leading the comment.
                 whiteSpaceTrivia = leading[commentIndex - 1];
             }
-            else if (leading.Last().Kind() == SyntaxKind.WhitespaceTrivia)
+            else if (leading.Last().IsKind(SyntaxKind.WhitespaceTrivia))
             {
                 // Try to get the indentation of the node from the last leading trivia.
                 whiteSpaceTrivia = leading.Last();

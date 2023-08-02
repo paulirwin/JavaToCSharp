@@ -20,7 +20,9 @@ namespace JavaToCSharp.Expressions
 
             if (rankDimensions != null)
             {
-                rankSyntaxes.AddRange(rankDimensions.Select(dimension => VisitExpression(context, dimension)));
+                var expressionSyntaxes = rankDimensions.Select(dimension => VisitExpression(context, dimension))
+                                                       .Where(syntax => syntax != null);
+                rankSyntaxes.AddRange(expressionSyntaxes!);
             }
 
             if (initializer == null)
@@ -29,10 +31,10 @@ namespace JavaToCSharp.Expressions
 
             // todo: support multi-dimensional and jagged arrays
 
-            var values = initializer.getValues().ToList<Expression>();
-
-            var syntaxes = values.Select(value => VisitExpression(context, value)).ToList();
-
+            var values = initializer.getValues()?.ToList<Expression>() ?? new List<Expression>();
+            var syntaxes = values.Select(value => VisitExpression(context, value))
+                                 .Where(syntax => syntax != null)!
+                                 .ToList<ExpressionSyntax>();
             var initSyntax =
                 syntaxes.Any() ?
                 SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList(syntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1))) :

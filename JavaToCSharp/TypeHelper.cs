@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using com.github.javaparser.ast.expr;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -21,10 +22,14 @@ namespace JavaToCSharp
             ["Float"] = "float",
             ["String"] = "string",
             ["Object"] = "object",
+            ["AutoCloseable"] = "IDisposable",
 
             // Generic types
             ["ArrayList"] = "List",
             ["List"] = "IList",
+            ["Map"] = "Dictionary",
+            ["Set"] = "HashSet",
+            ["Iterator"] = "IEnumerator",
 
             // Exceptions
             ["AlreadyClosedException"] = "ObjectDisposedException",
@@ -33,7 +38,18 @@ namespace JavaToCSharp
             ["IllegalStateException"] = "InvalidOperationException",
             ["UnsupportedOperationException"] = "NotSupportedException",
             ["RuntimeException"] = "Exception",
+            ["AccessDeniedException"] = "UnauthorizedAccessException",
+            ["AssertionError"] = "InvalidOperationException",
+            ["NullPointerException"] = "NullReferenceException",
+            ["UncheckedIOException"] = "IOException",
+            ["EOFException"] = "EndOfStreamException",
+            ["NoSuchFileException"] = "FileNotFoundException",
         };
+
+        public static void AddOrUpdateTypeNameConversions(string key, string value)
+        {
+            _typeNameConversions[key] = value;
+        }
 
         public static string ConvertTypeOf(ast.nodeTypes.NodeWithType typedNode)
         {
@@ -49,7 +65,7 @@ namespace JavaToCSharp
         {
             return TypeNameParser.ParseTypeName(typeName, s =>
             {
-                if (_typeNameConversions.TryGetValue(s, out string converted))
+                if (_typeNameConversions.TryGetValue(s, out string? converted))
                 {
                     return converted;
                 }
@@ -119,16 +135,10 @@ namespace JavaToCSharp
             }
         }
 
-        public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type, bool addI = false)
+        public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type)
         {
-            string typeName = type.getName();
-
-            string originalTypeName = typeName;
-            typeName = ConvertType(typeName);
-            if (addI && typeName == originalTypeName)
-                typeName = "I" + typeName;
-
-            var typeArgs = type.getTypeArgs().ToList<com.github.javaparser.ast.type.Type>();
+            string typeName = ConvertType(type.getName());
+            var typeArgs = type.getTypeArgs().ToList<ast.type.Type>();
 
             TypeSyntax typeSyntax;
 
@@ -152,16 +162,21 @@ namespace JavaToCSharp
 
         private static SeparatedSyntaxList<ArgumentSyntax> GetSeparatedListFromArguments(ConversionContext context, java.util.List args)
         {
-            return GetSeparatedListFromArguments(context, args.OfType<ast.expr.Expression>());
+            return GetSeparatedListFromArguments(context, args.OfType<Expression>());
         }
 
-        private static SeparatedSyntaxList<ArgumentSyntax> GetSeparatedListFromArguments(ConversionContext context, IEnumerable<ast.expr.Expression> args)
+        private static SeparatedSyntaxList<ArgumentSyntax> GetSeparatedListFromArguments(ConversionContext context, IEnumerable<Expression> args)
         {
             var argSyntaxes = new List<ArgumentSyntax>();
 
             foreach (var arg in args)
             {
                 var argSyntax = ExpressionVisitor.VisitExpression(context, arg);
+                if (argSyntax is null)
+                {
+                    continue;
+                }
+                
                 argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
             }
 
@@ -176,10 +191,10 @@ namespace JavaToCSharp
         /// <param name="methodCallExpr">The <c>MethodCallExpr</c> to be transformed.</param>
         /// <param name="transformedSyntax">The resulting transformed syntax.</param>
         /// <returns><c>true</c> if the syntax was transformed, <c>false</c> otherwise</returns>
-        public static bool TryTransformMethodCall(ConversionContext context, ast.expr.MethodCallExpr methodCallExpr,
-            out ExpressionSyntax transformedSyntax)
+        public static bool TryTransformMethodCall(ConversionContext context, MethodCallExpr methodCallExpr,
+            out ExpressionSyntax? transformedSyntax)
         {
-            if (methodCallExpr.getScope() is ast.expr.Expression scope)
+            if (methodCallExpr.getScope() is { } scope)
             {
                 var methodName = methodCallExpr.getName();
                 var args = methodCallExpr.getArgs();
@@ -193,11 +208,23 @@ namespace JavaToCSharp
 
                     case "get" when args.size() == 1:
                         var scopeSyntaxGet = ExpressionVisitor.VisitExpression(context, scope);
+                        if (scopeSyntaxGet is null) 
+                        {
+                            transformedSyntax = null;
+                            return false;
+                        }
+                        
                         transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntaxGet, args);
                         return true;
 
                     case "set" when args.size() == 2:
                         var scopeSyntaxSet = ExpressionVisitor.VisitExpression(context, scope);
+                        if (scopeSyntaxSet is null) 
+                        {
+                            transformedSyntax = null;
+                            return false;
+                        }
+                        
                         transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntaxSet, args);
                         return true;
                 }
@@ -207,8 +234,13 @@ namespace JavaToCSharp
             return false;
 
 
-            static MemberAccessExpressionSyntax ReplaceSizeByCount(ExpressionSyntax scopeSyntax)
+            static MemberAccessExpressionSyntax? ReplaceSizeByCount(ExpressionSyntax? scopeSyntax)
             {
+                if (scopeSyntax is null)
+                {
+                    return null;
+                }
+                
                 // Replace   expr.Size()   by   expr.Count
                 return SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -226,19 +258,24 @@ namespace JavaToCSharp
                 );
             }
 
-            static ExpressionSyntax ReplaceSetByIndexAccess(ConversionContext context, ExpressionSyntax scopeSyntax,
+            static ExpressionSyntax? ReplaceSetByIndexAccess(
+                ConversionContext context, 
+                ExpressionSyntax scopeSyntax,
                 java.util.List args)
             {
                 // Replace   expr.Set(i,v)   by   expr[i] = v
-                var argsList = args.ToList<ast.expr.Expression>();
-                return SyntaxFactory.AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    SyntaxFactory.ElementAccessExpression(
-                        scopeSyntax,
-                        SyntaxFactory.BracketedArgumentList(GetSeparatedListFromArguments(context, argsList.Take(1)))
-                    ).WithTrailingTrivia(SyntaxFactory.Whitespace(" ")),
-                     ExpressionVisitor.VisitExpression(context, argsList[1]).WithLeadingTrivia(SyntaxFactory.Whitespace(" "))
-                );
+                var argsList = args.ToList<Expression>() ?? new List<Expression>();
+                var left = SyntaxFactory.ElementAccessExpression(
+                     scopeSyntax,
+                     SyntaxFactory.BracketedArgumentList(GetSeparatedListFromArguments(context, argsList.Take(1)))
+                    ).WithTrailingTrivia(SyntaxFactory.Whitespace(" "));
+                var right = ExpressionVisitor.VisitExpression(context, argsList[1])?.WithLeadingTrivia(SyntaxFactory.Whitespace(" "));
+                if (right is null)
+                {
+                    return null;
+                }
+                
+                return SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, left, right);
             }
         }
     }
