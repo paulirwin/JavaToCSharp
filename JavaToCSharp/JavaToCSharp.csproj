@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.1.0</Version>
+    <Version>3.0.0</Version>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <Authors>Paul Irwin</Authors>
     <Description>A Java to C# converter.</Description>
-    <Copyright>Copyright 2021, Paul Irwin</Copyright>
+    <Copyright>Copyright 2021-2023, Paul Irwin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/paulirwin/JavaToCSharp</RepositoryUrl>
   </PropertyGroup>
