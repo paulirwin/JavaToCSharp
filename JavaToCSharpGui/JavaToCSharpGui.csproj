@@ -2,8 +2,9 @@
   <PropertyGroup>
     <Version>2.1.0</Version>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="JavaToCSharpIcon.ico" />
