@@ -3,7 +3,6 @@
     <Version>3.0.0</Version>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
