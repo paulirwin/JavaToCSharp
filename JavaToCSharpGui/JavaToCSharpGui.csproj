@@ -1,24 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Version>3.0.0</Version>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+	<WarningsAsErrors>Nullable</WarningsAsErrors>
+	<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="JavaToCSharpIcon.ico" />
-    <None Remove="JavaToCSharpIcon.png" />
+    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="JavaToCSharpIcon.ico" />
-    <Resource Include="JavaToCSharpIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-    <PackageReference Include="FolderBrowserForWPF" Version="1.2.0" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+	<!-- Removes version conflict error -->
+	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" />
+	  
+    <PackageReference Include="DialogHost.Avalonia" Version="0.7.5" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+
+    <PackageReference Include="Pure.DI" Version="2.0.8">
+		<PrivateAssets>all</PrivateAssets>
+		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
+
+    <PackageReference Include="Avalonia" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.2" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
