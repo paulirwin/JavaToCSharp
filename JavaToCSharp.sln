@@ -7,7 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaToCSharp", "JavaToCShar
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{7A18D136-8A66-4B98-8D8E-9C210E0C8D2D}"
 	ProjectSection(SolutionItems) = preProject
-		Lib\javaparser-core-3.0.0-SNAPSHOT.dll = Lib\javaparser-core-3.0.0-SNAPSHOT.dll
 		Lib\javaparser-core-3.0.0-SNAPSHOT.jar = Lib\javaparser-core-3.0.0-SNAPSHOT.jar
 	EndProjectSection
 EndProject

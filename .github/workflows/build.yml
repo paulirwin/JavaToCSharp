@@ -1,23 +1,23 @@
-name: .NET Core Build
+name: .NET Build
 
 on: [push, pull_request]
 
 jobs:
   build:
 
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET Core
+    - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.x
     - name: Build JavaToCSharp
       run: dotnet build ./JavaToCSharp/JavaToCSharp.csproj --configuration Release
 
-    - name: Build JavaToCSharp.Tests
-      run: dotnet build ./JavaToCSharp.Tests/JavaToCSharp.Tests.csproj --configuration Release
+    - name: Test JavaToCSharp.Tests
+      run: dotnet test ./JavaToCSharp.Tests/JavaToCSharp.Tests.csproj --configuration Release
 
     - name: Build JavaToCSharpCli
       run: dotnet build ./JavaToCSharpCli/JavaToCSharpCli.csproj --configuration Release
