@@ -58,15 +58,23 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-        var implements = javai.getImplementedTypes().ToList<ClassOrInterfaceType>();
-
-        if (implements != null)
-        {
-            foreach (var implement in implements)
+            var extends = javai.getExtendedTypes().ToList<ClassOrInterfaceType>();
+            if (extends != null)
             {
-                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
+                foreach (var extend in extends)
+                {
+                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
+                }
             }
-        }
+
+            var implements = javai.getImplementedTypes().ToList<ClassOrInterfaceType>();
+            if (implements != null)
+            {
+                foreach (var implement in implements)
+                {
+                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
+                }
+            }
 
         var members = javai.getMembers()?.ToList<BodyDeclaration>();
 
