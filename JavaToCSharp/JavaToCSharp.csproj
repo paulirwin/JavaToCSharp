@@ -19,6 +19,6 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <IkvmReference Include="../Lib/javaparser-core-3.0.0-SNAPSHOT.jar" />
+    <IkvmReference Include="../Lib/javaparser-core-3.25.4.jar" />
   </ItemGroup>
 </Project>

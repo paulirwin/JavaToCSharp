@@ -8,9 +8,9 @@ public class LabeledStatementVisitor : StatementVisitor<LabeledStmt>
 {
     public override StatementSyntax? Visit(ConversionContext context, LabeledStmt labeledStmt)
     {
-        var statement = labeledStmt.getStmt();
+        var statement = labeledStmt.getStatement();
         var syntax = VisitStatement(context, statement);
 
-        return syntax == null ? null : SyntaxFactory.LabeledStatement(labeledStmt.getLabel(), syntax);
+        return syntax == null ? null : SyntaxFactory.LabeledStatement(labeledStmt.getLabel().asString(), syntax);
     }
 }

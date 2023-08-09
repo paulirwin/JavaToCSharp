@@ -8,7 +8,7 @@ public class UnaryExpressionVisitor : ExpressionVisitor<UnaryExpr>
 {
     public override ExpressionSyntax? Visit(ConversionContext context, UnaryExpr unaryExpr)
     {
-        var expr = unaryExpr.getExpr();
+        var expr = unaryExpr.getExpression();
         var exprSyntax = VisitExpression(context, expr);
         if (exprSyntax is null)
         {
@@ -19,27 +19,27 @@ public class UnaryExpressionVisitor : ExpressionVisitor<UnaryExpr>
         var kind = SyntaxKind.None;
         bool isPostfix = false;
 
-        if (op == UnaryExpr.Operator.inverse)
+        if (op == UnaryExpr.Operator.BITWISE_COMPLEMENT)
             kind = SyntaxKind.BitwiseNotExpression;
-        else if (op == UnaryExpr.Operator.negative)
+        else if (op == UnaryExpr.Operator.MINUS)
             kind = SyntaxKind.UnaryMinusExpression;
-        else if (op == UnaryExpr.Operator.not)
+        else if (op == UnaryExpr.Operator.LOGICAL_COMPLEMENT)
             kind = SyntaxKind.LogicalNotExpression;
-        else if (op == UnaryExpr.Operator.posDecrement)
+        else if (op == UnaryExpr.Operator.POSTFIX_DECREMENT)
         {
             kind = SyntaxKind.PostDecrementExpression;
             isPostfix = true;
         }
-        else if (op == UnaryExpr.Operator.posIncrement)
+        else if (op == UnaryExpr.Operator.POSTFIX_INCREMENT)
         {
             kind = SyntaxKind.PostIncrementExpression;
             isPostfix = true;
         }
-        else if (op == UnaryExpr.Operator.positive)
+        else if (op == UnaryExpr.Operator.PLUS)
             kind = SyntaxKind.UnaryPlusExpression;
-        else if (op == UnaryExpr.Operator.preDecrement)
+        else if (op == UnaryExpr.Operator.PREFIX_DECREMENT)
             kind = SyntaxKind.PreDecrementExpression;
-        else if (op == UnaryExpr.Operator.preIncrement)
+        else if (op == UnaryExpr.Operator.PREFIX_INCREMENT)
             kind = SyntaxKind.PreIncrementExpression;
 
         return isPostfix

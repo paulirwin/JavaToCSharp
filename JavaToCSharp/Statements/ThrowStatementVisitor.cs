@@ -9,7 +9,7 @@ public class ThrowStatementVisitor : StatementVisitor<ThrowStmt>
 {
     public override StatementSyntax Visit(ConversionContext context, ThrowStmt throwStmt)
     {
-        var expr = throwStmt.getExpr();
+        var expr = throwStmt.getExpression();
 
         var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
 

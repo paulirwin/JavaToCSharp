@@ -1,4 +1,5 @@
-﻿using com.github.javaparser.ast.expr;
+﻿using com.github.javaparser.ast;
+using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -30,7 +31,7 @@ public class MethodReferenceExpressionVisitor : ExpressionVisitor<MethodReferenc
             methodExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(methodName));
         }
 
-        var args = expr.getTypeArguments().getTypeArguments();
+        var args = expr.getTypeArguments().FromOptional<NodeList>();
         if (args == null || args.size() == 0)
             return SyntaxFactory.InvocationExpression(methodExpression);
 

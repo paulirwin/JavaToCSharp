@@ -31,7 +31,7 @@ public abstract class StatementVisitor
             { typeof(ContinueStmt), new ContinueStatementVisitor() },
             { typeof(DoStmt), new DoStatementVisitor() },
             { typeof(ExpressionStmt), new ExpressionStatementVisitor() },
-            { typeof(ForeachStmt), new ForEachStatementVisitor() },
+            { typeof(ForEachStmt), new ForEachStatementVisitor() },
             { typeof(ForStmt), new ForStatementVisitor() },
             { typeof(IfStmt), new IfStatementVisitor() },
             { typeof(LabeledStmt), new LabeledStatementVisitor() },
@@ -42,7 +42,7 @@ public abstract class StatementVisitor
             { typeof(TryStmt), new TryStatementVisitor() },
             { typeof(WhileStmt), new WhileStatementVisitor() },
             { typeof(EmptyStmt), new EmptyStatementVisitor() },
-            { typeof(TypeDeclarationStmt), new TypeDeclarationStatementVisitor() }
+            { typeof(LocalClassDeclarationStmt), new TypeDeclarationStatementVisitor() }
         };
     }
 

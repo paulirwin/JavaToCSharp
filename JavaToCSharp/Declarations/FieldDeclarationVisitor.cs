@@ -2,6 +2,8 @@
 using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
+using com.sun.org.apache.bcel.@internal.classfile;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,15 +17,15 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
     {
         var variables = new List<VariableDeclaratorSyntax>();
 
-        string typeName = fieldDecl.getType().toString();
+        string typeName = fieldDecl.getCommonType().toString();
 
         var variableDeclarators = fieldDecl.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
         foreach (var item in variableDeclarators)
         {
-            var id = item.getId();
-            string name = id.getName();
+            var type = item.getType();
+            string name = item.getNameAsString();
 
-            if (id.getArrayCount() > 0)
+            if (type.getArrayLevel() > 0)
             {
                 if (!typeName.EndsWith("[]"))
                     typeName += "[]";
@@ -31,7 +33,7 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
                     name = name[..^2];
             }
 
-            var initExpr = item.getInit();
+            var initExpr = item.getInitializer().FromOptional<Expression>();
 
             if (initExpr != null)
             {
@@ -53,19 +55,19 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
                 SyntaxFactory.ParseTypeName(typeName),
                 SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
 
-        var mods = fieldDecl.getModifiers();
+        var mods = fieldDecl.getModifiers().ToList<Modifier>();
 
-        if (mods.HasFlag(Modifier.PUBLIC))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.HasFlag(Modifier.PROTECTED))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.HasFlag(Modifier.PRIVATE))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.HasFlag(Modifier.STATIC))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
-        if (mods.HasFlag(Modifier.FINAL))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
-        if (mods.HasFlag(Modifier.VOLATILE))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.VOLATILE))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
 
         return fieldSyntax;

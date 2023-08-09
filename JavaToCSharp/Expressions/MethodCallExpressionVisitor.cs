@@ -13,7 +13,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
             return transformedSyntax;
         }
 
-        var scope = methodCallExpr.getScope();
+        var scope = methodCallExpr.getScope().FromOptional<Expression>();
         ExpressionSyntax? scopeSyntax = null;
 
         if (scope != null)
@@ -21,7 +21,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
             scopeSyntax = VisitExpression(context, scope);
         }
 
-        var methodName = TypeHelper.Capitalize(methodCallExpr.getName());
+        var methodName = TypeHelper.Capitalize(methodCallExpr.getNameAsString());
         methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
         ExpressionSyntax methodExpression;
@@ -35,7 +35,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
             methodExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(methodName));
         }
 
-        var args = methodCallExpr.getArgs();
+        var args = methodCallExpr.getArguments();
         if (args == null || args.size() == 0)
             return SyntaxFactory.InvocationExpression(methodExpression);
 

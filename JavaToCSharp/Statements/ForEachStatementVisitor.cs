@@ -8,9 +8,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements;
 
-public class ForEachStatementVisitor : StatementVisitor<ForeachStmt>
+public class ForEachStatementVisitor : StatementVisitor<ForEachStmt>
 {
-    public override StatementSyntax? Visit(ConversionContext context, ForeachStmt foreachStmt)
+    public override StatementSyntax? Visit(ConversionContext context, ForEachStmt foreachStmt)
     {
         var iterableExpr = foreachStmt.getIterable();
         var iterableSyntax = ExpressionVisitor.VisitExpression(context, iterableExpr);
@@ -20,9 +20,10 @@ public class ForEachStatementVisitor : StatementVisitor<ForeachStmt>
         }
 
         var varExpr = foreachStmt.getVariable();
-        var type = TypeHelper.ConvertTypeOf(varExpr);
+        var varType = varExpr.getCommonType();
+        var type = TypeHelper.ConvertType(varType);
 
-        var variableDeclarators = varExpr.getVars()?.ToList<VariableDeclarator>()?? new List<VariableDeclarator>();
+        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>()?? new List<VariableDeclarator>();
         var vars = variableDeclarators
                    .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
                    .ToArray();

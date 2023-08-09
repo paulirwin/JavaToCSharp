@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using java.util;
 using Microsoft.CodeAnalysis;
 using JavaAst = com.github.javaparser.ast;
 
@@ -44,4 +46,18 @@ public static class Extensions
     public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax, JavaAst.Node? node, string? singleLineCommentEnd = null) 
         where TSyntax : SyntaxNode =>
         CommentsHelper.AddCommentsTrivias(syntax, node, singleLineCommentEnd);
+
+    public static T? FromOptional<T>(this Optional optional)
+        where T : class
+        => optional.isPresent()
+            ? optional.get() as T ??
+              throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
+            : null;
+
+    public static T FromRequiredOptional<T>(this Optional optional)
+        where T : class
+        => optional.isPresent()
+            ? optional.get() as T ??
+              throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
+            : throw new InvalidOperationException("Required optional did not have a value");
 }

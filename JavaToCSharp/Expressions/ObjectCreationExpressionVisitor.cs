@@ -6,6 +6,7 @@ using JavaToCSharp.Declarations;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
+using com.github.javaparser.ast;
 
 namespace JavaToCSharp.Expressions;
 
@@ -13,7 +14,7 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
 {
     public override ExpressionSyntax Visit(ConversionContext context, ObjectCreationExpr newExpr)
     {
-        var anonBody = newExpr.getAnonymousClassBody().ToList<BodyDeclaration>();
+        var anonBody = newExpr.getAnonymousClassBody().FromOptional<NodeList>().ToList<BodyDeclaration>();
 
         if (anonBody is {Count: > 0})
         {
@@ -32,7 +33,7 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
 
         var typeSyntax = TypeHelper.GetSyntaxFromType(type);
 
-        var args = newExpr.getArgs();
+        var args = newExpr.getArguments();
         if (args == null || args.size() == 0)
             return SyntaxFactory.ObjectCreationExpression(typeSyntax).WithArgumentList(SyntaxFactory.ArgumentList());
 
@@ -41,8 +42,8 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
 
     private static ExpressionSyntax VisitAnonymousClassCreationExpression(ConversionContext context, ObjectCreationExpr newExpr, List<BodyDeclaration> anonBody)
     {
-        string baseTypeName = TypeHelper.ConvertType(newExpr.getType().getName());
-        string anonTypeName = String.Empty;
+        string baseTypeName = TypeHelper.ConvertType(newExpr.getType().getNameAsString());
+        string anonTypeName = string.Empty;
 
         for (int i = 0; i <= 100; i++)
         {
@@ -89,7 +90,7 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
 
         context.PendingAnonymousTypes.Enqueue(classSyntax);
 
-        var args = newExpr.getArgs();
+        var args = newExpr.getArguments();
         if (args == null || args.size() == 0)
             return SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(anonTypeName))
                 .AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.ThisExpression()));

@@ -30,25 +30,25 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
 
     private static StatementSyntax VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
     {
-        var type = TypeHelper.ConvertTypeOf(varExpr);
+        var type = TypeHelper.ConvertType(varExpr.getCommonType());
 
         var variables = new List<VariableDeclaratorSyntax>();
 
-        var variableDeclarators = varExpr.getVars()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
         foreach (var item in variableDeclarators)
         {
-            var id = item.getId();
-            string name = id.getName();
+            var id = item.getType();
+            string name = item.getNameAsString();
 
-            if (id.getArrayCount() > 0)
+            if (id.getArrayLevel() > 0)
             {
                 if (!type.EndsWith("[]"))
                     type += "[]";
                 if (name.EndsWith("[]"))
-                    name = name[..^2];
+                    name = name.Substring(0, name.Length - 2);
             }
 
-            var initExpr = item.getInit();
+            var initExpr = item.getInitializer().FromOptional<Expression>();
 
             if (initExpr != null)
             {

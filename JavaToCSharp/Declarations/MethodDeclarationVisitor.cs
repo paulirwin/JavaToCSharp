@@ -19,7 +19,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         var returnType = methodDecl.getType();
         var returnTypeName = TypeHelper.ConvertType(returnType.toString());
 
-        var methodName = TypeHelper.Capitalize(methodDecl.getName());
+        var methodName = TypeHelper.Capitalize(methodDecl.getNameAsString());
         methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
         string typeParameters = methodDecl.getTypeParameters().ToString() ?? "";
@@ -31,17 +31,17 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var methodSyntax = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName(returnTypeName), methodName);
 
-        var mods = methodDecl.getModifiers();
+        var mods = methodDecl.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
 
-        if (mods.HasFlag(Modifier.PUBLIC))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.HasFlag(Modifier.PROTECTED))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.HasFlag(Modifier.PRIVATE))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.HasFlag(Modifier.STATIC))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
-        if (mods.HasFlag(Modifier.ABSTRACT))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.ABSTRACT))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
 
         var annotations = methodDecl.getAnnotations().ToList<AnnotationExpr>();
@@ -52,7 +52,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         {
             foreach (var annotation in annotations)
             {
-                string name = annotation.getName().getName();
+                string name = annotation.getNameAsString();
                 if (name == "Override")
                 {
                     methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.OverrideKeyword));
@@ -61,10 +61,10 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             }
         }
 
-        if (!mods.HasFlag(Modifier.FINAL)
-            && !mods.HasFlag(Modifier.ABSTRACT)
-            && !mods.HasFlag(Modifier.STATIC)
-            && !mods.HasFlag(Modifier.PRIVATE)
+        if (!mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL)
+            && !mods.Any(i => i.getKeyword() == Modifier.Keyword.ABSTRACT)
+            && !mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC)
+            && !mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE)
             && !isOverride
             && !classSyntax.Modifiers.Any(i => i.IsKind(SyntaxKind.SealedKeyword)))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VirtualKeyword));
@@ -78,9 +78,9 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             foreach (var param in parameters)
             {
                 string typeName = TypeHelper.ConvertTypeOf(param);
-                string identifier = TypeHelper.EscapeIdentifier(param.getId().getName());
+                string identifier = TypeHelper.EscapeIdentifier(param.getNameAsString());
 
-                if ((param.getId().getArrayCount() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
+                if ((param.getType().getArrayLevel() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
                     typeName += "[]";
 
                 var modifiers = SyntaxFactory.TokenList();
@@ -101,7 +101,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             methodSyntax = methodSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
         }
 
-        var block = methodDecl.getBody();
+        var block = methodDecl.getBody().FromOptional<BlockStmt>();
 
         if (block == null)
         {
@@ -111,16 +111,16 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             return methodSyntax;
         }
 
-        var statements = block.getStmts().ToList<Statement>();
+        var statements = block.getStatements().ToList<Statement>();
 
         var statementSyntax = StatementVisitor.VisitStatements(context, statements);
 
-        if (mods.HasFlag(Modifier.SYNCHRONIZED))
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.SYNCHRONIZED))
         {
             var lockBlock = SyntaxFactory.Block(statementSyntax);
 
             LockStatementSyntax? lockSyntax = null;
-            if (mods.HasFlag(Modifier.STATIC))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
             {
                 string? identifier = classSyntax.Identifier.Value?.ToString();
                 if (identifier is not null)
@@ -151,7 +151,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         var returnType = methodDecl.getType();
         var returnTypeName = TypeHelper.ConvertType(returnType.toString());
 
-        var methodName = TypeHelper.Capitalize(methodDecl.getName());
+        var methodName = TypeHelper.Capitalize(methodDecl.getNameAsString());
         methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
         string typeParameters = methodDecl.getTypeParameters().ToString() ?? "";
@@ -172,7 +172,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
                     attributeLists: new SyntaxList<AttributeListSyntax>(),
                     modifiers: SyntaxFactory.TokenList(),
                     type: SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(i)),
-                    identifier: SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getId().toString())),
+                    identifier: SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getNameAsString())),
                     @default: null))
                 .ToArray();
 

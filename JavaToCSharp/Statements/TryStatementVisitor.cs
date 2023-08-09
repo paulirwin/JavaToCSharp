@@ -11,11 +11,11 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
     public override StatementSyntax Visit(ConversionContext context, TryStmt tryStmt)
     {
         var tryBlock = tryStmt.getTryBlock();
-        var tryStatements = tryBlock.getStmts().ToList<Statement>();
+        var tryStatements = tryBlock.getStatements().ToList<Statement>();
 
         var tryConverted = VisitStatements(context, tryStatements);
 
-        var catches = tryStmt.getCatchs().ToList<CatchClause>();
+        var catches = tryStmt.getCatchClauses().ToList<CatchClause>();
 
         var trySyn = SyntaxFactory.TryStatement()
             .AddBlockStatements(tryConverted.ToArray());
@@ -24,30 +24,30 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
         {
             foreach (var catchClause in catches)
             {
-                var paramType = catchClause.getParam().getType();
+                var paramType = catchClause.getParameter().getType();
                 if (paramType is UnionType)
                 {
-                    var nodes = paramType.getChildrenNodes()?.ToList<ReferenceType>() ?? new List<ReferenceType>();
+                    var nodes = paramType.getChildNodes()?.ToList<ReferenceType>() ?? new List<ReferenceType>();
                     foreach (var node in nodes)
                     {
-                        var referenceTypeName = node.getType().ToString();
+                        var referenceTypeName = node.getElementType().ToString();
                         trySyn = AddCatches(context, catchClause, referenceTypeName, trySyn);
                     }
                 }
                 else
                 {
-                    var referenceType = (ReferenceType)catchClause.getParam().getType();
-                    trySyn = AddCatches(context, catchClause, referenceType.getType().ToString(), trySyn);
+                    var referenceType = (ReferenceType)catchClause.getParameter().getType();
+                    trySyn = AddCatches(context, catchClause, referenceType.getElementType().ToString(), trySyn);
                 }
             }
         }
 
-        var finallyBlock = tryStmt.getFinallyBlock();
+        var finallyBlock = tryStmt.getFinallyBlock().FromOptional<BlockStmt>();
 
         if (finallyBlock == null)
             return trySyn;
 
-        var finallyStatements = finallyBlock.getStmts().ToList<Statement>();
+        var finallyStatements = finallyBlock.getStatements().ToList<Statement>();
         var finallyConverted = VisitStatements(context, finallyStatements);
         var finallyBlockSyntax = SyntaxFactory.Block(finallyConverted);
 
@@ -59,8 +59,8 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
     private static TryStatementSyntax AddCatches(ConversionContext context, CatchClause ctch,
         string typeName, TryStatementSyntax trySyn)
     {
-        var block = ctch.getCatchBlock();
-        var catchStatements = block.getStmts().ToList<Statement>();
+        var block = ctch.getBody();
+        var catchStatements = block.getStatements().ToList<Statement>();
         var catchConverted = VisitStatements(context, catchStatements);
         var catchBlockSyntax = SyntaxFactory.Block(catchConverted);
 
@@ -70,7 +70,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             SyntaxFactory.CatchClause(
                 SyntaxFactory.CatchDeclaration(
                     SyntaxFactory.ParseTypeName(type),
-                    SyntaxFactory.ParseToken(ctch.getParam().getId().toString())
+                    SyntaxFactory.ParseToken(ctch.getParameter().getType().asString())
                 ),
                 filter: null,
                 block: catchBlockSyntax
