@@ -1,4 +1,5 @@
-﻿using com.github.javaparser.ast.stmt;
+﻿using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,7 +10,7 @@ namespace JavaToCSharp.Statements
     {
         public override StatementSyntax Visit(ConversionContext context, ReturnStmt returnStmt)
         {
-            var expr = returnStmt.getExpr();
+            var expr = returnStmt.getExpression().FromOptional<Expression>();
 
             if (expr == null)
                 return SyntaxFactory.ReturnStatement(); // i.e. "return" in a void method

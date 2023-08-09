@@ -22,7 +22,7 @@ namespace JavaToCSharp.Statements
             if (thenSyntax == null)
                 return null;
 
-            var elseStmt = ifStmt.getElseStmt();
+            var elseStmt = ifStmt.getElseStmt().FromOptional<Statement>();
 
             if (elseStmt == null)
                 return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);

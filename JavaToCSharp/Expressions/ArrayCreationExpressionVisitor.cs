@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using com.github.javaparser.ast;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,17 +11,17 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
         {
-            var type = TypeHelper.ConvertTypeOf(expr);
+            var type = TypeHelper.ConvertType(expr.getElementType());
 
-            var rankDimensions = expr.getDimensions().ToList<Expression>();
+            var rankDimensions = expr.getLevels().ToList<ArrayCreationLevel>();
 
-            var initializer = expr.getInitializer();
+            var initializer = expr.getInitializer().FromOptional<ArrayInitializerExpr>();
 
             var rankSyntaxes = new List<ExpressionSyntax>();
 
             if (rankDimensions != null)
             {
-                var expressionSyntaxes = rankDimensions.Select(dimension => VisitExpression(context, dimension))
+                var expressionSyntaxes = rankDimensions.Select(dimension => VisitExpression(context, dimension.getDimension().FromOptional<Expression>()))
                                                        .Where(syntax => syntax != null);
                 rankSyntaxes.AddRange(expressionSyntaxes!);
             }

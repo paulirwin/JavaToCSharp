@@ -39,43 +39,43 @@ namespace JavaToCSharp.Expressions
             var op = binaryExpr.getOperator();
             var kind = SyntaxKind.None;
 
-            if (op == BinaryExpr.Operator.and)
+            if (op == BinaryExpr.Operator.AND)
                 kind = SyntaxKind.LogicalAndExpression;
-            else if (op == BinaryExpr.Operator.binAnd)
+            else if (op == BinaryExpr.Operator.BINARY_AND)
                 kind = SyntaxKind.BitwiseAndExpression;
-            else if (op == BinaryExpr.Operator.binOr)
+            else if (op == BinaryExpr.Operator.BINARY_OR)
                 kind = SyntaxKind.BitwiseOrExpression;
-            else if (op == BinaryExpr.Operator.divide)
+            else if (op == BinaryExpr.Operator.DIVIDE)
                 kind = SyntaxKind.DivideExpression;
-            else if (op == BinaryExpr.Operator.equals)
+            else if (op == BinaryExpr.Operator.EQUALS)
                 kind = SyntaxKind.EqualsExpression;
-            else if (op == BinaryExpr.Operator.greater)
+            else if (op == BinaryExpr.Operator.GREATER)
                 kind = SyntaxKind.GreaterThanExpression;
-            else if (op == BinaryExpr.Operator.greaterEquals)
+            else if (op == BinaryExpr.Operator.GREATER_EQUALS)
                 kind = SyntaxKind.GreaterThanOrEqualExpression;
-            else if (op == BinaryExpr.Operator.less)
+            else if (op == BinaryExpr.Operator.LESS)
                 kind = SyntaxKind.LessThanExpression;
-            else if (op == BinaryExpr.Operator.lessEquals)
+            else if (op == BinaryExpr.Operator.LESS_EQUALS)
                 kind = SyntaxKind.LessThanOrEqualExpression;
-            else if (op == BinaryExpr.Operator.lShift)
+            else if (op == BinaryExpr.Operator.LEFT_SHIFT)
                 kind = SyntaxKind.LeftShiftExpression;
-            else if (op == BinaryExpr.Operator.minus)
+            else if (op == BinaryExpr.Operator.MINUS)
                 kind = SyntaxKind.SubtractExpression;
-            else if (op == BinaryExpr.Operator.notEquals)
+            else if (op == BinaryExpr.Operator.NOT_EQUALS)
                 kind = SyntaxKind.NotEqualsExpression;
-            else if (op == BinaryExpr.Operator.or)
+            else if (op == BinaryExpr.Operator.OR)
                 kind = SyntaxKind.LogicalOrExpression;
-            else if (op == BinaryExpr.Operator.plus)
+            else if (op == BinaryExpr.Operator.PLUS)
                 kind = SyntaxKind.AddExpression;
-            else if (op == BinaryExpr.Operator.remainder)
+            else if (op == BinaryExpr.Operator.REMAINDER)
                 kind = SyntaxKind.ModuloExpression;
-            else if (op == BinaryExpr.Operator.rSignedShift)
+            else if (op == BinaryExpr.Operator.SIGNED_RIGHT_SHIFT)
                 kind = SyntaxKind.RightShiftExpression;
-            else if (op == BinaryExpr.Operator.rUnsignedShift)
+            else if (op == BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT)
                 kind = SyntaxKind.UnsignedRightShiftExpression;
-            else if (op == BinaryExpr.Operator.times)
+            else if (op == BinaryExpr.Operator.MULTIPLY)
                 kind = SyntaxKind.MultiplyExpression;
-            else if (op == BinaryExpr.Operator.xor)
+            else if (op == BinaryExpr.Operator.XOR)
                 kind = SyntaxKind.ExclusiveOrExpression;
 
             return SyntaxFactory.BinaryExpression(kind, leftSyntax, rightSyntax);

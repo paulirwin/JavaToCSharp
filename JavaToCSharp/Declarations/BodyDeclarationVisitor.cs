@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using com.github.javaparser.ast.body;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Range = com.github.javaparser.Range;
 
 namespace JavaToCSharp.Declarations
 {
@@ -36,7 +37,6 @@ namespace JavaToCSharp.Declarations
                 { typeof(FieldDeclaration), new FieldDeclarationVisitor() },
                 { typeof(MethodDeclaration), new MethodDeclarationVisitor() },
                 { typeof(InitializerDeclaration), new InitializerDeclarationVisitor() },
-                { typeof(EmptyMemberDeclaration), new EmptyMemberDeclarationVisitor() },
                 { typeof(ClassOrInterfaceDeclaration), new ClassOrInterfaceDeclarationVisitor() },
                 { typeof(AnnotationDeclaration), new AnnotationDeclarationVisitor() },
             };
@@ -50,7 +50,7 @@ namespace JavaToCSharp.Declarations
         {
             if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
             {
-                var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().begin} type `{declaration.GetType()}`.";
+                var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().FromRequiredOptional<Range>().begin} type `{declaration.GetType()}`.";
                 throw new InvalidOperationException(message);
             }
 
@@ -62,7 +62,7 @@ namespace JavaToCSharp.Declarations
         {
             if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
             {
-                var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().begin} type `{declaration.GetType()}`.";
+                var message = $"No visitor has been implemented for body declaration `{declaration}`, {declaration.getRange().FromRequiredOptional<Range>().begin} type `{declaration.GetType()}`.";
                 throw new InvalidOperationException(message);
             }
 

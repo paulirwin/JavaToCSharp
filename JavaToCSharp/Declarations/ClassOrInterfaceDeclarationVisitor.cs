@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.type;
@@ -25,11 +26,11 @@ namespace JavaToCSharp.Declarations
         public static InterfaceDeclarationSyntax? VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
         {
             var originalTypeName = javai.getName();
-            var newTypeName = context.Options.StartInterfaceNamesWithI ? $"I{originalTypeName}" : originalTypeName;
+            var newTypeName = context.Options.StartInterfaceNamesWithI ? $"I{originalTypeName.getIdentifier()}" : originalTypeName.getIdentifier();
 
             if (context.Options.StartInterfaceNamesWithI)
             {
-                TypeHelper.AddOrUpdateTypeNameConversions(originalTypeName, newTypeName);
+                TypeHelper.AddOrUpdateTypeNameConversions(originalTypeName.getIdentifier(), newTypeName);
             }
 
             if (!isNested)
@@ -43,21 +44,21 @@ namespace JavaToCSharp.Declarations
 
             if (typeParams is {Count: > 0})
             {
-                classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
+                classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
             }
 
-            var mods = javai.getModifiers();
+            var mods = javai.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
 
-            if (mods.HasFlag(Modifier.PRIVATE))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PUBLIC))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            if (mods.HasFlag(Modifier.FINAL))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-            var implements = javai.getImplements().ToList<ClassOrInterfaceType>();
+            var implements = javai.getImplementedTypes().ToList<ClassOrInterfaceType>();
 
             if (implements != null)
             {
@@ -85,7 +86,7 @@ namespace JavaToCSharp.Declarations
 
         public static ClassDeclarationSyntax? VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
         {
-            string name = javac.getName();
+            string name = javac.getNameAsString();
 
             if (!isNested)
                 context.RootTypeName = name;
@@ -98,23 +99,23 @@ namespace JavaToCSharp.Declarations
 
             if (typeParams is {Count: > 0})
             {
-                classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getName())).ToArray());
+                classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
             }
 
-            var mods = javac.getModifiers();
+            var mods = javac.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
 
-            if (mods.HasFlag(Modifier.PRIVATE))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PUBLIC))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            if (mods.HasFlag(Modifier.ABSTRACT))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.ABSTRACT))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
-            if (mods.HasFlag(Modifier.FINAL))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-            var extends = javac.getExtends().ToList<ClassOrInterfaceType>();
+            var extends = javac.getExtendedTypes().ToList<ClassOrInterfaceType>();
 
             if (extends != null)
             {
@@ -124,7 +125,7 @@ namespace JavaToCSharp.Declarations
                 }
             }
 
-            var implements = javac.getImplements().ToList<ClassOrInterfaceType>();
+            var implements = javac.getImplementedTypes().ToList<ClassOrInterfaceType>();
 
             if (implements != null)
             {

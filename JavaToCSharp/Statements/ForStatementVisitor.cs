@@ -13,7 +13,7 @@ namespace JavaToCSharp.Statements
     {
         public override StatementSyntax? Visit(ConversionContext context, ForStmt forStmt)
         {
-            var inits = forStmt.getInit().ToList<Expression>();
+            var inits = forStmt.getInitialization().ToList<Expression>();
 
             var initSyntaxes = new List<ExpressionSyntax>();
             VariableDeclarationSyntax? varSyntax = null;
@@ -24,9 +24,9 @@ namespace JavaToCSharp.Statements
                 {
                     if (init is VariableDeclarationExpr varExpr)
                     {
-                        var type = TypeHelper.ConvertTypeOf(varExpr);
+                        var type = TypeHelper.ConvertType(varExpr.getCommonType());
 
-                        var variableDeclarators = varExpr.getVars()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+                        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
                         var vars = variableDeclarators
                                    .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
                                    .ToArray();
@@ -44,7 +44,7 @@ namespace JavaToCSharp.Statements
                 }
             }
 
-            var condition = forStmt.getCompare();
+            var condition = forStmt.getCompare().FromOptional<Expression>();
             var conditionSyntax = ExpressionVisitor.VisitExpression(context, condition);
 
             var increments = forStmt.getUpdate().ToList<Expression>();

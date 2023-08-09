@@ -25,29 +25,29 @@ namespace JavaToCSharp.Expressions
             var op = assignExpr.getOperator();
             var kind = SyntaxKind.None;
 
-            if (op == AssignExpr.Operator.and)
+            if (op == AssignExpr.Operator.BINARY_AND)
                 kind = SyntaxKind.AndAssignmentExpression;
-            else if (op == AssignExpr.Operator.assign)
+            else if (op == AssignExpr.Operator.ASSIGN)
                 kind = SyntaxKind.SimpleAssignmentExpression;
-            else if (op == AssignExpr.Operator.lShift)
+            else if (op == AssignExpr.Operator.LEFT_SHIFT)
                 kind = SyntaxKind.LeftShiftAssignmentExpression;
-            else if (op == AssignExpr.Operator.minus)
+            else if (op == AssignExpr.Operator.MINUS)
                 kind = SyntaxKind.SubtractAssignmentExpression;
-            else if (op == AssignExpr.Operator.or)
+            else if (op == AssignExpr.Operator.BINARY_OR)
                 kind = SyntaxKind.OrAssignmentExpression;
-            else if (op == AssignExpr.Operator.plus)
+            else if (op == AssignExpr.Operator.PLUS)
                 kind = SyntaxKind.AddAssignmentExpression;
-            else if (op == AssignExpr.Operator.rem)
+            else if (op == AssignExpr.Operator.REMAINDER)
                 kind = SyntaxKind.ModuloAssignmentExpression;
-            else if (op == AssignExpr.Operator.rSignedShift)
+            else if (op == AssignExpr.Operator.SIGNED_RIGHT_SHIFT)
                 kind = SyntaxKind.RightShiftAssignmentExpression;
-            else if (op == AssignExpr.Operator.rUnsignedShift)
+            else if (op == AssignExpr.Operator.UNSIGNED_RIGHT_SHIFT)
                 kind = SyntaxKind.UnsignedRightShiftAssignmentExpression;
-            else if (op == AssignExpr.Operator.slash)
+            else if (op == AssignExpr.Operator.DIVIDE)
                 kind = SyntaxKind.DivideAssignmentExpression;
-            else if (op == AssignExpr.Operator.star)
+            else if (op == AssignExpr.Operator.MULTIPLY)
                 kind = SyntaxKind.MultiplyAssignmentExpression;
-            else if (op == AssignExpr.Operator.xor)
+            else if (op == AssignExpr.Operator.XOR)
                 kind = SyntaxKind.ExclusiveOrAssignmentExpression;
             
             return SyntaxFactory.AssignmentExpression(kind, leftSyntax, rightSyntax);

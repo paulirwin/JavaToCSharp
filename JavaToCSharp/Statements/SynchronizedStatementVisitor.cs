@@ -9,14 +9,14 @@ namespace JavaToCSharp.Statements
     {
         public override StatementSyntax? Visit(ConversionContext context, SynchronizedStmt synchronizedStmt)
         {
-            var lockExpr = synchronizedStmt.getExpr();
+            var lockExpr = synchronizedStmt.getExpression();
             var lockSyntax = ExpressionVisitor.VisitExpression(context, lockExpr);
             if (lockSyntax is null)
             {
                 return null;
             }
 
-            var body = synchronizedStmt.getBlock();
+            var body = synchronizedStmt.getBody();
             var bodySyntax = new BlockStatementVisitor().Visit(context, body);
             return SyntaxFactory.LockStatement(lockSyntax, bodySyntax);
         }

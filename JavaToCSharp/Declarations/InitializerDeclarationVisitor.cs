@@ -1,4 +1,5 @@
 ﻿using System;
+using com.github.javaparser;
 using com.github.javaparser.ast.body;
 using JavaToCSharp.Statements;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,10 +16,10 @@ namespace JavaToCSharp.Declarations
             {
                 //throw new NotImplementedException("Support for non-static initializers is not understood or implemented");
                 context.Options.Warning("Support for non-static initializers is not understood or implemented",
-                                        declaration.getBegin().line);
+                                        declaration.getBegin().FromRequiredOptional<Position>().line);
             }
 
-            var block = declaration.getBlock();
+            var block = declaration.getBody();
 
             var blockSyntax = (BlockSyntax)new BlockStatementVisitor().Visit(context, block);
 

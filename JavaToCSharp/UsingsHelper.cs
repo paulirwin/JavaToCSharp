@@ -16,7 +16,7 @@ public static class UsingsHelper
         foreach (var import in imports)
         {
             // The import directive in Java will import a specific class. 
-            string importName = import.getName().toString();
+            string importName = import.getNameAsString();
             var lastPartStartIndex = importName.LastIndexOf(".", StringComparison.Ordinal);
             var importNameWithoutClassName = lastPartStartIndex == -1 ? 
                                                  importName : 

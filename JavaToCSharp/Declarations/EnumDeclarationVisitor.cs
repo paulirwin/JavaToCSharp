@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
+using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 
@@ -23,7 +24,7 @@ namespace JavaToCSharp.Declarations
 
         public static EnumDeclarationSyntax? VisitEnumDeclaration(ConversionContext context, EnumDeclaration javai)
         {
-            var name = javai.getName();
+            var name = javai.getNameAsString();
             context.LastTypeName = name;
 
             var classSyntax = SyntaxFactory.EnumDeclaration(name);
@@ -39,13 +40,13 @@ namespace JavaToCSharp.Declarations
                 for (int i = 0; i < membersCount; i++)
                 {
                     var itemConst = typeConstants[i];
-                    var memberDecl = SyntaxFactory.EnumMemberDeclaration(itemConst.getName())
+                    var memberDecl = SyntaxFactory.EnumMemberDeclaration(itemConst.getNameAsString())
                                                   .WithJavaComments(itemConst);
 
                     if (useCodeToComment)
                     {
                         //java-enum `body/args` to `code Comment`
-                        var constArgs = itemConst.getArgs();
+                        var constArgs = itemConst.getArguments();
                         var classBody = itemConst.getClassBody();
                         if (!constArgs.isEmpty() || !classBody.isEmpty())
                         {
@@ -73,17 +74,18 @@ namespace JavaToCSharp.Declarations
                 }
 
                 if (showNoPortedWarning)
-                    context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().line);
+                    context.Options.Warning($"Members found in enum {name} will not be ported. Check for correctness.", javai.getBegin().FromRequiredOptional<Position>().line);
 
                 classSyntax = classSyntax.AddMembers(enumMembers.ToArray());
             }
 
-            var mods = javai.getModifiers();
-            if (mods.HasFlag(Modifier.PRIVATE))
+            var mods = javai.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
+            
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PUBLIC))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
                 classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
             return classSyntax.WithJavaComments(javai);

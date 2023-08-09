@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,13 +31,30 @@ namespace JavaToCSharp
 
             options.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
-            var parsed = JavaParser.parse(wrapper);
+            var parser = new JavaParser();
+            
+            var parsed = parser.parse(wrapper);
+
+            if (!parsed.isSuccessful())
+            {
+                var problems = parsed.getProblems();
+                var problemText = new StringBuilder();
+
+                foreach (var problem in problems.OfType<Problem>())
+                {
+                    problemText.AppendLine(problem.getMessage());
+                }
+
+                throw new InvalidOperationException($"Parsing failed:{Environment.NewLine}{problemText}");
+            }
+
+            var result = parsed.getResult().FromRequiredOptional<CompilationUnit>();
 
             options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
-            var types = parsed.getTypes()?.ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
-            var imports = parsed.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
-            var package = parsed.getPackage();
+            var types = result.getTypes().ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
+            var imports = result.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
+            var package = result.getPackageDeclaration().FromOptional<PackageDeclaration>();
 
             var rootMembers = new List<MemberDeclarationSyntax>();
             NamespaceDeclarationSyntax? namespaceSyntax = null;
@@ -106,7 +124,7 @@ namespace JavaToCSharp
                 )
                 .NormalizeWhitespace();
 
-            root = root.WithJavaComments(parsed, "\r\n");
+            root = root.WithJavaComments(result, "\r\n");
             if (root is null)
             {
                 return null;

@@ -91,12 +91,12 @@ namespace JavaToCSharp
             var result = new List<(JavaComments.Comment c, CommentPosition pos)>();
             if (node == null) return result;
 
-            var parentNode = node.getParentNode();
+            var parentNode = node.getParentNode().FromOptional<JavaAst.Node>();
             if (parentNode is null)
             {
-                if (node.hasComment())
+                if (node.getComment().FromOptional<JavaComments.Comment>() is { } comment)
                 {
-                    result.Add((node.getComment(), CommentPosition.Leading));
+                    result.Add((comment, CommentPosition.Leading));
                 }
             }
             else
@@ -105,21 +105,23 @@ namespace JavaToCSharp
                 if (unsortedComments.size() != 0)
                 {
                     var comments = unsortedComments.OfType<JavaComments.Comment>()
-                        .OrderBy(c => c.getBegin().line)
-                        .ThenBy(c => c.getBegin().column)
+                        .OrderBy(c => c.getBegin().FromOptional<JavaParser.Position>()?.line)
+                        .ThenBy(c => c.getBegin().FromOptional<JavaParser.Position>()?.column)
                         .ToList();
 
                     // Find leading comments
-                    var nodeBegin = node.getBegin();
+                    var nodeBegin = node.getBegin().FromOptional<JavaParser.Position>() 
+                                    ?? throw new InvalidOperationException("Node did not have a begin position");
                     var previousSibling = GetPreviousSibling(parentNode, nodeBegin);
-                    int previousPos = previousSibling?.getEnd().line ?? 0;
+                    int previousPos = previousSibling?.getEnd().FromOptional<JavaParser.Position>()?.line ?? 0;
                     var leadingComments = GetLeadingComments(comments, nodeBegin, previousPos);
                     result.AddRange(leadingComments);
 
                     // Find trailing comments.
                     // We consider only comments either appearing on the same line or, if no sibling nodes follow,
                     // then also comments on the succeeding lines (because otherwise they belong to the next sibling).
-                    var nodeEnd = node.getEnd();
+                    var nodeEnd = node.getEnd().FromOptional<JavaParser.Position>() 
+                                  ?? throw new InvalidOperationException("Node did not have an end position");
 
                     var trailingComments = HasNextSibling(parentNode, nodeEnd)
                         ? GetLineEndComment(comments, nodeEnd)
@@ -135,25 +137,29 @@ namespace JavaToCSharp
         private static IEnumerable<(JavaComments.Comment c, CommentPosition Trailing)> GetTrailingComments(IEnumerable<JavaComments.Comment> comments, JavaParser.Position nodeEnd) =>
             comments.Where(c =>
                 {
-                    var commentBegin = c.getBegin();
-                    return commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column || commentBegin.line > nodeEnd.line;
+                    var commentBegin = c.getBegin().FromOptional<JavaParser.Position>();
+                    return commentBegin != null && (commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column || commentBegin.line > nodeEnd.line);
                 })
                 .Select(c => (c, CommentPosition.Trailing));
 
         private static IEnumerable<(JavaComments.Comment c, CommentPosition Trailing)> GetLineEndComment(IEnumerable<JavaComments.Comment> comments, JavaParser.Position nodeEnd) =>
             comments
-                .Where(c => c.getBegin().line == nodeEnd.line && c.getBegin().column > nodeEnd.column)
+                .Where(c =>
+                {
+                    var commentBegin = c.getBegin().FromOptional<JavaParser.Position>();
+                    return commentBegin != null && commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column;
+                })
                 .Select(c => (c, CommentPosition.Trailing));
 
         private static bool HasNextSibling(JavaAst.Node parentNode, JavaParser.Position nodeEnd)
         {
-            return parentNode.getChildrenNodes()
+            return parentNode.getChildNodes()
                 .OfType<JavaAst.Node>()
                 .Where(sibling => sibling is not JavaComments.Comment)
                 .Any(sibling =>
                 {
-                    var siblingBegin = sibling.getBegin();
-                    return siblingBegin.line > nodeEnd.line || siblingBegin.line == nodeEnd.line && siblingBegin.column > nodeEnd.column;
+                    var siblingBegin = sibling.getBegin().FromOptional<JavaParser.Position>();
+                    return siblingBegin != null && (siblingBegin.line > nodeEnd.line || siblingBegin.line == nodeEnd.line && siblingBegin.column > nodeEnd.column);
                 });
         }
 
@@ -161,21 +167,22 @@ namespace JavaToCSharp
         {
             return comments.Where(c =>
                 {
-                    var commentEnd = c.getEnd();
-                    return c.getBegin().line > previousPos && (commentEnd.line < nodeBegin.line || commentEnd.line == nodeBegin.line && commentEnd.column < nodeBegin.column);
+                    var commentBegin = c.getBegin().FromOptional<JavaParser.Position>();
+                    var commentEnd = c.getEnd().FromOptional<JavaParser.Position>();
+                    return commentBegin != null && commentEnd != null && commentBegin.line > previousPos && (commentEnd.line < nodeBegin.line || commentEnd.line == nodeBegin.line && commentEnd.column < nodeBegin.column);
                 })
                 .Select(c => (c, CommentPosition.Leading));
         }
 
         private static JavaAst.Node? GetPreviousSibling(JavaAst.Node parentNode, JavaParser.Position nodeBegin)
         {
-            return parentNode.getChildrenNodes()
+            return parentNode.getChildNodes()
                 .OfType<JavaAst.Node>()
                 .Where(sibling => sibling is not JavaComments.Comment)
                 .LastOrDefault(sibling =>
                 {
-                    var siblingEnd = sibling.getEnd();
-                    return siblingEnd.line < nodeBegin.line || siblingEnd.line == nodeBegin.line && siblingEnd.column < nodeBegin.column;
+                    var siblingEnd = sibling.getEnd().FromOptional<JavaParser.Position>();
+                    return siblingEnd != null && (siblingEnd.line < nodeBegin.line || siblingEnd.line == nodeBegin.line && siblingEnd.column < nodeBegin.column);
                 });
         }
 

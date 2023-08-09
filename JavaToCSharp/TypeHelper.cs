@@ -55,7 +55,7 @@ namespace JavaToCSharp
         {
             return ConvertType(typedNode.getType().toString());
         }
-
+        
         public static string ConvertType(ast.type.Type type)
         {
             return ConvertType(type.toString());
@@ -137,12 +137,12 @@ namespace JavaToCSharp
 
         public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type)
         {
-            string typeName = ConvertType(type.getName());
-            var typeArgs = type.getTypeArgs().ToList<ast.type.Type>();
+            string typeName = ConvertType(type.getNameAsString());
+            var typeArgs = type.getTypeArguments().FromOptional<ast.NodeList>()?.ToList<ast.type.Type>();
 
             TypeSyntax typeSyntax;
 
-            if (typeArgs != null && typeArgs.Count > 0)
+            if (typeArgs is { Count: > 0 })
             {
                 typeSyntax = SyntaxFactory.GenericName(typeName)
                     .AddTypeArgumentListArguments(typeArgs.Select(t => SyntaxFactory.ParseTypeName(ConvertType(t))).ToArray());
@@ -194,12 +194,12 @@ namespace JavaToCSharp
         public static bool TryTransformMethodCall(ConversionContext context, MethodCallExpr methodCallExpr,
             out ExpressionSyntax? transformedSyntax)
         {
-            if (methodCallExpr.getScope() is { } scope)
+            if (methodCallExpr.getScope().FromOptional<Expression>() is { } scope)
             {
                 var methodName = methodCallExpr.getName();
-                var args = methodCallExpr.getArgs();
+                var args = methodCallExpr.getArguments();
 
-                switch (methodName)
+                switch (methodName.getIdentifier())
                 {
                     case "size" when args.size() == 0:
                         var scopeSyntaxSize = ExpressionVisitor.VisitExpression(context, scope);

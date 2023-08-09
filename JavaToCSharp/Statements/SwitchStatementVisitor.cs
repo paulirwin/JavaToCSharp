@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -18,7 +19,7 @@ namespace JavaToCSharp.Statements
                 return null;
             }
 
-            var cases = switchStmt.getEntries().ToList<SwitchEntryStmt>();
+            var cases = switchStmt.getEntries().ToList<SwitchEntry>();
 
             if (cases == null)
                 return SyntaxFactory.SwitchStatement(selectorSyntax, SyntaxFactory.List<SwitchSectionSyntax>());
@@ -27,12 +28,12 @@ namespace JavaToCSharp.Statements
 
             foreach (var cs in cases)
             {
-                var label = cs.getLabel();
+                var labels = cs.getLabels().ToList<Expression>();
 
-                var statements = cs.getStmts().ToList<Statement>();
+                var statements = cs.getStatements().ToList<Statement>();
                 var syntaxes = VisitStatements(context, statements);
 
-                if (label == null)
+                if (labels is not { Count: > 0 })
                 {
                     // default case
                     var hasBreakStmt = false;
@@ -55,14 +56,13 @@ namespace JavaToCSharp.Statements
                 }
                 else
                 {
-                    var labelSyntax = ExpressionVisitor.VisitExpression(context, label);
-                    if (labelSyntax is null)
-                    {
-                        return null;
-                    }
-
+                    var labelSyntaxes = labels
+                        .Select(i => ExpressionVisitor.VisitExpression(context, i))
+                        .Where(i => i != null)
+                        .Select(i => (SwitchLabelSyntax)SyntaxFactory.CaseSwitchLabel(i!));
+                    
                     var caseSyntax = SyntaxFactory.SwitchSection(
-                        SyntaxFactory.List(new List<SwitchLabelSyntax> { SyntaxFactory.CaseSwitchLabel(labelSyntax) }),
+                        SyntaxFactory.List(labelSyntaxes.ToList()),
                         SyntaxFactory.List(syntaxes.AsEnumerable()));
                     caseSyntaxes.Add(caseSyntax);
                 }

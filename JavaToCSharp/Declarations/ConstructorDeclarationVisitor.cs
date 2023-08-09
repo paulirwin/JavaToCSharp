@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.stmt;
@@ -23,13 +24,13 @@ namespace JavaToCSharp.Declarations
             var ctorSyntax = SyntaxFactory.ConstructorDeclaration(identifier)
                                           .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
-            var mods = ctorDecl.getModifiers();
+            var mods = ctorDecl.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
 
-            if (mods.HasFlag(Modifier.PUBLIC))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
                 ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            if (mods.HasFlag(Modifier.PROTECTED))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
                 ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.HasFlag(Modifier.PRIVATE))
+            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
                 ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
 
             var parameters = ctorDecl.getParameters().ToList<Parameter>();
@@ -40,7 +41,7 @@ namespace JavaToCSharp.Declarations
 
                 foreach (var param in parameters)
                 {
-                    var name = param.getId().toString();
+                    var name = param.getNameAsString();
                     var paramSyntax = SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(name)));
 
                     if (param.isVarArgs())
@@ -60,7 +61,7 @@ namespace JavaToCSharp.Declarations
             }
             
             var block = ctorDecl.getBody();
-            var statements = block.getStmts().ToList<Statement>();
+            var statements = block.getStatements().ToList<Statement>();
 
             // handle special case for constructor invocation
             if (statements is {Count: > 0} && statements[0] is ExplicitConstructorInvocationStmt)
@@ -70,7 +71,7 @@ namespace JavaToCSharp.Declarations
 
                 ArgumentListSyntax? argsSyntax = null;
 
-                var initArgs = ctorInvStmt.getArgs();
+                var initArgs = ctorInvStmt.getArguments();
                 if (initArgs != null && initArgs.size() > 0)
                 {
                     argsSyntax = TypeHelper.GetSyntaxFromArguments(context, initArgs);

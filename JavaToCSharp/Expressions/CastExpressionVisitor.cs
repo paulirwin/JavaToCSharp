@@ -8,7 +8,7 @@ namespace JavaToCSharp.Expressions
     {
         public override ExpressionSyntax? Visit(ConversionContext context, CastExpr castExpr)
         {
-            var expr = castExpr.getExpr();
+            var expr = castExpr.getExpression();
             var exprSyntax = VisitExpression(context, expr);
             if (exprSyntax is null)
             {

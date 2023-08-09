@@ -36,9 +36,9 @@ namespace JavaToCSharp.Expressions
             foreach (var param in parameters)
             {
                 string typeName = TypeHelper.ConvertTypeOf(param);
-                string identifier = TypeHelper.EscapeIdentifier(param.getId().getName());
+                string identifier = TypeHelper.EscapeIdentifier(param.getNameAsString());
 
-                if ((param.getId().getArrayCount() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
+                if ((param.getType().getArrayLevel() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
                     typeName += "[]";
 
                 var modifiers = SyntaxFactory.TokenList();

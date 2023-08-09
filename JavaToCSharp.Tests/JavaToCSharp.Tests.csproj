@@ -25,7 +25,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <IkvmReference Include="../Lib/javaparser-core-3.0.0-SNAPSHOT.jar" />
+    <IkvmReference Include="../Lib/javaparser-core-3.25.4.jar" />
   </ItemGroup>
 
   <ItemGroup>

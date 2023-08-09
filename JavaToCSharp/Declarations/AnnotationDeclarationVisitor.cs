@@ -1,4 +1,5 @@
 ﻿using System;
+using com.github.javaparser;
 using com.github.javaparser.ast.body;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,7 +11,7 @@ namespace JavaToCSharp.Declarations
                                                                AnnotationDeclaration declaration)
         {
             context.Options.Warning("Declaring an annotation inside a class NotImplemented.",
-                                    declaration.getBegin().line);
+                                    declaration.getBegin().FromRequiredOptional<Position>().line);
             return null;
         }
 

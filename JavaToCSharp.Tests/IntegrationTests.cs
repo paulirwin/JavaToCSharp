@@ -6,9 +6,10 @@ namespace JavaToCSharp.Tests
     public class IntegrationTests
     {
         [Theory]
+        [InlineData("Resources/ArrayField.java")]
         [InlineData("Resources/SimilarityBase.java")]
         [InlineData("Resources/TestNumericDocValuesUpdates.java")]
-        public void TestCommentsCanBeConverted(string filePath)
+        public void GeneralSuccessfulConversionTest(string filePath)
         {
             var options = new JavaConversionOptions();
             options.WarningEncountered += (_, eventArgs)

@@ -21,7 +21,7 @@ namespace JavaToCSharp.Expressions
                 return null;
             }
 
-            var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getField());
+            var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getNameAsString());
             return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(field));
         }
     }

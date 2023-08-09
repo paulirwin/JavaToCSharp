@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions
 {
-    public class LongLiteralExpressionVisitor : ExpressionVisitor<StringLiteralExpr>
+    public class LongLiteralExpressionVisitor : ExpressionVisitor<LiteralStringValueExpr>
     {
-        public override ExpressionSyntax Visit(ConversionContext context, StringLiteralExpr expr)
+        public override ExpressionSyntax Visit(ConversionContext context, LiteralStringValueExpr expr)
         {
             var longText = expr is LongLiteralExpr longLiteralExpr ? longLiteralExpr.getValue() : expr.toString();
             longText = longText.Trim('\"')
