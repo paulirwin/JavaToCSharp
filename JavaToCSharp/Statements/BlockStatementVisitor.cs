@@ -2,15 +2,14 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp.Statements
+namespace JavaToCSharp.Statements;
+
+public class BlockStatementVisitor : StatementVisitor<BlockStmt>
 {
-    public class BlockStatementVisitor : StatementVisitor<BlockStmt>
+    public override StatementSyntax Visit(ConversionContext context, BlockStmt blockStmt)
     {
-        public override StatementSyntax Visit(ConversionContext context, BlockStmt blockStmt)
-        {
-            var statements = blockStmt.getStatements().ToList<Statement>();
-            var syntaxes = VisitStatements(context, statements);
-            return SyntaxFactory.Block(syntaxes);
-        }
+        var statements = blockStmt.getStatements().ToList<Statement>();
+        var syntaxes = VisitStatements(context, statements);
+        return SyntaxFactory.Block(syntaxes);
     }
 }

@@ -1,17 +1,16 @@
 ﻿using System;
 
-namespace JavaToCSharp
+namespace JavaToCSharp;
+
+public class ConversionWarningEventArgs : EventArgs
 {
-    public class ConversionWarningEventArgs : EventArgs
+    public ConversionWarningEventArgs(string message, int javaLineNumber)
     {
-        public ConversionWarningEventArgs(string message, int javaLineNumber)
-        {
-            Message = message;
-            JavaLineNumber = javaLineNumber;
-        }
-
-        public string Message { get; }
-
-        public int JavaLineNumber { get; }
+        Message = message;
+        JavaLineNumber = javaLineNumber;
     }
+
+    public string Message { get; }
+
+    public int JavaLineNumber { get; }
 }

@@ -3,17 +3,16 @@ using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp.Statements
+namespace JavaToCSharp.Statements;
+
+public class ThrowStatementVisitor : StatementVisitor<ThrowStmt>
 {
-    public class ThrowStatementVisitor : StatementVisitor<ThrowStmt>
+    public override StatementSyntax Visit(ConversionContext context, ThrowStmt throwStmt)
     {
-        public override StatementSyntax Visit(ConversionContext context, ThrowStmt throwStmt)
-        {
-            var expr = throwStmt.getExpression();
+        var expr = throwStmt.getExpression();
 
-            var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
+        var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
 
-            return SyntaxFactory.ThrowStatement(exprSyntax);
-        }
+        return SyntaxFactory.ThrowStatement(exprSyntax);
     }
 }

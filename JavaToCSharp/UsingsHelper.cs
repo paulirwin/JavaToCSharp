@@ -20,7 +20,7 @@ public static class UsingsHelper
             var lastPartStartIndex = importName.LastIndexOf(".", StringComparison.Ordinal);
             var importNameWithoutClassName = lastPartStartIndex == -1 ? 
                                                  importName : 
-                                                 importName.Substring(0, lastPartStartIndex);
+                                                 importName[..lastPartStartIndex];
             var nameSpace = TypeHelper.Capitalize(importNameWithoutClassName);
             var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(nameSpace));
             usings.Add(usingSyntax);
@@ -28,7 +28,7 @@ public static class UsingsHelper
 
         if (options?.IncludeUsings == true)
         {
-            foreach (string ns in options.Usings.Where(x => !string.IsNullOrWhiteSpace(x)))
+            foreach (string ns in options.Usings.Where(x => !String.IsNullOrWhiteSpace(x)))
             {
                 var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns));
                 usings.Add(usingSyntax);
@@ -44,8 +44,8 @@ public class UsingDirectiveSyntaxComparer :  IEqualityComparer<UsingDirectiveSyn
     public bool Equals(UsingDirectiveSyntax? x, UsingDirectiveSyntax? y)
     {
         if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null)) return false;
-        if (ReferenceEquals(y, null)) return false;
+        if (x is null) return false;
+        if (y is null) return false;
         if (x.GetType() != y.GetType()) return false;
         
         return Equals(x.Alias?.ToString(), y.Alias?.ToString()) && 

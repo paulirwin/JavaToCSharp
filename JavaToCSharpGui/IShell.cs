@@ -1,6 +1,5 @@
-namespace JavaToCSharpGui
+namespace JavaToCSharpGui;
+
+public interface IShell
 {
-    public interface IShell
-    {
-    }
 }

@@ -12,99 +12,89 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp
+namespace JavaToCSharp;
+
+public static class JavaToCSharpConverter
 {
-    public static class JavaToCSharpConverter
+    public static string? ConvertText(string? javaText, JavaConversionOptions? options = null)
     {
-        public static string? ConvertText(string? javaText, JavaConversionOptions? options = null)
+        options ??= new JavaConversionOptions();
+
+        options.ConversionStateChanged(ConversionState.Starting);
+
+        var context = new ConversionContext(options);
+
+        var textBytes = Encoding.UTF8.GetBytes(javaText ?? System.String.Empty);
+
+        using var memoryStream = new MemoryStream(textBytes);
+        using var wrapper = new InputStreamWrapper(memoryStream);
+
+        options.ConversionStateChanged(ConversionState.ParsingJavaAst);
+
+        var parser = new JavaParser();
+        
+        var parsed = parser.parse(wrapper);
+
+        if (!parsed.isSuccessful())
         {
-            options ??= new JavaConversionOptions();
+            var problems = parsed.getProblems();
+            var problemText = new StringBuilder();
 
-            options.ConversionStateChanged(ConversionState.Starting);
-
-            var context = new ConversionContext(options);
-
-            var textBytes = Encoding.UTF8.GetBytes(javaText ?? string.Empty);
-
-            using var memoryStream = new MemoryStream(textBytes);
-            using var wrapper = new InputStreamWrapper(memoryStream);
-
-            options.ConversionStateChanged(ConversionState.ParsingJavaAst);
-
-            var parser = new JavaParser();
-            
-            var parsed = parser.parse(wrapper);
-
-            if (!parsed.isSuccessful())
+            foreach (var problem in problems.OfType<Problem>())
             {
-                var problems = parsed.getProblems();
-                var problemText = new StringBuilder();
-
-                foreach (var problem in problems.OfType<Problem>())
-                {
-                    problemText.AppendLine(problem.getMessage());
-                }
-
-                throw new InvalidOperationException($"Parsing failed:{Environment.NewLine}{problemText}");
+                problemText.AppendLine(problem.getMessage());
             }
 
-            var result = parsed.getResult().FromRequiredOptional<CompilationUnit>();
+            throw new InvalidOperationException($"Parsing failed:{Environment.NewLine}{problemText}");
+        }
 
-            options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
+        var result = parsed.getResult().FromRequiredOptional<CompilationUnit>();
 
-            var types = result.getTypes().ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
-            var imports = result.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
-            var package = result.getPackageDeclaration().FromOptional<PackageDeclaration>();
+        options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
-            var rootMembers = new List<MemberDeclarationSyntax>();
-            NamespaceDeclarationSyntax? namespaceSyntax = null;
+        var types = result.getTypes().ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
+        var imports = result.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
+        var package = result.getPackageDeclaration().FromOptional<PackageDeclaration>();
 
-            if (options.IncludeNamespace)
+        var rootMembers = new List<MemberDeclarationSyntax>();
+        NamespaceDeclarationSyntax? namespaceSyntax = null;
+
+        if (options.IncludeNamespace)
+        {
+            string packageName = package?.getName()?.toString() ?? "MyApp";
+
+            foreach (var packageReplacement in options.PackageReplacements)
             {
-                string packageName = package?.getName()?.toString() ?? "MyApp";
-
-                foreach (var packageReplacement in options.PackageReplacements)
+                if (System.String.IsNullOrWhiteSpace(packageName))
                 {
-                    if (string.IsNullOrWhiteSpace(packageName))
-                    {
-                        continue;
-                    }
-                    
-                    packageName = packageReplacement.Replace(packageName)!;
+                    continue;
                 }
-
-                packageName = TypeHelper.Capitalize(packageName);
-
-                namespaceSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(packageName))
-                    .WithJavaComments(package);
+                
+                packageName = packageReplacement.Replace(packageName)!;
             }
 
-            foreach (var type in types)
+            packageName = TypeHelper.Capitalize(packageName);
+
+            namespaceSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(packageName))
+                .WithJavaComments(package);
+        }
+
+        foreach (var type in types)
+        {
+            if (type is ClassOrInterfaceDeclaration classOrIntType)
             {
-                if (type is ClassOrInterfaceDeclaration classOrIntType)
+                if (classOrIntType.isInterface())
                 {
-                    if (classOrIntType.isInterface())
-                    {
-                        var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType);
+                    var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType);
 
-                        if (namespaceSyntax != null && interfaceSyntax != null)
-                            namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
-                        else if(interfaceSyntax != null)
-                            rootMembers.Add(interfaceSyntax);
-                    }
-                    else
-                    {
-                        var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType);
-
-                        if (namespaceSyntax != null && classSyntax != null)
-                            namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                        else if(classSyntax != null)
-                            rootMembers.Add(classSyntax);
-                    }
+                    if (namespaceSyntax != null && interfaceSyntax != null)
+                        namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
+                    else if(interfaceSyntax != null)
+                        rootMembers.Add(interfaceSyntax);
                 }
-                else if (type is EnumDeclaration enumType)
+                else
                 {
-                    var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
+                    var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType);
 
                     if (namespaceSyntax != null && classSyntax != null)
                         namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
@@ -112,36 +102,45 @@ namespace JavaToCSharp
                         rootMembers.Add(classSyntax);
                 }
             }
-
-            if (namespaceSyntax != null)
-                rootMembers.Add(namespaceSyntax);
-
-            var root = SyntaxFactory.CompilationUnit(
-                    externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
-                    usings: SyntaxFactory.List(UsingsHelper.GetUsings(imports, options)),
-                    attributeLists: new SyntaxList<AttributeListSyntax>(),
-                    members: SyntaxFactory.List(rootMembers)
-                )
-                .NormalizeWhitespace();
-
-            root = root.WithJavaComments(result, "\r\n");
-            if (root is null)
+            else if (type is EnumDeclaration enumType)
             {
-                return null;
+                var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
+
+                if (namespaceSyntax != null && classSyntax != null)
+                    namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
+                else if(classSyntax != null)
+                    rootMembers.Add(classSyntax);
             }
-
-            var postConversionSanitizer = new SanitizingSyntaxRewriter();
-            var sanitizedRoot = postConversionSanitizer.VisitCompilationUnit(root);
-            if (sanitizedRoot is null)
-            {
-                return null;
-            }
-
-            var tree = SyntaxFactory.SyntaxTree(sanitizedRoot);
-
-            options.ConversionStateChanged(ConversionState.Done);
-
-            return tree.GetText().ToString();
         }
+
+        if (namespaceSyntax != null)
+            rootMembers.Add(namespaceSyntax);
+
+        var root = SyntaxFactory.CompilationUnit(
+                externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
+                usings: SyntaxFactory.List(UsingsHelper.GetUsings(imports, options)),
+                attributeLists: new SyntaxList<AttributeListSyntax>(),
+                members: SyntaxFactory.List(rootMembers)
+            )
+            .NormalizeWhitespace();
+
+        root = root.WithJavaComments(result, "\r\n");
+        if (root is null)
+        {
+            return null;
+        }
+
+        var postConversionSanitizer = new SanitizingSyntaxRewriter();
+        var sanitizedRoot = postConversionSanitizer.VisitCompilationUnit(root);
+        if (sanitizedRoot is null)
+        {
+            return null;
+        }
+
+        var tree = SyntaxFactory.SyntaxTree(sanitizedRoot);
+
+        options.ConversionStateChanged(ConversionState.Done);
+
+        return tree.GetText().ToString();
     }
 }

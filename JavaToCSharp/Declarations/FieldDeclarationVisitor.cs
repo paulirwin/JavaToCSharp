@@ -8,76 +8,75 @@ using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp.Declarations
+namespace JavaToCSharp.Declarations;
+
+public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
 {
-    public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
+    public override MemberDeclarationSyntax VisitForClass(
+        ConversionContext context, ClassDeclarationSyntax? classSyntax, FieldDeclaration fieldDecl)
     {
-        public override MemberDeclarationSyntax VisitForClass(
-            ConversionContext context, ClassDeclarationSyntax? classSyntax, FieldDeclaration fieldDecl)
+        var variables = new List<VariableDeclaratorSyntax>();
+
+        string typeName = fieldDecl.getCommonType().toString();
+
+        var variableDeclarators = fieldDecl.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+        foreach (var item in variableDeclarators)
         {
-            var variables = new List<VariableDeclaratorSyntax>();
+            var type = item.getType();
+            string name = item.getNameAsString();
 
-            string typeName = fieldDecl.getCommonType().toString();
-
-            var variableDeclarators = fieldDecl.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
-            foreach (var item in variableDeclarators)
+            if (type.getArrayLevel() > 0)
             {
-                var type = item.getType();
-                string name = item.getNameAsString();
-
-                if (type.getArrayLevel() > 0)
-                {
-                    if (!typeName.EndsWith("[]"))
-                        typeName += "[]";
-                    if (name.EndsWith("[]"))
-                        name = name.Substring(0, name.Length - 2);
-                }
-
-                var initExpr = item.getInitializer().FromOptional<Expression>();
-
-                if (initExpr != null)
-                {
-                    var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
-                    if (initSyntax is not null)
-                    {
-                        var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
-                        variables.Add(varDeclarationSyntax);
-                    }
-                }
-                else
-                    variables.Add(SyntaxFactory.VariableDeclarator(name));
+                if (!typeName.EndsWith("[]"))
+                    typeName += "[]";
+                if (name.EndsWith("[]"))
+                    name = name[..^2];
             }
 
-            typeName = TypeHelper.ConvertType(typeName);
+            var initExpr = item.getInitializer().FromOptional<Expression>();
 
-            var fieldSyntax = SyntaxFactory.FieldDeclaration(
-                SyntaxFactory.VariableDeclaration(
-                    SyntaxFactory.ParseTypeName(typeName),
-                    SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
-
-            var mods = fieldDecl.getModifiers().ToList<Modifier>();
-
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
-                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
-                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
-                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
-                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
-                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.VOLATILE))
-                fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
-
-            return fieldSyntax;
+            if (initExpr != null)
+            {
+                var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
+                if (initSyntax is not null)
+                {
+                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                    variables.Add(varDeclarationSyntax);
+                }
+            }
+            else
+                variables.Add(SyntaxFactory.VariableDeclarator(name));
         }
 
-        public override MemberDeclarationSyntax VisitForInterface(ConversionContext context,
-            InterfaceDeclarationSyntax interfaceSyntax, FieldDeclaration declaration)
-        {
-            // TODO: throw new NotImplementedException("Need to implement diversion of static fields from interface declaration to static class");
-            return VisitForClass(context, null, declaration);
-        }
+        typeName = TypeHelper.ConvertType(typeName);
+
+        var fieldSyntax = SyntaxFactory.FieldDeclaration(
+            SyntaxFactory.VariableDeclaration(
+                SyntaxFactory.ParseTypeName(typeName),
+                SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
+
+        var mods = fieldDecl.getModifiers().ToList<Modifier>();
+
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
+        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.VOLATILE))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
+
+        return fieldSyntax;
+    }
+
+    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context,
+        InterfaceDeclarationSyntax interfaceSyntax, FieldDeclaration declaration)
+    {
+        // TODO: throw new NotImplementedException("Need to implement diversion of static fields from interface declaration to static class");
+        return VisitForClass(context, null, declaration);
     }
 }

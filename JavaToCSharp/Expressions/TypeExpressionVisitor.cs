@@ -2,10 +2,9 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace JavaToCSharp.Expressions
+namespace JavaToCSharp.Expressions;
+
+public class TypeExpressionVisitor : ExpressionVisitor<TypeExpr>
 {
-    public class TypeExpressionVisitor : ExpressionVisitor<TypeExpr>
-    {
-        public override ExpressionSyntax Visit(ConversionContext context, TypeExpr expr) => SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(expr));
-    }
+    public override ExpressionSyntax Visit(ConversionContext context, TypeExpr expr) => SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(expr));
 }
