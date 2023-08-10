@@ -1,31 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Threading;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.IO;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using JavaToCSharp;
+using JavaToCSharpGui.Infrastructure;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace JavaToCSharpGui.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty]
-    private string _addUsingInput = "";
     private bool _includeUsings = true;
     private bool _includeNamespace = true;
     private bool _useDebugAssertForAsserts;
     private bool _useUnrecognizedCodeToComment;
 
-    private readonly IClassicDesktopStyleApplicationLifetime? _desktop;
+    private readonly IHostStorageProvider? _storageProvider;
+    private readonly IUIDispatcher _dispatcher;
+    private readonly ITextClipboard? _clipboard;
+
+    /// <summary>
+    /// Constructor for the Avalonia Designer view inside the IDE.
+    /// </summary>
+    public MainWindowViewModel()
+    {
+        _dispatcher = new UIDispatcher(Avalonia.Threading.Dispatcher.UIThread);
+        if (App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
+        {
+            _storageProvider = new HostStorageProvider(desktop.MainWindow.StorageProvider);
+            _clipboard = new TextClipboard(desktop.MainWindow.Clipboard);
+        }
+    }
+
+    /// <summary>
+    /// Real constructor
+    /// </summary>
+    /// <param name="storageProvider">The storage provider.</param>
+    /// <param name="dispatcher">The UI Thread Dispatcher.</param>
+    /// <param name="clipboard">The clipboard.</param>
+    public MainWindowViewModel(IHostStorageProvider storageProvider, IUIDispatcher dispatcher, ITextClipboard clipboard)
+    {
+        _storageProvider = storageProvider;
+        _dispatcher = dispatcher;
+        _clipboard = clipboard;
+        base.DisplayName = "Java to C# Converter";
+
+        _isConvertEnabled = true;
+        _useFolderConvert = false;
+
+        _includeUsings = Properties.Settings.Default.UseUsingsPreference;
+        _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
+        _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
+        _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
+    }
+
+    [ObservableProperty]
+    private string _addUsingInput = "";
 
     #region UseFolder
 
@@ -51,6 +88,18 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _conversionStateLabel = "";
+
+    [ObservableProperty]
+    private string? _selectedUsing;
+
+    [RelayCommand]
+    public void RemoveSelectedUsing()
+    {
+        if(SelectedUsing is not null && Usings.Contains(SelectedUsing))
+        {
+            Usings.Remove(SelectedUsing);
+        }
+    }
 
     public bool IncludeUsings
     {
@@ -179,14 +228,13 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     private async Task OpenFolderDialog()
     {
-        if(_desktop?.MainWindow?.StorageProvider is { CanPickFolder: true }) {
-            IStorageProvider storageProvider = _desktop.MainWindow.StorageProvider;
+        if(_storageProvider?.CanPickFolder is true) {
             FolderPickerOpenOptions options = new() {
                 Title = "Folder Browser",
                 AllowMultiple = false,
-                SuggestedStartLocation = await storageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
+                SuggestedStartLocation = await _storageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
             };
-            var result = await storageProvider.OpenFolderPickerAsync(options);
+            var result = await _storageProvider.OpenFolderPickerAsync(options);
             if(!result.Any()) {
                 return;
             }
@@ -281,6 +329,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     #endregion
 
+    [RelayCommand]
+    public void ClearMessage()
+    {
+        MessageTitle = "";
+        Message = "";
+        IsMessageShown = false;
+    }
+
     private void ShowMessage(string message, string title = "") {
         MessageTitle = title;
         Message = message;
@@ -288,7 +344,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [ObservableProperty]
-    private bool _isMessageShown = true;
+    private bool _isMessageShown;
 
     private void Options_StateChanged(object? sender, ConversionStateChangedEventArgs e)
     {
@@ -337,9 +393,8 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             await OpenFolderDialog();
         }
-        else if(_desktop?.MainWindow?.StorageProvider is {  CanOpen: true })
+        else if(_storageProvider?.CanOpen is true)
         {
-            var storageProvider = _desktop.MainWindow.StorageProvider;
             var filePickerOpenOptions = new  FilePickerOpenOptions()
             {
                 FileTypeFilter = new FilePickerFileType[]
@@ -351,7 +406,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 },
             };
 
-            var result = await storageProvider.OpenFilePickerAsync(filePickerOpenOptions);
+            var result = await _storageProvider.OpenFilePickerAsync(filePickerOpenOptions);
             if (result.Any())
             {
                 OpenPath = result[0].Path.AbsolutePath;
@@ -360,34 +415,14 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public MainWindowViewModel()
-    {
-        if(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            _desktop = desktop;
-        }
-    }
-
-    public MainWindowViewModel(IClassicDesktopStyleApplicationLifetime? desktop)
-    {
-        _desktop = desktop;
-        base.DisplayName = "Java to C# Converter";
-
-        _isConvertEnabled = true;
-        _useFolderConvert = false;
-
-        _includeUsings = Properties.Settings.Default.UseUsingsPreference;
-        _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
-        _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
-        _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
-    }
-
     [RelayCommand]
     public async Task CopyOutput()
     {
-        if(_desktop?.MainWindow?.Clipboard is null) {
+        if(_clipboard is null)
+        {
             return;
         }
-        await _desktop.MainWindow.Clipboard.SetTextAsync(CSharpText);
+        await _clipboard.SetTextAsync(CSharpText);
         CopiedText = "Copied!";
         await Dispatcher.UIThread.InvokeAsync(async () => {
             await Task.Delay(500);
