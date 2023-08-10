@@ -1,15 +1,13 @@
 Java to C# Converter
 ====================
 
-<p>
-  <a href="https://github.com/paulirwin/JavaToCSharp">
-     <img alt="GitHub Actions status" src="https://github.com/paulirwin/JavaToCSharp/workflows/.NET%20Core%20Build/badge.svg">
-  </a>
-</p>
+[![.NET Build](https://github.com/paulirwin/JavaToCSharp/actions/workflows/build.yml/badge.svg)](https://github.com/paulirwin/JavaToCSharp/actions/workflows/build.yml) ![Nuget](https://img.shields.io/nuget/v/JavaToCSharp)
 
-Java to C# converter. Uses javaparser with Java 8 
-support from https://github.com/before/javaparser, IKVM.NET to 
-convert the javaparser .jar into a .NET .dll, and Roslyn for C# AST generation. 
+
+Java to C# converter. 
+Uses [JavaParser](https://github.com/javaparser/javaparser) to parse the Java source code text, 
+[IKVM.NET](https://github.com/ikvmnet/ikvm/) to convert the javaparser .jar into a .NET .dll, 
+and [Roslyn](https://github.com/dotnet/roslyn) for C# AST generation. 
 
 Pull requests and issue submission welcome.
 
@@ -29,23 +27,4 @@ The core library is installable via NuGet at https://www.nuget.org/packages/Java
 License for JavaParser
 ======================
 
-Java 1.7 parser and Abstract Syntax Tree.
-
-Copyright (C) 2007 Júlio Vilmar Gesser
-jgesser@gmail.com
-http://code.google.com/p/javaparser/
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
+Licensed under the Apache License available at https://github.com/javaparser/javaparser/blob/master/LICENSE.APACHE
