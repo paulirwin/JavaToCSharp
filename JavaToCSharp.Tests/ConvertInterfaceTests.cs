@@ -1,6 +1,3 @@
-using System;
-using Xunit;
-
 namespace JavaToCSharp.Tests;
 
 public class ConvertInterfaceTests

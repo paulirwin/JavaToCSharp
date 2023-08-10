@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace JavaToCSharp.Tests;
 
 public class ConvertTypeTests

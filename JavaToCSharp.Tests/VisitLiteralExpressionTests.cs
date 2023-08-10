@@ -1,6 +1,5 @@
 ﻿using com.github.javaparser.ast.expr;
 using JavaToCSharp.Expressions;
-using Xunit;
 
 namespace JavaToCSharp.Tests;
 
