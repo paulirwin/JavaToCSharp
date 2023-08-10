@@ -32,6 +32,7 @@ public class ShellViewModel : Screen, IShell
     private bool _useDebugAssertForAsserts;
     private bool _useUnrecognizedCodeToComment;
     private bool _isConvertEnabled = true;
+    private bool _convertSystemOutToConsole;
 
     #region UseFolder
 
@@ -52,6 +53,7 @@ public class ShellViewModel : Screen, IShell
         _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
         _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
+        _convertSystemOutToConsole = Properties.Settings.Default.ConvertSystemOutToConsole;
     }
 
     public ObservableCollection<string> Usings { get; } = new(new JavaConversionOptions().Usings);
@@ -190,6 +192,16 @@ public class ShellViewModel : Screen, IShell
         }
     }
 
+    public bool ConvertSystemOutToConsole
+    {
+        get => _convertSystemOutToConsole;
+        set
+        {
+            _convertSystemOutToConsole = value;
+            NotifyOfPropertyChange(() => ConvertSystemOutToConsole);
+        }
+    }
+
     public void AddUsing()
     {
         Usings.Add(_addUsingInput);
@@ -215,6 +227,7 @@ public class ShellViewModel : Screen, IShell
         options.IncludeNamespace = _includeNamespace;
         options.UseDebugAssertForAsserts = _useDebugAssertForAsserts;
         options.UseUnrecognizedCodeToComment = _useUnrecognizedCodeToComment;
+        options.ConvertSystemOutToConsole = _convertSystemOutToConsole;
 
         options.WarningEncountered += Options_WarningEncountered;
         options.StateChanged += Options_StateChanged;

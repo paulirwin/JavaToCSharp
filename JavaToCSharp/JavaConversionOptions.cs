@@ -40,6 +40,8 @@ public class JavaConversionOptions
     /// Unrecognized code is translated into comments
     /// </summary>
     public bool UseUnrecognizedCodeToComment { get; set; }
+    
+    public bool ConvertSystemOutToConsole { get; set; }
 
     public ConversionState ConversionState { get; set; }
 

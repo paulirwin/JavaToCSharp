@@ -70,6 +70,7 @@
                         <CheckBox Margin="5" x:Name="UseDebugAssertForAsserts">Use Debug.Assert() for asserts</CheckBox>
                         <CheckBox Margin="5" x:Name="UseUnrecognizedCodeToComment">Use Unrecognized Code To Comment</CheckBox>
                         <CheckBox Margin="5" x:Name="UseFolderConvert">Use Folder Convert</CheckBox>
+                        <CheckBox Margin="5" x:Name="ConvertSystemOutToConsole">Convert System.out to Console</CheckBox>
                     </StackPanel>
                 </Grid>
             </GroupBox>
