@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using com.github.javaparser;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.type;
 using JavaToCSharp.Statements;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,8 +11,12 @@ namespace JavaToCSharp.Declarations;
 
 public class InitializerDeclarationVisitor : BodyDeclarationVisitor<InitializerDeclaration>
 {
-    public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
-        InitializerDeclaration declaration)
+    public override MemberDeclarationSyntax VisitForClass(
+        ConversionContext context, 
+        ClassDeclarationSyntax classSyntax,
+        InitializerDeclaration declaration,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         if (!declaration.isStatic())
         {

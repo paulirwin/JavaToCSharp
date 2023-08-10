@@ -10,12 +10,15 @@ namespace JavaToCSharp.Declarations;
 
 public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOrInterfaceDeclaration>
 {
-    public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax,
-                                                           ClassOrInterfaceDeclaration declaration)
+    public override MemberDeclarationSyntax? VisitForClass(
+        ConversionContext context, 
+        ClassDeclarationSyntax classSyntax,
+        ClassOrInterfaceDeclaration declaration,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         return VisitClassDeclaration(context, declaration);
     }
-
 
     public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax,
                                                                ClassOrInterfaceDeclaration declaration)
@@ -58,23 +61,23 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-            var extends = javai.getExtendedTypes().ToList<ClassOrInterfaceType>();
-            if (extends != null)
+        var extends = javai.getExtendedTypes().ToList<ClassOrInterfaceType>();
+        if (extends != null)
+        {
+            foreach (var extend in extends)
             {
-                foreach (var extend in extends)
-                {
-                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
-                }
+                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
             }
+        }
 
-            var implements = javai.getImplementedTypes().ToList<ClassOrInterfaceType>();
-            if (implements != null)
+        var implements = javai.getImplementedTypes().ToList<ClassOrInterfaceType>();
+        if (implements != null)
+        {
+            foreach (var implement in implements)
             {
-                foreach (var implement in implements)
-                {
-                    classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
-                }
+                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
             }
+        }
 
         var members = javai.getMembers()?.ToList<BodyDeclaration>();
 
@@ -123,24 +126,18 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-        var extends = javac.getExtendedTypes().ToList<ClassOrInterfaceType>();
+        var extends = javac.getExtendedTypes().ToList<ClassOrInterfaceType>() ?? new List<ClassOrInterfaceType>();
 
-        if (extends != null)
+        foreach (var extend in extends)
         {
-            foreach (var extend in extends)
-            {
-                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
-            }
+            classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
         }
 
-        var implements = javac.getImplementedTypes().ToList<ClassOrInterfaceType>();
+        var implements = javac.getImplementedTypes().ToList<ClassOrInterfaceType>() ?? new List<ClassOrInterfaceType>();
 
-        if (implements != null)
+        foreach (var implement in implements)
         {
-            foreach (var implement in implements)
-            {
-                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
-            }
+            classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
         }
 
         var members = javac.getMembers()?.ToList<BodyDeclaration>();
@@ -169,7 +166,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                 }
                 else
                 {
-                    var syntax = VisitBodyDeclarationForClass(context, classSyntax, member);
+                    var syntax = VisitBodyDeclarationForClass(context, classSyntax, member, extends, implements);
                     var withJavaComments = syntax?.WithJavaComments(member);
                     if (withJavaComments != null)
                     {

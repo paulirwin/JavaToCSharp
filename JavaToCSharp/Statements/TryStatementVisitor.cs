@@ -1,6 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using com.github.javaparser;
+using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
+using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,15 +15,82 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
 {
     public override StatementSyntax Visit(ConversionContext context, TryStmt tryStmt)
     {
+        var resources = tryStmt.getResources().ToList<Expression>() ?? new List<Expression>();
+
         var tryBlock = tryStmt.getTryBlock();
         var tryStatements = tryBlock.getStatements().ToList<Statement>();
 
         var tryConverted = VisitStatements(context, tryStatements);
+        var tryBlockStatements = tryConverted.ToArray();
 
+        if (resources.Count == 0)
+        {
+            // regular try statement
+            return TransformTryBlock(context, tryStmt, tryBlockStatements);
+        }
+
+        // try-with-resources statement
+
+        // for inner-most using block, use the statements from the Java try block
+        StatementSyntax result = SyntaxFactory.Block(tryBlockStatements);
+
+        // go inner-most to outer-most
+        resources.Reverse();
+
+        foreach (var resource in resources)
+        {
+            if (resource.isNameExpr())
+            {
+                result = SyntaxFactory.UsingStatement(result)
+                    .WithExpression(
+                        SyntaxFactory.IdentifierName(resource.asNameExpr().getNameAsString()));
+            }
+            else if (resource.isVariableDeclarationExpr())
+            {
+                var varDecl = resource.asVariableDeclarationExpr();
+
+                if (varDecl.getVariables().size() > 1)
+                {
+                    context.Options.Warning("Unexpected multiple variables in try-with-resources declaration",
+                        resource.getBegin().FromRequiredOptional<Position>().line);
+                }
+
+                var variable = varDecl.getVariable(0);
+                var variableInit = variable.getInitializer().FromRequiredOptional<Expression>();
+                
+                var initSyntax = ExpressionVisitor.VisitExpression(context, variableInit)
+                                 ?? throw new InvalidOperationException("Unable to parse try-with-resources variable initializer");
+                
+                result = SyntaxFactory.UsingStatement(result)
+                    .WithDeclaration(
+                        SyntaxFactory.VariableDeclaration(
+                            SyntaxFactory.ParseTypeName(TypeHelper.ConvertType(variable.getType())),
+                            SyntaxFactory.SeparatedList(new[]
+                            {
+                                SyntaxFactory.VariableDeclarator(variable.getNameAsString())
+                                    .WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax))
+                            })
+                        ));
+            }
+            else
+            {
+                context.Options.Warning("Unexpected try-with-resources resource",
+                    resource.getBegin().FromRequiredOptional<Position>().line);
+            }
+        }
+
+        result = TransformTryBlock(context, tryStmt, new[] { result });
+
+        return result;
+    }
+
+    private static StatementSyntax TransformTryBlock(ConversionContext context, TryStmt tryStmt,
+        IEnumerable<StatementSyntax> tryBlockStatements)
+    {
         var catches = tryStmt.getCatchClauses().ToList<CatchClause>();
 
         var trySyn = SyntaxFactory.TryStatement()
-            .AddBlockStatements(tryConverted.ToArray());
+            .AddBlockStatements(tryBlockStatements.ToArray());
 
         if (catches != null)
         {
@@ -70,7 +142,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             SyntaxFactory.CatchClause(
                 SyntaxFactory.CatchDeclaration(
                     SyntaxFactory.ParseTypeName(type),
-                    SyntaxFactory.ParseToken(ctch.getParameter().getType().asString())
+                    SyntaxFactory.ParseToken(ctch.getParameter().getNameAsString())
                 ),
                 filter: null,
                 block: catchBlockSyntax

@@ -4,6 +4,7 @@ using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.stmt;
+using com.github.javaparser.ast.type;
 using JavaToCSharp.Statements;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,7 +14,12 @@ namespace JavaToCSharp.Declarations;
 
 public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorDeclaration>
 {
-    public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, ConstructorDeclaration ctorDecl)
+    public override MemberDeclarationSyntax? VisitForClass(
+        ConversionContext context,
+        ClassDeclarationSyntax classSyntax,
+        ConstructorDeclaration ctorDecl,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         string? identifier = classSyntax.Identifier.Value?.ToString();
         if (identifier is null)

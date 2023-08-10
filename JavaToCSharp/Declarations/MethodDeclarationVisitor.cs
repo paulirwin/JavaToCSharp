@@ -4,6 +4,7 @@ using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
+using com.github.javaparser.ast.type;
 using JavaToCSharp.Statements;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,7 +15,12 @@ namespace JavaToCSharp.Declarations;
 
 public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
 {
-    public override MemberDeclarationSyntax VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, MethodDeclaration methodDecl)
+    public override MemberDeclarationSyntax VisitForClass(
+        ConversionContext context, 
+        ClassDeclarationSyntax classSyntax, 
+        MethodDeclaration methodDecl,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         var returnType = methodDecl.getType();
         var returnTypeName = TypeHelper.ConvertType(returnType.toString());
@@ -53,7 +59,10 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             foreach (var annotation in annotations)
             {
                 string name = annotation.getNameAsString();
-                if (name == "Override")
+                
+                // ignore @Override annotation on interface-only classes. Unfortunately this is as good as we can get for now.
+                if (name == "Override" 
+                    && extends.Count > 0)
                 {
                     methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.OverrideKeyword));
                     isOverride = true;

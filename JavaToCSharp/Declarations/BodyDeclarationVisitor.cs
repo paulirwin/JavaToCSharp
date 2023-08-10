@@ -1,21 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.type;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Range = com.github.javaparser.Range;
+using Type = System.Type;
 
 namespace JavaToCSharp.Declarations;
 
 public abstract class BodyDeclarationVisitor<T> : BodyDeclarationVisitor
     where T : BodyDeclaration
 {
-    public abstract MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, T declaration);
+    public abstract MemberDeclarationSyntax? VisitForClass(ConversionContext context, 
+        ClassDeclarationSyntax classSyntax, 
+        T declaration,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements);
 
     public abstract MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, T declaration);
 
-    protected sealed override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
+    protected sealed override MemberDeclarationSyntax? VisitForClass(ConversionContext context, 
+        ClassDeclarationSyntax classSyntax, 
+        BodyDeclaration declaration,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
-        return VisitForClass(context, classSyntax, (T)declaration);
+        return VisitForClass(context, classSyntax, (T)declaration, extends, implements);
     }
 
     protected sealed override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
@@ -42,11 +52,19 @@ public abstract class BodyDeclarationVisitor
         };
     }
 
-    protected abstract MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration);
+    protected abstract MemberDeclarationSyntax? VisitForClass(ConversionContext context,
+        ClassDeclarationSyntax classSyntax,
+        BodyDeclaration declaration,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements);
 
     protected abstract MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration);
 
-    public static MemberDeclarationSyntax? VisitBodyDeclarationForClass(ConversionContext context, ClassDeclarationSyntax classSyntax, BodyDeclaration declaration)
+    public static MemberDeclarationSyntax? VisitBodyDeclarationForClass(ConversionContext context,
+        ClassDeclarationSyntax classSyntax,
+        BodyDeclaration declaration,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         if (!_visitors.TryGetValue(declaration.GetType(), out var visitor))
         {
@@ -54,7 +72,7 @@ public abstract class BodyDeclarationVisitor
             throw new InvalidOperationException(message);
         }
 
-        return visitor.VisitForClass(context, classSyntax, declaration)
+        return visitor.VisitForClass(context, classSyntax, declaration, extends, implements)
             .WithJavaComments(declaration);
     }
 

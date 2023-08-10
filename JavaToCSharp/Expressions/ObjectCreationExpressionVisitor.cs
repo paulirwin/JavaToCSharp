@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using com.github.javaparser.ast;
+using com.github.javaparser.ast.type;
 
 namespace JavaToCSharp.Expressions;
 
@@ -83,7 +84,10 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
             classSyntax = classSyntax.AddMembers(ctorSyntax, parentField);
         }
 
-        foreach (var memberSyntax in anonBody.Select(member => BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member)).Where(memberSyntax => memberSyntax != null))
+        // TODO.PI: do we need to pass extends/implements here?
+        foreach (var memberSyntax in anonBody
+                     .Select(member => BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member, new List<ClassOrInterfaceType>(), new List<ClassOrInterfaceType>()))
+                     .Where(memberSyntax => memberSyntax != null))
         {
             classSyntax = classSyntax.AddMembers(memberSyntax!);
         }

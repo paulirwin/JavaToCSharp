@@ -3,7 +3,7 @@ using System.Linq;
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
-
+using com.github.javaparser.ast.type;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,14 +12,19 @@ namespace JavaToCSharp.Declarations;
 
 public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
 {
-    public override MemberDeclarationSyntax? VisitForClass(ConversionContext context, ClassDeclarationSyntax? classSyntax, EnumDeclaration enumDecl)
+    public override MemberDeclarationSyntax? VisitForClass(
+        ConversionContext context,
+        ClassDeclarationSyntax? classSyntax,
+        EnumDeclaration enumDecl,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         return VisitEnumDeclaration(context, enumDecl);
     }
 
     public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, EnumDeclaration declaration)
     {
-        return VisitForClass(context, null, declaration);
+        return VisitEnumDeclaration(context, declaration);
     }
 
     public static EnumDeclarationSyntax? VisitEnumDeclaration(ConversionContext context, EnumDeclaration javai)

@@ -20,14 +20,18 @@ public class IntegrationTests
     public void GeneralSuccessfulConversionTest(string filePath)
     {
         var options = new JavaConversionOptions();
+        
         options.WarningEncountered += (_, eventArgs)
-            => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
-        var parsed = JavaToCSharpConverter.ConvertText(System.IO.File.ReadAllText(filePath), options);
+            => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
+        
+        var parsed = JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options);
         Assert.NotNull(parsed);
     }
 
     [Theory]
     [InlineData("Resources/HelloWorld.java")]
+    [InlineData("Resources/Java7TryWithResources.java")]
+    [InlineData("Resources/Java9TryWithResources.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions
@@ -36,15 +40,17 @@ public class IntegrationTests
         };
         
         options.WarningEncountered += (_, eventArgs)
-            => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
+            => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
+
+        var javaText = File.ReadAllText(filePath);
         
-        var parsed = JavaToCSharpConverter.ConvertText(System.IO.File.ReadAllText(filePath), options);
+        var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
         Assert.NotNull(parsed);
 
         var fileName = Path.GetFileNameWithoutExtension(filePath);
         var assembly = CompileAssembly(fileName, parsed);
         
-        var expectation = ParseExpectation(parsed);
+        var expectation = ParseExpectation(javaText);
         
         // NOTE: examples must have a class name of Program in the example package
         var programType = assembly.GetType("Example.Program");
@@ -87,6 +93,10 @@ public class IntegrationTests
         else if (expectation.Error != null)
         {
             throw new InvalidOperationException("Expected an error, but app ran successfully");
+        }
+        else
+        {
+            throw new InvalidOperationException("Test must have either an output or error expectation");
         }
     }
 

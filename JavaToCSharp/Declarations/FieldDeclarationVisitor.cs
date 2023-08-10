@@ -3,6 +3,7 @@ using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.type;
 using com.sun.org.apache.bcel.@internal.classfile;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,7 +14,11 @@ namespace JavaToCSharp.Declarations;
 public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
 {
     public override MemberDeclarationSyntax VisitForClass(
-        ConversionContext context, ClassDeclarationSyntax? classSyntax, FieldDeclaration fieldDecl)
+        ConversionContext context, 
+        ClassDeclarationSyntax? classSyntax, 
+        FieldDeclaration fieldDecl,
+        IReadOnlyList<ClassOrInterfaceType> extends,
+        IReadOnlyList<ClassOrInterfaceType> implements)
     {
         var variables = new List<VariableDeclaratorSyntax>();
 
@@ -77,6 +82,6 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
         InterfaceDeclarationSyntax interfaceSyntax, FieldDeclaration declaration)
     {
         // TODO: throw new NotImplementedException("Need to implement diversion of static fields from interface declaration to static class");
-        return VisitForClass(context, null, declaration);
+        return VisitForClass(context, null, declaration, new List<ClassOrInterfaceType>(), new List<ClassOrInterfaceType>());
     }
 }

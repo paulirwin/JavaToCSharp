@@ -104,6 +104,7 @@ public static class TypeHelper
         return name.ToLower() switch {
             "hashcode" => "GetHashCode",
             "getclass" => "GetType",
+            "close" => "Dispose",
             _ => name,
         };
     }
