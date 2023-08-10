@@ -1,0 +1,93 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:JavaToCSharpGui.ViewModels"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="JavaToCSharpGui.Views.MainWindow"
+		x:DataType="vm:MainWindowViewModel"
+		Icon="/Assets/JavaToCSharpIcon.ico"
+		Title="JAVA TO C# CONVERTER">
+
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+			to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+	<ScrollViewer>
+		<Grid RowDefinitions="*,Auto">
+			<Grid Grid.Row="0" RowDefinitions="Auto,Auto,*">
+				<Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+					<TextBlock Margin="10" TextWrapping="Wrap">
+						<Span FontWeight="Bold">NOTE:</Span> This tool does a <Span FontStyle="Italic">syntactic conversion only</Span> from Java 1.7 or earlier
+						to C#. It does not resolve symbols or namespaces, so the resulting C# code likely will not compile without
+						modification. You must verify the results of the conversion manually.
+					</TextBlock>
+					<Button Grid.Column="1" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Right" Content="fork me on GitHub!" Command="{CompiledBinding ForkMeOnGitHubCommand}" />
+				</Grid>
+				<!-- GroupBox -->
+				<DockPanel Grid.Row="1">
+					<Label DockPanel.Dock="Top" FontWeight="Bold" Content="Options" />
+					<Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,*">
+						<StackPanel Orientation="Vertical">
+							<TextBlock Margin="5">Add Usings:</TextBlock>
+							<Grid ColumnDefinitions="*,Auto">
+								<TextBox Name="AddUsingInput" Margin="5,2,5,2" Text="{CompiledBinding AddUsingInput}" />
+								<Button Name="AddUsing" Grid.Column="1" Margin="5,2,5,2" Command="{CompiledBinding AddUsingCommand}">Add</Button>
+							</Grid>
+							<ListBox MinHeight="100"
+									 Margin="5"
+									 Name="Usings"
+									 ItemsSource="{CompiledBinding Usings}"
+									 SelectedItem="{CompiledBinding SelectedUsing}">
+							</ListBox>
+						</StackPanel>
+						<StackPanel Orientation="Vertical" Grid.Column="1">
+							<CheckBox Margin="5" Name="IncludeUsings" IsChecked="{CompiledBinding IncludeUsings}">Include Usings in Output</CheckBox>
+							<CheckBox Margin="5" Name="IncludeNamespace" IsChecked="{CompiledBinding IncludeNamespace}">Include Namespace in Output</CheckBox>
+							<CheckBox Margin="5" Name="UseDebugAssertForAsserts" IsChecked="{CompiledBinding UseDebugAssertForAsserts}">Use Debug.Assert() for asserts</CheckBox>
+							<CheckBox Margin="5" Name="UseUnrecognizedCodeToComment" IsChecked="{CompiledBinding UseUnrecognizedCodeToComment}">Use Unrecognized Code To Comment</CheckBox>
+							<CheckBox Margin="5" Name="UseFolderConvert" IsChecked="{CompiledBinding UseFolderConvert}">Use Folder Convert</CheckBox>
+						</StackPanel>
+					</Grid>
+				</DockPanel>
+				<Grid Grid.Row="2" ColumnDefinitions="*,Auto,*">
+					<Grid RowDefinitions="Auto,Auto,*">
+						<TextBlock Margin="10">Java Source Code Input:</TextBlock>
+						<Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
+							<TextBlock Margin="10,5,10,5">File:</TextBlock>
+							<TextBox Name="OpenPath" Grid.Column="1" Margin="5" Text="{CompiledBinding OpenPath}" />
+							<Button Grid.Column="2" Margin="10,5,10,5" Command="{CompiledBinding OpenFileDialogCommand}" Name="OpenFileDialog">...</Button>
+						</Grid>
+						<TextBox Name="JavaText" Grid.Row="2" Margin="10" ScrollViewer.VerticalScrollBarVisibility="Visible" FontFamily="Consolas" AcceptsReturn="True"/>
+					</Grid>
+					<Button Grid.Row="2" Grid.Column="1" Name="Convert" IsEnabled="{CompiledBinding IsConvertEnabled}" Command="{CompiledBinding ConvertCommand}" Height="35" Margin="10">Convert!</Button>
+					<Grid Grid.Row="2" Grid.Column="2" RowDefinitions="Auto,*">
+						<Grid Grid.Row="0" ColumnDefinitions="Auto,*">
+							<TextBlock Margin="10">C# Output:</TextBlock>
+							<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+								<TextBlock Name="CopiedText" Margin="10" Text="{CompiledBinding CopiedText}"/>
+								<Button Name="CopyOutput" Margin="10" Command="{CompiledBinding CopyOutputCommand}">Copy to Clipboard</Button>
+							</StackPanel>
+						</Grid>
+						<TextBox Name="CSharpText" Text="{CompiledBinding CSharpText}" Grid.Row="2" Margin="10" ScrollViewer.VerticalScrollBarVisibility="Visible" FontFamily="Consolas"></TextBox>
+					</Grid>
+				</Grid>
+			</Grid>
+			<!-- StatusBar -->
+			<DockPanel Grid.Row="1">
+				<TextBlock Name="ConversionStateLabel" Text="{CompiledBinding ConversionStateLabel}" />
+			</DockPanel>
+			<!-- MessageBox -->
+			<WrapPanel Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{CompiledBinding IsMessageShown}">
+				<Border BorderBrush="Black" BorderThickness="2">					
+					<Grid MinWidth="100" RowDefinitions="Auto,*,Auto" Background="{StaticResource SystemControlBackgroundChromeMediumLowBrush}">
+						<Label Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Content="{CompiledBinding MessageTitle}" />
+						<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" TextWrapping="Wrap" Grid.Row="1" Text="{CompiledBinding Message}" />
+						<Button Content="OK" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Command="{CompiledBinding ClearMessageCommand}" />
+					</Grid>
+				</Border>
+			</WrapPanel>
+		</Grid>
+	</ScrollViewer>
+</Window>
