@@ -21,6 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _includeNamespace = true;
     private bool _useDebugAssertForAsserts;
     private bool _useUnrecognizedCodeToComment;
+    private bool _convertSystemOutToConsole;
 
     private readonly IHostStorageProvider? _storageProvider;
     private readonly IUIDispatcher _dispatcher;
@@ -59,6 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
         _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
+        _convertSystemOutToConsole = Properties.Settings.Default.ConvertSystemOutToConsole;
     }
 
     [ObservableProperty]
@@ -151,6 +153,18 @@ public partial class MainWindowViewModel : ViewModelBase
             Properties.Settings.Default.Save();
         }
     }
+    
+    public bool ConvertSystemOutToConsole
+    {
+        get => _convertSystemOutToConsole;
+        set
+        {
+            _convertSystemOutToConsole = value;
+            SetProperty(ref _convertSystemOutToConsole, value);
+            Properties.Settings.Default.ConvertSystemOutToConsole = value;
+            Properties.Settings.Default.Save();
+        }
+    }
 
     [ObservableProperty]
     private bool _isConvertEnabled = true;
@@ -191,6 +205,7 @@ public partial class MainWindowViewModel : ViewModelBase
         options.IncludeNamespace = IncludeNamespace;
         options.UseDebugAssertForAsserts = UseDebugAssertForAsserts;
         options.UseUnrecognizedCodeToComment = UseUnrecognizedCodeToComment;
+        options.ConvertSystemOutToConsole = ConvertSystemOutToConsole;
 
         options.WarningEncountered += Options_WarningEncountered;
         options.StateChanged += Options_StateChanged;

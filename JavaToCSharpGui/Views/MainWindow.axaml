@@ -15,7 +15,7 @@
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
 	<ScrollViewer>
-		<Grid RowDefinitions="*,Auto">
+		<Grid RowDefinitions="*,Auto" Margin="10">
 			<Grid Grid.Row="0" RowDefinitions="Auto,Auto,*">
 				<Grid Grid.Row="0" ColumnDefinitions="*,Auto">
 					<TextBlock Margin="10" TextWrapping="Wrap">
@@ -48,6 +48,7 @@
 							<CheckBox Margin="5" Name="UseDebugAssertForAsserts" IsChecked="{CompiledBinding UseDebugAssertForAsserts}">Use Debug.Assert() for asserts</CheckBox>
 							<CheckBox Margin="5" Name="UseUnrecognizedCodeToComment" IsChecked="{CompiledBinding UseUnrecognizedCodeToComment}">Use Unrecognized Code To Comment</CheckBox>
 							<CheckBox Margin="5" Name="UseFolderConvert" IsChecked="{CompiledBinding UseFolderConvert}">Use Folder Convert</CheckBox>
+							<CheckBox Margin="5" Name="ConvertSystemOutToConsole" IsChecked="{CompiledBinding ConvertSystemOutToConsole}">Convert System.out to Console</CheckBox>
 						</StackPanel>
 					</Grid>
 				</DockPanel>
@@ -76,7 +77,7 @@
 			</Grid>
 			<!-- StatusBar -->
 			<DockPanel Grid.Row="1">
-				<TextBlock Name="ConversionStateLabel" Text="{CompiledBinding ConversionStateLabel}" />
+				<TextBlock Name="ConversionStateLabel" Text="{CompiledBinding ConversionStateLabel}" Margin="10" />
 			</DockPanel>
 			<!-- MessageBox -->
 			<WrapPanel Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{CompiledBinding IsMessageShown}">
