@@ -33,6 +33,7 @@ public class IntegrationTests
     [InlineData("Resources/Java7BasicTryWithResources.java")]
     [InlineData("Resources/Java7TryWithResources.java")]
     [InlineData("Resources/Java9TryWithResources.java")]
+    [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions
