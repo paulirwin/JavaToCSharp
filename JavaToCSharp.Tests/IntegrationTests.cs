@@ -30,6 +30,7 @@ public class IntegrationTests
 
     [Theory]
     [InlineData("Resources/HelloWorld.java")]
+    [InlineData("Resources/Java7BasicTryWithResources.java")]
     [InlineData("Resources/Java7TryWithResources.java")]
     [InlineData("Resources/Java9TryWithResources.java")]
     public void FullIntegrationTests(string filePath)

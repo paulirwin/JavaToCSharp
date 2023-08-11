@@ -79,7 +79,10 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             }
         }
 
-        result = TransformTryBlock(context, tryStmt, new[] { result });
+        if (tryStmt.getFinallyBlock().isPresent() || tryStmt.getCatchClauses().ToList<CatchClause>()?.Count > 0)
+        {
+            result = TransformTryBlock(context, tryStmt, new[] { result });
+        }
 
         return result;
     }
