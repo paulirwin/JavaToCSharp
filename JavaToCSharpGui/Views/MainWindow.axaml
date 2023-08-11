@@ -19,7 +19,7 @@
 			<Grid Grid.Row="0" RowDefinitions="Auto,Auto,*">
 				<Grid Grid.Row="0" ColumnDefinitions="*,Auto">
 					<TextBlock Margin="10" TextWrapping="Wrap">
-						<Span FontWeight="Bold">NOTE:</Span> This tool does a <Span FontStyle="Italic">syntactic conversion only</Span> from Java 1.7 or earlier
+						<Span FontWeight="Bold">NOTE:</Span> This tool does a <Span FontStyle="Italic">syntactic conversion only</Span> from Java
 						to C#. It does not resolve symbols or namespaces, so the resulting C# code likely will not compile without
 						modification. You must verify the results of the conversion manually.
 					</TextBlock>
