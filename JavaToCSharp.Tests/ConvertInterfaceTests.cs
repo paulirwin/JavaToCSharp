@@ -27,7 +27,7 @@ public class ConvertInterfaceTests
         var options = new JavaConversionOptions { StartInterfaceNamesWithI = true };
         options.WarningEncountered += (_, eventArgs)
                                           => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
-        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options);
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
 
         var expectedCSharpCode = """
             using Com.Github.Javaparser.Resolution;
@@ -58,7 +58,7 @@ public class ConvertInterfaceTests
             }
             """;
 
-        Assert.Equal(expectedCSharpCode, parsed);
+        Assert.Equal(expectedCSharpCode.ReplaceLineEndings(), parsed.ReplaceLineEndings());
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class ConvertInterfaceTests
         var options = new JavaConversionOptions { StartInterfaceNamesWithI = true };
         options.WarningEncountered += (_, eventArgs)
                                           => Console.WriteLine("Line {0}: {1}", eventArgs.JavaLineNumber, eventArgs.Message);
-        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options);
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
 
         var expectedCSharpCode = """
                                  using System;
@@ -86,8 +86,10 @@ public class ConvertInterfaceTests
                                      {
                                      }
                                  }
-                                 """; 
+                                 """;
         
-        Assert.Equal(expectedCSharpCode, parsed);
+        
+        
+        Assert.Equal(expectedCSharpCode.ReplaceLineEndings(), parsed.ReplaceLineEndings());
     }
 }
