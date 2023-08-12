@@ -49,12 +49,12 @@ public class UsingDirectiveSyntaxComparer :  IEqualityComparer<UsingDirectiveSyn
         if (x.GetType() != y.GetType()) return false;
         
         return Equals(x.Alias?.ToString(), y.Alias?.ToString()) && 
-               x.Name.ToString().Equals(y.Name.ToString());
+               Equals(x.Name?.ToString(), y.Name?.ToString());
     }
 
     public int GetHashCode(UsingDirectiveSyntax obj)
     {
-        return HashCode.Combine(obj.Alias?.ToString() ?? "", obj.Name.ToString());
+        return HashCode.Combine(obj.Alias?.ToString() ?? "", obj.Name?.ToString() ?? "");
     }
 }
 

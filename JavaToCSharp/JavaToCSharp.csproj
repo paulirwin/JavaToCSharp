@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
     <Authors>Paul Irwin</Authors>
     <Description>A Java to C# converter.</Description>
     <Copyright>Copyright 2021-2023, Paul Irwin</Copyright>
