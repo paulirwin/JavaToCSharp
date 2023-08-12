@@ -1,9 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using JavaToCSharpGui.ViewModels;
 using JavaToCSharpGui.Views;
 
 namespace JavaToCSharpGui;

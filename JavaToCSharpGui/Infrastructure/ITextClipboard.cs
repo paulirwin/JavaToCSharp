@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace JavaToCSharpGui.Infrastructure;
+﻿namespace JavaToCSharpGui.Infrastructure;
 
 /// <summary>
 /// Provides access to the host clipboard

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.IO;
 using Avalonia.Platform.Storage;
 using JavaToCSharp;
 using JavaToCSharpGui.Infrastructure;
 using Avalonia.Controls.ApplicationLifetimes;
-using com.sun.tools.javac.comp;
 
 namespace JavaToCSharpGui.ViewModels;
 

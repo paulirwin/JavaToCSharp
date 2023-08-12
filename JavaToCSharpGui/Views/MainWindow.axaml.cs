@@ -1,11 +1,6 @@
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Threading;
-
 using JavaToCSharpGui.Infrastructure;
 using JavaToCSharpGui.ViewModels;
-
-using System;
 
 namespace JavaToCSharpGui.Views;
 

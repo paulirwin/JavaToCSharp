@@ -8,13 +8,15 @@ public class VisitLiteralExpressionTests
     [Fact]
     public void VisitLiteralExpression_Char()
     {
-        Assert.Equal("\n", ExpressionVisitor.VisitExpression(null, new CharLiteralExpr("\\n")).GetFirstToken().ValueText);
+        var expr = ExpressionVisitor.VisitExpression(new ConversionContext(new JavaConversionOptions()), new CharLiteralExpr("\\n"));
+        Assert.Equal("\n", expr?.GetFirstToken().ValueText);
     }
 
     [Fact]
     public void VisitLiteralExpression_String()
     {
-        Assert.Equal("\\r", ExpressionVisitor.VisitExpression(null, new StringLiteralExpr("\\\\r")).GetFirstToken().ValueText);
+        var expr = ExpressionVisitor.VisitExpression(new ConversionContext(new JavaConversionOptions()), new StringLiteralExpr(@"\\r"));
+        Assert.Equal("\\r", expr?.GetFirstToken().ValueText);
     }
 }
 

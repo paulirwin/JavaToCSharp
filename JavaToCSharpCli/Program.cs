@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using JavaToCSharp;
+﻿using JavaToCSharp;
 using Microsoft.Extensions.Logging;
 
 namespace JavaToCSharpCli;
@@ -21,7 +18,7 @@ public class Program
     {
         try
         {
-            if (args == null || args.Length < 3)
+            if (args.Length < 3)
                 ShowHelp();
             else
                 switch (args[0])
@@ -39,7 +36,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, ex);
+            _logger.LogError(ex, "Error: {Message}", ex.Message);
         }
 
         // allow logger background thread to flush
@@ -53,13 +50,13 @@ public class Program
             var input = new DirectoryInfo(folderPath);
             foreach (var f in input.GetFiles("*.java", SearchOption.AllDirectories))
             {
-                string directoryName = f.DirectoryName;
-                if (String.IsNullOrWhiteSpace(directoryName))
+                string? directoryName = f.DirectoryName;
+                if (string.IsNullOrWhiteSpace(directoryName))
                 {
                     continue;
                 }
                 
-                var newFolderPath = directoryName.Replace(folderPath, outputFolderPath, StringComparison.OrdinalIgnoreCase);
+                string newFolderPath = directoryName.Replace(folderPath, outputFolderPath, StringComparison.OrdinalIgnoreCase);
                 if (!Directory.Exists(newFolderPath))
                 {
                     Directory.CreateDirectory(newFolderPath);
@@ -82,17 +79,16 @@ public class Program
         {
             try
             {
-                var javaText = File.ReadAllText(filePath);
+                string javaText = File.ReadAllText(filePath);
                 var options = new JavaConversionOptions();
 
                 options.WarningEncountered += (_, eventArgs) =>
                                               {
-                                                  var message = $"Line {eventArgs.JavaLineNumber}: {eventArgs.Message}";
-                                                  _logger.LogWarning(message);
-                                                  File.AppendAllText(Path.ChangeExtension(outputFilePath, ".warning"), message + Environment.NewLine);
+                                                  _logger.LogWarning("Line {JavaLineNumber}: {Message}", eventArgs.JavaLineNumber, eventArgs.Message);
+                                                  File.AppendAllText(Path.ChangeExtension(outputFilePath, ".warning"), eventArgs.Message + Environment.NewLine);
                                               };
 
-                var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
+                string? parsed = JavaToCSharpConverter.ConvertText(javaText, options);
                 File.WriteAllText(outputFilePath, parsed);
                 _logger.LogInformation("{filePath} converted!", filePath);
             }

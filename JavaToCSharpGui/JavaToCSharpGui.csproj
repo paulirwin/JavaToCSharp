@@ -7,6 +7,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
 	<WarningsAsErrors>Nullable</WarningsAsErrors>
 	<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
