@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using java.util;
 using Microsoft.CodeAnalysis;
 using JavaAst = com.github.javaparser.ast;
@@ -60,4 +61,8 @@ public static class Extensions
             ? optional.get() as T ??
               throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
             : throw new InvalidOperationException("Required optional did not have a value");
+
+    public static ISet<JavaAst.Modifier.Keyword> ToModifierKeywordSet(this JavaAst.NodeList nodeList)
+        => nodeList.ToList<JavaAst.Modifier>()?.Select(i => i.getKeyword()).ToHashSet() 
+           ?? new HashSet<JavaAst.Modifier.Keyword>();
 }

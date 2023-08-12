@@ -30,13 +30,13 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
         var ctorSyntax = SyntaxFactory.ConstructorDeclaration(identifier)
                                       .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
-        var mods = ctorDecl.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
+        var mods = ctorDecl.getModifiers().ToModifierKeywordSet();
 
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+        if (mods.Contains(Modifier.Keyword.PUBLIC))
             ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
             ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+        if (mods.Contains(Modifier.Keyword.PRIVATE))
             ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
 
         var parameters = ctorDecl.getParameters().ToList<Parameter>();

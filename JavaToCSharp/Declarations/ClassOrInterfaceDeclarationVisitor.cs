@@ -50,15 +50,15 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
         }
 
-        var mods = javai.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
+        var mods = javai.getModifiers().ToModifierKeywordSet();
 
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+        if (mods.Contains(Modifier.Keyword.PRIVATE))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+        if (mods.Contains(Modifier.Keyword.PUBLIC))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
+        if (mods.Contains(Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
         var extends = javai.getExtendedTypes().ToList<ClassOrInterfaceType>();
@@ -113,17 +113,17 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
         }
 
-        var mods = javac.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
+        var mods = javac.getModifiers().ToModifierKeywordSet();
 
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+        if (mods.Contains(Modifier.Keyword.PRIVATE))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+        if (mods.Contains(Modifier.Keyword.PUBLIC))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.ABSTRACT))
+        if (mods.Contains(Modifier.Keyword.ABSTRACT))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
+        if (mods.Contains(Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
         var extends = javac.getExtendedTypes().ToList<ClassOrInterfaceType>() ?? new List<ClassOrInterfaceType>();
