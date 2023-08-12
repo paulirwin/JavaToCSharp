@@ -1,5 +1,5 @@
-﻿/// Expect:
-/// - output: "1\n2\ntest\n"
+﻿// NOTE: This example when transformed to C# does not successfully compile yet, however we can somewhat successfully
+// parse it. Anonymous types always need a little bit of hand-holding after conversion anyways.
 package example;
 
 public class Program {

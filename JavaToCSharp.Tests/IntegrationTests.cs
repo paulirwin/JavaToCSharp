@@ -17,6 +17,7 @@ public class IntegrationTests
     [InlineData("Resources/ArrayField.java")]
     [InlineData("Resources/SimilarityBase.java")]
     [InlineData("Resources/TestNumericDocValuesUpdates.java")]
+    [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     public void GeneralSuccessfulConversionTest(string filePath)
     {
         var options = new JavaConversionOptions();
@@ -33,7 +34,6 @@ public class IntegrationTests
     [InlineData("Resources/Java7BasicTryWithResources.java")]
     [InlineData("Resources/Java7TryWithResources.java")]
     [InlineData("Resources/Java9TryWithResources.java")]
-    [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions
