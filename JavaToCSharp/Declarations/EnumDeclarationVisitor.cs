@@ -84,13 +84,13 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
             classSyntax = classSyntax.AddMembers(enumMembers.ToArray());
         }
 
-        var mods = javai.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
+        var mods = javai.getModifiers().ToModifierKeywordSet();
         
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+        if (mods.Contains(Modifier.Keyword.PRIVATE))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+        if (mods.Contains(Modifier.Keyword.PUBLIC))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
         return classSyntax.WithJavaComments(context, javai);

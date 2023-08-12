@@ -60,19 +60,19 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
                 SyntaxFactory.ParseTypeName(typeName),
                 SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
 
-        var mods = fieldDecl.getModifiers().ToList<Modifier>();
+        var mods = fieldDecl.getModifiers().ToModifierKeywordSet();
 
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+        if (mods.Contains(Modifier.Keyword.PUBLIC))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+        if (mods.Contains(Modifier.Keyword.PRIVATE))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
+        if (mods.Contains(Modifier.Keyword.STATIC))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL))
+        if (mods.Contains(Modifier.Keyword.FINAL))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.VOLATILE))
+        if (mods.Contains(Modifier.Keyword.VOLATILE))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
 
         return fieldSyntax;

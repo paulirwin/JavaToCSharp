@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -22,6 +23,20 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         IReadOnlyList<ClassOrInterfaceType> extends,
         IReadOnlyList<ClassOrInterfaceType> implements)
     {
+        return VisitInternal(context, false, classSyntax.Identifier.Text, classSyntax.Modifiers, methodDecl, extends);
+    }
+
+    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, 
+        InterfaceDeclarationSyntax interfaceSyntax, 
+        MethodDeclaration methodDecl)
+    {
+        // If there is a body, mostly treat it like a class method
+        if (methodDecl.getBody().isPresent())
+        {
+            return VisitInternal(context, true, interfaceSyntax.Identifier.Text, interfaceSyntax.Modifiers, methodDecl,
+                ArraySegment<ClassOrInterfaceType>.Empty);
+        }
+        
         var returnType = methodDecl.getType();
         var returnTypeName = TypeHelper.ConvertType(returnType.toString());
 
@@ -37,17 +52,61 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var methodSyntax = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName(returnTypeName), methodName);
 
-        var mods = methodDecl.getModifiers().ToList<Modifier>() ?? new List<Modifier>();
+        var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
+        if (parameters is {Count: > 0})
+        {
+            var paramSyntax = parameters.Select(i =>
+                SyntaxFactory.Parameter(
+                    attributeLists: new SyntaxList<AttributeListSyntax>(),
+                    modifiers: SyntaxFactory.TokenList(),
+                    type: SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(i)),
+                    identifier: SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getNameAsString())),
+                    @default: null))
+                .ToArray();
+
+            methodSyntax = methodSyntax.AddParameterListParameters(paramSyntax.ToArray());
+        }
+
+        methodSyntax = methodSyntax.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+
+        return methodSyntax;
+    }
+
+    private static MemberDeclarationSyntax VisitInternal(
+        ConversionContext context,
+        bool isInterface,
+        string typeIdentifier,
+        SyntaxTokenList typeModifiers,
+        MethodDeclaration methodDecl,
+        IReadOnlyList<ClassOrInterfaceType> extends)
+    {
+        var returnType = methodDecl.getType();
+        var returnTypeName = TypeHelper.ConvertType(returnType.toString());
+
+        var methodName = TypeHelper.Capitalize(methodDecl.getNameAsString());
+        methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
+
+        string typeParameters = methodDecl.getTypeParameters().ToString() ?? "";
+        if (typeParameters.Length > 2)
+        {
+            // Looks like "[T, U]". Convert to "<T, U>"
+            methodName += typeParameters.Replace('[', '<').Replace(']', '>');
+        }
+
+        var methodSyntax = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName(returnTypeName), methodName);
+
+        var mods = methodDecl.getModifiers().ToModifierKeywordSet();
+
+        if (mods.Contains(Modifier.Keyword.PUBLIC))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PROTECTED))
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE))
+        if (mods.Contains(Modifier.Keyword.PRIVATE))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
+        if (mods.Contains(Modifier.Keyword.STATIC))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.ABSTRACT))
+        if (mods.Contains(Modifier.Keyword.ABSTRACT))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
 
         var annotations = methodDecl.getAnnotations().ToList<AnnotationExpr>();
@@ -70,12 +129,13 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             }
         }
 
-        if (!mods.Any(i => i.getKeyword() == Modifier.Keyword.FINAL)
-            && !mods.Any(i => i.getKeyword() == Modifier.Keyword.ABSTRACT)
-            && !mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC)
-            && !mods.Any(i => i.getKeyword() == Modifier.Keyword.PRIVATE)
+        if (!mods.Contains(Modifier.Keyword.FINAL)
+            && !mods.Contains(Modifier.Keyword.ABSTRACT)
+            && !mods.Contains(Modifier.Keyword.STATIC)
+            && !mods.Contains(Modifier.Keyword.PRIVATE)
             && !isOverride
-            && !classSyntax.Modifiers.Any(i => i.IsKind(SyntaxKind.SealedKeyword)))
+            && !isInterface
+            && !typeModifiers.Any(i => i.IsKind(SyntaxKind.SealedKeyword)))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VirtualKeyword));
 
         var parameters = methodDecl.getParameters().ToList<Parameter>();
@@ -124,18 +184,14 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var statementSyntax = StatementVisitor.VisitStatements(context, statements);
 
-        if (mods.Any(i => i.getKeyword() == Modifier.Keyword.SYNCHRONIZED))
+        if (mods.Contains(Modifier.Keyword.SYNCHRONIZED))
         {
             var lockBlock = SyntaxFactory.Block(statementSyntax);
 
             LockStatementSyntax? lockSyntax = null;
-            if (mods.Any(i => i.getKeyword() == Modifier.Keyword.STATIC))
+            if (mods.Contains(Modifier.Keyword.STATIC))
             {
-                string? identifier = classSyntax.Identifier.Value?.ToString();
-                if (identifier is not null)
-                {
-                    lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(identifier)), lockBlock);
-                }
+                lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(typeIdentifier)), lockBlock);
             }
             else
             {
@@ -151,44 +207,6 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         {
             methodSyntax = methodSyntax.AddBodyStatements(statementSyntax.ToArray());
         }
-
-        return methodSyntax;
-    }
-
-    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, MethodDeclaration methodDecl)
-    {
-        var returnType = methodDecl.getType();
-        var returnTypeName = TypeHelper.ConvertType(returnType.toString());
-
-        var methodName = TypeHelper.Capitalize(methodDecl.getNameAsString());
-        methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
-
-        string typeParameters = methodDecl.getTypeParameters().ToString() ?? "";
-        if (typeParameters.Length > 2)
-        {
-            // Looks like "[T, U]". Convert to "<T, U>"
-            methodName += typeParameters.Replace('[', '<').Replace(']', '>');
-        }
-
-        var methodSyntax = SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName(returnTypeName), methodName);
-
-        var parameters = methodDecl.getParameters().ToList<Parameter>();
-
-        if (parameters is {Count: > 0})
-        {
-            var paramSyntax = parameters.Select(i =>
-                SyntaxFactory.Parameter(
-                    attributeLists: new SyntaxList<AttributeListSyntax>(),
-                    modifiers: SyntaxFactory.TokenList(),
-                    type: SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(i)),
-                    identifier: SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getNameAsString())),
-                    @default: null))
-                .ToArray();
-
-            methodSyntax = methodSyntax.AddParameterListParameters(paramSyntax.ToArray());
-        }
-
-        methodSyntax = methodSyntax.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 
         return methodSyntax;
     }

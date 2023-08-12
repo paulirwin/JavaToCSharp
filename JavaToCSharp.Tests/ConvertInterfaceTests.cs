@@ -41,7 +41,10 @@ public class ConvertInterfaceTests
             {
                 public interface IResolvedType
                 {
-                    bool IsArray();
+                    bool IsArray()
+                    {
+                        return false;
+                    }
                 }
 
                 public class InferenceVariableType : IResolvedType
