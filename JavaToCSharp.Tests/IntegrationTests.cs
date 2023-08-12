@@ -17,6 +17,7 @@ public class IntegrationTests
     [InlineData("Resources/ArrayField.java")]
     [InlineData("Resources/SimilarityBase.java")]
     [InlineData("Resources/TestNumericDocValuesUpdates.java")]
+    [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     public void GeneralSuccessfulConversionTest(string filePath)
     {
         var options = new JavaConversionOptions();
