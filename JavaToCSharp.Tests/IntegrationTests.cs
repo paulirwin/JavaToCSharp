@@ -18,6 +18,7 @@ public class IntegrationTests
     [InlineData("Resources/SimilarityBase.java")]
     [InlineData("Resources/TestNumericDocValuesUpdates.java")]
     [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
+    [InlineData("Resources/Java11LambdaInference.java")]
     public void GeneralSuccessfulConversionTest(string filePath)
     {
         var options = new JavaConversionOptions
