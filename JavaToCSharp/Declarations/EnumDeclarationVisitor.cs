@@ -46,7 +46,7 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
             {
                 var itemConst = typeConstants[i];
                 var memberDecl = SyntaxFactory.EnumMemberDeclaration(itemConst.getNameAsString())
-                                              .WithJavaComments(itemConst);
+                                              .WithJavaComments(context, itemConst);
 
                 if (useCodeToComment)
                 {
@@ -93,7 +93,7 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
         if (mods.Any(i => i.getKeyword() == Modifier.Keyword.PUBLIC))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
-        return classSyntax.WithJavaComments(javai);
+        return classSyntax.WithJavaComments(context, javai);
 
         EnumMemberDeclarationSyntax MembersToCommentTrivia(EnumMemberDeclarationSyntax lastMemberDecl, ref bool showNoPortedWarning)
         {

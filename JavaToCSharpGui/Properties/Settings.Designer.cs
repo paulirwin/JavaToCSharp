@@ -81,5 +81,17 @@ namespace JavaToCSharpGui.Properties {
                 this["ConvertSystemOutToConsole"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IncludeComments {
+            get {
+                return ((bool)(this["IncludeComments"]));
+            }
+            set {
+                this["IncludeComments"] = value;
+            }
+        }
     }
 }

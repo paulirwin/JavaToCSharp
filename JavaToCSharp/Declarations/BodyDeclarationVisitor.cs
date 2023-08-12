@@ -73,7 +73,7 @@ public abstract class BodyDeclarationVisitor
         }
 
         return visitor.VisitForClass(context, classSyntax, declaration, extends, implements)
-            .WithJavaComments(declaration);
+            .WithJavaComments(context, declaration);
     }
 
     public static MemberDeclarationSyntax? VisitBodyDeclarationForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax, BodyDeclaration declaration)
@@ -85,6 +85,6 @@ public abstract class BodyDeclarationVisitor
         }
 
         return visitor.VisitForInterface(context, interfaceSyntax, declaration)
-            .WithJavaComments(declaration);
+            .WithJavaComments(context, declaration);
     }
 }

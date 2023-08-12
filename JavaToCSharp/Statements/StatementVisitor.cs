@@ -62,6 +62,6 @@ public abstract class StatementVisitor
             throw new InvalidOperationException(message);
         }
 
-        return visitor.Visit(context, statement).WithJavaComments(statement);
+        return visitor.Visit(context, statement).WithJavaComments(context, statement);
     }
 }

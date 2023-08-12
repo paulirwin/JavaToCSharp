@@ -85,14 +85,14 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             foreach (var member in members)
             {
                 var syntax = VisitBodyDeclarationForInterface(context, classSyntax, member);
-                var memberWithComments = syntax?.WithJavaComments(member);
+                var memberWithComments = syntax?.WithJavaComments(context, member);
                 if (memberWithComments != null)
                 {
                     classSyntax = classSyntax.AddMembers(memberWithComments);
                 }
             }
 
-        return classSyntax.WithJavaComments(javai);
+        return classSyntax.WithJavaComments(context, javai);
     }
 
     public static ClassDeclarationSyntax? VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
@@ -167,7 +167,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                 else
                 {
                     var syntax = VisitBodyDeclarationForClass(context, classSyntax, member, extends, implements);
-                    var withJavaComments = syntax?.WithJavaComments(member);
+                    var withJavaComments = syntax?.WithJavaComments(context, member);
                     if (withJavaComments != null)
                     {
                         classSyntax = classSyntax.AddMembers(withJavaComments);
@@ -181,6 +181,6 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                 }
             }
 
-        return classSyntax.WithJavaComments(javac);
+        return classSyntax.WithJavaComments(context, javac);
     }
 }

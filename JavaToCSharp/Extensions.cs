@@ -43,9 +43,9 @@ public static class Extensions
     
     public static bool HasFlag<T>(this java.util.EnumSet values, T flag) => values.contains(flag);
 
-    public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax, JavaAst.Node? node, string? singleLineCommentEnd = null) 
+    public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax, ConversionContext context, JavaAst.Node? node, string? singleLineCommentEnd = null) 
         where TSyntax : SyntaxNode =>
-        CommentsHelper.AddCommentsTrivias(syntax, node, singleLineCommentEnd);
+        context.Options.IncludeComments ? CommentsHelper.AddCommentsTrivias(syntax, node, singleLineCommentEnd) : syntax;
 
     public static T? FromOptional<T>(this Optional optional)
         where T : class

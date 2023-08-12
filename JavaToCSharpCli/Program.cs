@@ -108,7 +108,8 @@ public class Program
 
     private static void ShowHelp()
     {
-        Console.WriteLine("Usage:\r\n\tJavaToCSharpCli.exe -f [pathToJavaFile] [pathToCsOutputFile]");
+        Console.WriteLine("Usage:");
+        Console.WriteLine("\tJavaToCSharpCli.exe -f [pathToJavaFile] [pathToCsOutputFile]");
         Console.WriteLine("\tJavaToCSharpCli.exe -d [pathToJavaFolder] [pathToCsOutputFolder]");
     }
 }

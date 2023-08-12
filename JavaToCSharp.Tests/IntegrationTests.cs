@@ -38,6 +38,7 @@ public class IntegrationTests
         var options = new JavaConversionOptions
         {
             ConvertSystemOutToConsole = true,
+            IncludeComments = false,
         };
         
         options.WarningEncountered += (_, eventArgs)

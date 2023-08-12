@@ -12,6 +12,7 @@ using Avalonia.Platform.Storage;
 using JavaToCSharp;
 using JavaToCSharpGui.Infrastructure;
 using Avalonia.Controls.ApplicationLifetimes;
+using com.sun.tools.javac.comp;
 
 namespace JavaToCSharpGui.ViewModels;
 
@@ -19,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private bool _includeUsings = true;
     private bool _includeNamespace = true;
+    private bool _includeComments = true;
     private bool _useDebugAssertForAsserts;
     private bool _useUnrecognizedCodeToComment;
     private bool _convertSystemOutToConsole;
@@ -51,13 +53,14 @@ public partial class MainWindowViewModel : ViewModelBase
         _storageProvider = storageProvider;
         _dispatcher = dispatcher;
         _clipboard = clipboard;
-        base.DisplayName = "Java to C# Converter";
+        DisplayName = "Java to C# Converter";
 
         _isConvertEnabled = true;
         _useFolderConvert = false;
 
         _includeUsings = Properties.Settings.Default.UseUsingsPreference;
         _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
+        _includeComments = Properties.Settings.Default.IncludeComments;
         _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
         _convertSystemOutToConsole = Properties.Settings.Default.ConvertSystemOutToConsole;
@@ -121,6 +124,17 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             SetProperty(ref _includeNamespace, value);
             Properties.Settings.Default.UseNamespacePreference = value;
+            Properties.Settings.Default.Save();
+        }
+    }
+    
+    public bool IncludeComments
+    {
+        get => _includeComments;
+        set
+        {
+            SetProperty(ref _includeComments, value);
+            Properties.Settings.Default.IncludeComments = value;
             Properties.Settings.Default.Save();
         }
     }
@@ -203,6 +217,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         options.IncludeUsings = IncludeUsings;
         options.IncludeNamespace = IncludeNamespace;
+        options.IncludeComments = IncludeComments;
         options.UseDebugAssertForAsserts = UseDebugAssertForAsserts;
         options.UseUnrecognizedCodeToComment = UseUnrecognizedCodeToComment;
         options.ConvertSystemOutToConsole = ConvertSystemOutToConsole;
@@ -281,7 +296,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 //out java path
                 var subStartIndex = path.Length;
-                var javaTexts = string.Join("\r\n", files.Select(x => x.FullName[subStartIndex..]));
+                var javaTexts = string.Join(Environment.NewLine, files.Select(x => x.FullName[subStartIndex..]));
 
                 await DispatcherInvoke(() => JavaText = javaTexts);
             });
@@ -329,14 +344,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 await DispatcherInvoke(() =>
                 {
-                    CSharpText = $"{ CSharpText } \r\n==================\r\nout.path: { jOutPath },\r\n\t\tfile: {jOutFileName}";
+                    CSharpText = $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}out.path: { jOutPath },{Environment.NewLine}\t\tfile: {jOutFileName}";
                 });
             }
             catch (Exception ex)
             {
                 await DispatcherInvoke(() =>
                 {
-                    CSharpText = $"{ CSharpText } \r\n==================\r\n[ERROR]out.path: { jOutPath },\r\nex: { ex } \r\n";
+                    CSharpText = $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[ERROR]out.path: { jOutPath },{Environment.NewLine}ex: { ex } {Environment.NewLine}";
                 });
             }
         }
@@ -392,7 +407,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             await DispatcherInvoke(() =>
             {
-                CSharpText = $"{ CSharpText } \r\n==================\r\n[WARN]out.path: { _currentJavaFile },\r\n\t\tConversionWarning-JavaLine:[{ e.JavaLineNumber}]-Message:[{ e.Message}]\r\n";
+                CSharpText = $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[WARN]out.path: { _currentJavaFile },{Environment.NewLine}\t\tConversionWarning-JavaLine:[{ e.JavaLineNumber}]-Message:[{ e.Message}]{Environment.NewLine}";
             });
         }
         else
@@ -410,13 +425,13 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         else if(_storageProvider?.CanOpen is true)
         {
-            var filePickerOpenOptions = new  FilePickerOpenOptions()
+            var filePickerOpenOptions = new FilePickerOpenOptions
             {
                 FileTypeFilter = new FilePickerFileType[]
                 {
                     new("Java files")
                     {
-                        Patterns = new string[]{ "*.java" },
+                        Patterns = new[]{ "*.java" },
                     }
                 },
             };

@@ -45,6 +45,7 @@
 						<StackPanel Orientation="Vertical" Grid.Column="1">
 							<CheckBox Margin="5" Name="IncludeUsings" IsChecked="{CompiledBinding IncludeUsings}">Include Usings in Output</CheckBox>
 							<CheckBox Margin="5" Name="IncludeNamespace" IsChecked="{CompiledBinding IncludeNamespace}">Include Namespace in Output</CheckBox>
+							<CheckBox Margin="5" Name="IncludeComments" IsChecked="{CompiledBinding IncludeComments}">Include Comments in Output</CheckBox>
 							<CheckBox Margin="5" Name="UseDebugAssertForAsserts" IsChecked="{CompiledBinding UseDebugAssertForAsserts}">Use Debug.Assert() for asserts</CheckBox>
 							<CheckBox Margin="5" Name="UseUnrecognizedCodeToComment" IsChecked="{CompiledBinding UseUnrecognizedCodeToComment}">Use Unrecognized Code To Comment</CheckBox>
 							<CheckBox Margin="5" Name="UseFolderConvert" IsChecked="{CompiledBinding UseFolderConvert}">Use Folder Convert</CheckBox>

@@ -76,7 +76,7 @@ public static class JavaToCSharpConverter
             packageName = TypeHelper.Capitalize(packageName);
 
             namespaceSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(packageName))
-                .WithJavaComments(package);
+                .WithJavaComments(context, package);
         }
 
         foreach (var type in types)
@@ -124,7 +124,7 @@ public static class JavaToCSharpConverter
             )
             .NormalizeWhitespace();
 
-        root = root.WithJavaComments(result, "\r\n");
+        root = root.WithJavaComments(context, result, Environment.NewLine);
         if (root is null)
         {
             return null;

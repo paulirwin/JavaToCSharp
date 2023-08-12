@@ -6,13 +6,6 @@ namespace JavaToCSharp;
 
 public class JavaConversionOptions
 {
-    public JavaConversionOptions()
-    {
-        IncludeNamespace = true;
-        IncludeUsings = true;
-        UseUnrecognizedCodeToComment = true;
-    }
-
     public event EventHandler<ConversionWarningEventArgs>? WarningEncountered;
 
     public event EventHandler<ConversionStateChangedEventArgs>? StateChanged;
@@ -28,9 +21,9 @@ public class JavaConversionOptions
         "System.Text"
     };
 
-    public bool IncludeUsings { get; set; }
+    public bool IncludeUsings { get; set; } = true;
 
-    public bool IncludeNamespace { get; set; }
+    public bool IncludeNamespace { get; set; } = true;
 
     public bool UseDebugAssertForAsserts { get; set; }
     
@@ -39,9 +32,11 @@ public class JavaConversionOptions
     /// <summary>
     /// Unrecognized code is translated into comments
     /// </summary>
-    public bool UseUnrecognizedCodeToComment { get; set; }
+    public bool UseUnrecognizedCodeToComment { get; set; } = true;
     
     public bool ConvertSystemOutToConsole { get; set; }
+
+    public bool IncludeComments { get; set; } = true;
 
     public ConversionState ConversionState { get; set; }
 

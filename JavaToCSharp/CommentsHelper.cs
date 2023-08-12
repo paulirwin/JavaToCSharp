@@ -198,7 +198,7 @@ public static class CommentsHelper
         var outputs = new List<string>();
         foreach (var code in codes)
         {
-            string[] input = code.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None);
+            string[] input = code.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             outputs.AddRange(input);
         }
 
@@ -206,8 +206,8 @@ public static class CommentsHelper
         {
             if (hasBlockMark)
             {
-                yield return SyntaxFactory.Comment($"\r\n");
-                yield return SyntaxFactory.Comment($"// --------------------");
+                yield return SyntaxFactory.Comment(Environment.NewLine);
+                yield return SyntaxFactory.Comment("// --------------------");
                 yield return SyntaxFactory.Comment($"// TODO {tag}");
             }
 
@@ -217,13 +217,13 @@ public static class CommentsHelper
             }
 
             if (hasBlockMark)
-                yield return SyntaxFactory.Comment($"// --------------------");
+                yield return SyntaxFactory.Comment("// --------------------");
         }
     }
 
     private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string? post)
     {
-        string[] input = comment.getContent().Split(new[] { "\r\n" }, StringSplitOptions.None);
+        string[] input = comment.getContent().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
         var output = new List<string>();
         var remarks = new List<string>(); // For Java tags unknown in C#
         var currentOutput = output;
@@ -414,7 +414,7 @@ public static class CommentsHelper
             if (t.IsKind(SyntaxKind.MultiLineCommentTrivia))
             {
                 int indentation = GetIndentation(leading, i) + 1; // Add one to align stars.
-                string[] lines = t.ToFullString().Split(new[] { "\r\n" }, StringSplitOptions.None);
+                string[] lines = t.ToFullString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                 string indentString = new(' ', indentation);
                 for (int l = 1; l < lines.Length; l++)
                 {
@@ -422,7 +422,7 @@ public static class CommentsHelper
                     lines[l] = indentString + lines[l].TrimStart();
                 }
 
-                node = node.ReplaceTrivia(t, SyntaxFactory.Comment(String.Join("\r\n", lines).TrimEnd(' ')));
+                node = node.ReplaceTrivia(t, SyntaxFactory.Comment(String.Join(Environment.NewLine, lines).TrimEnd(' ')));
             }
         }
 
