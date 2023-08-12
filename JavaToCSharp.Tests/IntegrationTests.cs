@@ -19,13 +19,31 @@ public class IntegrationTests
     [InlineData("Resources/TestNumericDocValuesUpdates.java")]
     public void GeneralSuccessfulConversionTest(string filePath)
     {
-        var options = new JavaConversionOptions();
+        var options = new JavaConversionOptions
+        {
+            IncludeComments = false,
+        };
         
         options.WarningEncountered += (_, eventArgs)
             => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
         
         var parsed = JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options);
         Assert.NotNull(parsed);
+    }
+
+    [Theory]
+    [InlineData("Resources/Java9Underscore.java")]
+    public void GeneralUnsuccessfulConversionTest(string filePath)
+    {
+        var options = new JavaConversionOptions
+        {
+            IncludeComments = false,
+        };
+        
+        options.WarningEncountered += (_, eventArgs)
+            => throw new InvalidOperationException($"Encountered a warning in conversion when we expected a failure: {eventArgs.Message}");
+        
+        Assert.ThrowsAny<Exception>(() => JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options));
     }
 
     [Theory]
