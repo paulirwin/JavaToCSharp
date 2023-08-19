@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Styling;
 using JavaToCSharpGui.Infrastructure;
 using JavaToCSharpGui.ViewModels;
 
@@ -18,7 +19,8 @@ public partial class MainWindow : Window
         IUIDispatcher dispatcher = new UIDispatcher(Avalonia.Threading.Dispatcher.UIThread);
         ITextClipboard clipboard = new TextClipboard(Clipboard);
 
-        var vm = new MainWindowViewModel(storageProvider, dispatcher, clipboard);
+        string actualThemeVariant = ActualThemeVariant == ThemeVariant.Light ? nameof(ThemeVariant.Light) : nameof(ThemeVariant.Dark);
+        var vm = new MainWindowViewModel(actualThemeVariant, storageProvider, dispatcher, clipboard);
         DataContext = vm;
         this.Usings.DoubleTapped += (_, _) => vm.RemoveSelectedUsingCommand.Execute(null);
     }

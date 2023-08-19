@@ -7,8 +7,8 @@
 		x:Class="JavaToCSharpGui.Views.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
 		Icon="/Assets/JavaToCSharpIcon.ico"
-		Title="JAVA TO C# CONVERTER">
-
+		Title="JAVA TO C# CONVERTER"
+		RequestedThemeVariant="{CompiledBinding ThemeVariant}">
 	<Design.DataContext>
 		<!-- This only sets the DataContext for the previewer in an IDE,
 			to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -78,7 +78,8 @@
 			</Grid>
 			<!-- StatusBar -->
 			<DockPanel Grid.Row="1">
-				<TextBlock Name="ConversionStateLabel" Text="{CompiledBinding ConversionStateLabel}" Margin="10" />
+				<TextBlock DockPanel.Dock="Left" Name="ConversionStateLabel" Text="{CompiledBinding ConversionStateLabel}" Margin="10" />
+				<Button DockPanel.Dock="Right" Content="Switch Theme" Command="{CompiledBinding SwitchThemeCommand}" />
 			</DockPanel>
 			<!-- MessageBox -->
 			<WrapPanel Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{CompiledBinding IsMessageShown}">

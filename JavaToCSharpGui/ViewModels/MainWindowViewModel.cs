@@ -18,6 +18,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _useDebugAssertForAsserts;
     private bool _useUnrecognizedCodeToComment;
     private bool _convertSystemOutToConsole;
+    private string _themeVariant;
 
     private readonly IHostStorageProvider? _storageProvider;
     private readonly IUIDispatcher _dispatcher;
@@ -34,16 +35,20 @@ public partial class MainWindowViewModel : ViewModelBase
             _storageProvider = new HostStorageProvider(desktop.MainWindow.StorageProvider);
             _clipboard = new TextClipboard(desktop.MainWindow.Clipboard);
         }
+
+        _themeVariant = "Light";
     }
 
     /// <summary>
     /// Real constructor
     /// </summary>
+    /// <param name="actualThemeVariant">The name of the theme used by the UI. Defaults to the system-wide preference the first time.</param>
     /// <param name="storageProvider">The storage provider.</param>
     /// <param name="dispatcher">The UI Thread Dispatcher.</param>
     /// <param name="clipboard">The clipboard.</param>
-    public MainWindowViewModel(IHostStorageProvider storageProvider, IUIDispatcher dispatcher, ITextClipboard clipboard)
+    public MainWindowViewModel(string actualThemeVariant, IHostStorageProvider storageProvider, IUIDispatcher dispatcher, ITextClipboard clipboard)
     {
+        _themeVariant = actualThemeVariant;
         _storageProvider = storageProvider;
         _dispatcher = dispatcher;
         _clipboard = clipboard;
@@ -58,6 +63,18 @@ public partial class MainWindowViewModel : ViewModelBase
         _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
         _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
         _convertSystemOutToConsole = Properties.Settings.Default.ConvertSystemOutToConsole;
+        _themeVariant = Properties.Settings.Default.ThemeVariant;
+        if (string.IsNullOrWhiteSpace(ThemeVariant))
+        {
+            _themeVariant = actualThemeVariant;
+        }
+    }
+
+    [RelayCommand]
+    public void SwitchTheme()
+    {
+        string themeVariant = ThemeVariant == "Dark" ? ThemeVariant = "Light" : ThemeVariant = "Dark";
+        ThemeVariant = themeVariant;
     }
 
     [ObservableProperty]
@@ -170,6 +187,18 @@ public partial class MainWindowViewModel : ViewModelBase
             _convertSystemOutToConsole = value;
             SetProperty(ref _convertSystemOutToConsole, value);
             Properties.Settings.Default.ConvertSystemOutToConsole = value;
+            Properties.Settings.Default.Save();
+        }
+    }
+    
+    public string ThemeVariant
+    {
+        get => _themeVariant;
+        set
+        {
+            _themeVariant = value;
+            SetProperty(ref _themeVariant, value);
+            Properties.Settings.Default.ThemeVariant = value;
             Properties.Settings.Default.Save();
         }
     }
