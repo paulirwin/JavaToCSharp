@@ -55,6 +55,7 @@ public class IntegrationTests
     [InlineData("Resources/Java9TryWithResources.java")]
     [InlineData("Resources/Java9PrivateInterfaceMethods.java")]
     [InlineData("Resources/Java10TypeInference.java")]
+    [InlineData("Resources/NewArrayLiteralBug.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions
