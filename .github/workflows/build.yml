@@ -1,6 +1,10 @@
 name: .NET Build
 
-on: [push, pull_request]
+on: 
+  push: 
+    branches: 
+      - master
+  pull_request:
 
 jobs:
   windows-build:
