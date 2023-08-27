@@ -1,12 +1,12 @@
-﻿using Avalonia.Threading;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Collections;
+using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using JavaToCSharp;
 using JavaToCSharpGui.Infrastructure;
-using Avalonia.Controls.ApplicationLifetimes;
 
 namespace JavaToCSharpGui.ViewModels;
 
@@ -448,7 +448,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         await _clipboard.SetTextAsync(CSharpText);
         CopiedText = "Copied!";
-        await Dispatcher.UIThread.InvokeAsync(async () => {
+        await _dispatcher.InvokeAsync(async () => {
             await Task.Delay(500);
             CopiedText = "";
         }, DispatcherPriority.Background);
@@ -465,5 +465,5 @@ public partial class MainWindowViewModel : ViewModelBase
     /// Dispatcher.UIThread.InvokeAsync
     /// </summary>
     /// <param name="callback"></param>
-    private async Task DispatcherInvoke(Action callback) => await Dispatcher.UIThread.InvokeAsync(callback);
+    private async Task DispatcherInvoke(Action callback) => await _dispatcher.InvokeAsync(callback, DispatcherPriority.Normal);
 }
