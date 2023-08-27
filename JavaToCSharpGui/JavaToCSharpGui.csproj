@@ -16,16 +16,16 @@
   </ItemGroup>
   <ItemGroup>
 	<!-- Removes version conflict error -->
-	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" />
+	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
 	  
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 
-    <PackageReference Include="Avalonia" Version="11.0.3" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.3" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.3" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.3" />
+    <PackageReference Include="Avalonia" Version="11.0.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.4" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.3" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
