@@ -1,5 +1,4 @@
-﻿using System;
-using com.github.javaparser.ast.expr;
+﻿using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9,8 +8,23 @@ public class IntegerLiteralExpressionVisitor : ExpressionVisitor<IntegerLiteralE
 {
     public override ExpressionSyntax Visit(ConversionContext context, IntegerLiteralExpr expr)
     {
-        var value = expr.getValue().Replace("_", String.Empty);
-        var int32Value = value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Convert.ToInt32(value, 16) : Int32.Parse(value);
+        string value = expr.getValue().Replace("_", string.Empty);
+        int int32Value;
+
+        if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+        {
+            int32Value = Convert.ToInt32(value, 16);
+        }
+        else if (value.StartsWith("0") && value.Length > 1)
+        {
+            int32Value = Convert.ToInt32(value, 8);
+            value = int32Value.ToString();
+        }
+        else
+        {
+            int32Value = Convert.ToInt32(value);
+        }
+        
         return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value, int32Value));
     }
 }
