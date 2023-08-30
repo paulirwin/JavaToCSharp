@@ -303,8 +303,10 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <param name="options">The user options used for the conversion.</param>
     private async Task FolderConvert(JavaConversionOptions? options)
     {
-        if (_javaFiles.Count == 0 || options == null)
+        if (_javaFiles.Count == 0 || options == null) {
+            ShowMessage("No Java files found in the specified folder!");
             return;
+        }
 
         var dir = new DirectoryInfo(OpenPath);
         var pDir = dir.Parent ?? throw new FileNotFoundException($"dir {OpenPath} parent");
