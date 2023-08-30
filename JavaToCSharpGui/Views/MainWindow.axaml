@@ -81,7 +81,8 @@
 				<TextBlock Name="ConversionStateLabel" Text="{CompiledBinding ConversionStateLabel}" Margin="10" />
 			</DockPanel>
 			<!-- MessageBox -->
-			<WrapPanel Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{CompiledBinding IsMessageShown}">
+			<Border Grid.RowSpan="2" Background="DarkGray" IsVisible="{CompiledBinding IsMessageShown}" Opacity="0.5" />
+			<WrapPanel Grid.RowSpan="2" Opacity="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{CompiledBinding IsMessageShown}">
 				<Border BorderBrush="Black" BorderThickness="2">					
 					<Grid MinWidth="100" RowDefinitions="Auto,*,Auto" Background="{StaticResource SystemControlBackgroundChromeMediumLowBrush}">
 						<Label Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Content="{CompiledBinding MessageTitle}" />
