@@ -1,4 +1,7 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Styling;
 using JavaToCSharpGui.Infrastructure;
 using JavaToCSharpGui.ViewModels;
 
@@ -21,5 +24,15 @@ public partial class MainWindow : Window
         var vm = new MainWindowViewModel(storageProvider, dispatcher, clipboard);
         DataContext = vm;
         this.Usings.DoubleTapped += (_, _) => vm.RemoveSelectedUsingCommand.Execute(null);
+    }
+    
+    private void ToggleButton_OnIsCheckedChanged(object sender, RoutedEventArgs e)
+    {
+        var app = Application.Current;
+        if (app is not null)
+        {
+            var theme = app.ActualThemeVariant;
+            app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
+        }
     }
 }
