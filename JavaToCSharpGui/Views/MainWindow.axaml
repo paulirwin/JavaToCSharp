@@ -61,7 +61,7 @@
 								<TextBox Name="OpenPath" Grid.Column="1" Margin="5" Text="{CompiledBinding OpenPath}" />
 								<Button Grid.Column="2" Margin="10,5,10,5" Command="{CompiledBinding OpenFileDialogCommand}" Name="OpenFileDialog">...</Button>
 							</Grid>
-							<TextBox Name="JavaText" Grid.Row="2" Margin="10" ScrollViewer.VerticalScrollBarVisibility="Visible" FontFamily="Consolas" AcceptsReturn="True"/>
+							<TextBox Name="JavaText" Text="{CompiledBinding JavaText}" Grid.Row="2" Margin="10" ScrollViewer.VerticalScrollBarVisibility="Visible" FontFamily="Consolas" AcceptsReturn="True"/>
 						</Grid>
 						<Button Grid.Row="2" Grid.Column="1" Name="Convert" IsEnabled="{CompiledBinding IsConvertEnabled}" Command="{CompiledBinding ConvertCommand}" Height="35" Margin="10">Convert!</Button>
 						<Grid Grid.Row="2" Grid.Column="2" RowDefinitions="Auto,*">
