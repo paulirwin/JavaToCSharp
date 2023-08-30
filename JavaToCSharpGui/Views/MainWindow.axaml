@@ -85,7 +85,7 @@
 			<Border Background="DarkGray" IsVisible="{CompiledBinding IsMessageShown}" Opacity="0.5" />
 			<WrapPanel Opacity="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{CompiledBinding IsMessageShown}">
 				<Border BorderBrush="Black" BorderThickness="2">					
-					<Grid MinWidth="100" RowDefinitions="Auto,*,Auto" Background="{StaticResource SystemControlBackgroundChromeMediumLowBrush}">
+					<Grid MinWidth="100" RowDefinitions="Auto,*,Auto" Background="{StaticResource WindowDefaultBackground}">
 						<Label Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Content="{CompiledBinding MessageTitle}" />
 						<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" TextWrapping="Wrap" Grid.Row="1" Text="{CompiledBinding Message}" />
 						<Button Content="OK" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Command="{CompiledBinding ClearMessageCommand}" />
