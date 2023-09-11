@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
+using Avalonia;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Collections;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -12,6 +14,8 @@ namespace JavaToCSharpGui.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private const string CopyToClipboardDefaultText = "Copy to Clipboard";
+    
     private bool _includeUsings = true;
     private bool _includeNamespace = true;
     private bool _includeComments = true;
@@ -28,8 +32,9 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     public MainWindowViewModel()
     {
-        _dispatcher = new UIDispatcher(Avalonia.Threading.Dispatcher.UIThread);
-        if (App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
+        _dispatcher = new UIDispatcher(Dispatcher.UIThread);
+        
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: not null } desktop)
         {
             _storageProvider = new HostStorageProvider(desktop.MainWindow.StorageProvider);
             _clipboard = new TextClipboard(desktop.MainWindow.Clipboard);
@@ -60,41 +65,29 @@ public partial class MainWindowViewModel : ViewModelBase
         _convertSystemOutToConsole = Properties.Settings.Default.ConvertSystemOutToConsole;
     }
 
-    [ObservableProperty]
-    private string _addUsingInput = "";
-
-    #region UseFolder
+    [ObservableProperty] private string _addUsingInput = "";
 
     private IList<FileInfo> _javaFiles = new List<FileInfo>();
     private string _currentJavaFile = "";
 
-    #endregion
+    [ObservableProperty] private AvaloniaList<string> _usings = new();
 
-    [ObservableProperty]
-    private AvaloniaList<string> _usings = new();
+    [ObservableProperty] private string _javaText = "";
 
-    [ObservableProperty]
-    private string _javaText = "";
+    [ObservableProperty] private string _cSharpText = "";
 
-    [ObservableProperty]
-    private string _cSharpText = "";
+    [ObservableProperty] private string _openPath = "";
 
-    [ObservableProperty]
-    private string _openPath = "";
+    [ObservableProperty] private string _copyToClipboardText = CopyToClipboardDefaultText;
 
-    [ObservableProperty]
-    private string _copiedText = "";
+    [ObservableProperty] private string _conversionStateLabel = "";
 
-    [ObservableProperty]
-    private string _conversionStateLabel = "";
-
-    [ObservableProperty]
-    private string? _selectedUsing;
+    [ObservableProperty] private string? _selectedUsing;
 
     [RelayCommand]
-    public void RemoveSelectedUsing()
+    private void RemoveSelectedUsing()
     {
-        if(SelectedUsing is not null && Usings.Contains(SelectedUsing))
+        if (SelectedUsing is not null && Usings.Contains(SelectedUsing))
         {
             Usings.Remove(SelectedUsing);
         }
@@ -121,7 +114,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Properties.Settings.Default.Save();
         }
     }
-    
+
     public bool IncludeComments
     {
         get => _includeComments;
@@ -161,7 +154,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Properties.Settings.Default.Save();
         }
     }
-    
+
     public bool ConvertSystemOutToConsole
     {
         get => _convertSystemOutToConsole;
@@ -174,14 +167,14 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    [ObservableProperty]
-    private bool _isConvertEnabled = true;
+    public FontFamily MonospaceFontFamily { get; } = FontFamily.Parse("Cascadia Code,SF Mono,DejaVu Sans Mono,Menlo,Consolas");
 
-    [ObservableProperty]
-    private bool _useFolderConvert;
+    [ObservableProperty] private bool _isConvertEnabled = true;
+
+    [ObservableProperty] private bool _useFolderConvert;
 
     [RelayCommand]
-    public void AddUsing()
+    private void AddUsing()
     {
         Usings.Add(AddUsingInput);
         AddUsingInput = string.Empty;
@@ -192,14 +185,12 @@ public partial class MainWindowViewModel : ViewModelBase
         Usings.Remove(value);
     }
 
-    [ObservableProperty]
-    private string _message = "";
+    [ObservableProperty] private string _message = "";
 
-    [ObservableProperty]
-    private string _messageTitle = "";
-    
+    [ObservableProperty] private string _messageTitle = "";
+
     [RelayCommand]
-    public async Task Convert()
+    private async Task Convert()
     {
         var options = new JavaConversionOptions();
         options.ClearUsings();
@@ -230,13 +221,16 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
                 else
                 {
-                    var csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
+                    string? csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
                     await DispatcherInvoke(() => CSharpText = csharp ?? "");
                 }
             }
             catch (Exception ex)
             {
-                await DispatcherInvoke(() => Message = $"There was an error converting the text to C#: {ex.GetBaseException().Message}");
+                await DispatcherInvoke(() =>
+                    ShowMessage($"There was an error converting the text to C#: {ex.GetBaseException().Message}", "Conversion Error"));
+
+                ConversionStateLabel = "";
             }
             finally
             {
@@ -245,25 +239,30 @@ public partial class MainWindowViewModel : ViewModelBase
         });
     }
 
-    #region FolderConvert
-
     /// <summary>
     /// Folder Browser OpenFolderDialog
     /// </summary>
     private async Task OpenFolderDialog()
     {
-        if(_storageProvider?.CanPickFolder is true) {
-            FolderPickerOpenOptions options = new() {
+        if (_storageProvider?.CanPickFolder is true)
+        {
+            FolderPickerOpenOptions options = new()
+            {
                 Title = "Folder Browser",
                 AllowMultiple = false,
                 SuggestedStartLocation = await _storageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
             };
+            
             var result = await _storageProvider.OpenFolderPickerAsync(options);
-            if(!result.Any()) {
+            
+            if (!result.Any())
+            {
                 return;
             }
-            var path = result[0].Path.AbsolutePath;
+
+            string path = result[0].Path.AbsolutePath;
             var dir = new DirectoryInfo(path);
+            
             if (!dir.Exists)
             {
                 OpenPath = string.Empty;
@@ -273,26 +272,17 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            var pDir = dir.Parent;
-            if (pDir == null)
-            {
-                ShowMessage("Fail: Root Directory !!!");
-                return;
-            }
-
             OpenPath = path;
 
             await Task.Run(async () =>
             {
-                //list all subdir *.java
                 var files = dir.GetFiles("*.java", SearchOption.AllDirectories);
                 _javaFiles = files;
 
-                //out java path
-                var subStartIndex = path.Length;
-                var javaTexts = string.Join(Environment.NewLine, files.Select(x => x.FullName[subStartIndex..]));
+                int subStartIndex = path.Length;
+                string javaText = string.Join(Environment.NewLine, files.Select(x => x.FullName[subStartIndex..]));
 
-                await DispatcherInvoke(() => JavaText = javaTexts);
+                await DispatcherInvoke(() => JavaText = javaText);
             });
         }
     }
@@ -303,98 +293,90 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <param name="options">The user options used for the conversion.</param>
     private async Task FolderConvert(JavaConversionOptions? options)
     {
-        if (_javaFiles.Count == 0 || options == null) {
+        if (_javaFiles.Count == 0 || options == null)
+        {
             ShowMessage("No Java files found in the specified folder!");
             return;
         }
 
         var dir = new DirectoryInfo(OpenPath);
         var pDir = dir.Parent ?? throw new FileNotFoundException($"dir {OpenPath} parent");
-        var dirName = dir.Name;
-        var outDirName = $"{dirName}_net_{DateTime.Now.Millisecond}";
+        string dirName = dir.Name;
+        string outDirName = $"{dirName}_net_{DateTime.Now.Millisecond}";
         var outDir = pDir.CreateSubdirectory(outDirName);
-        if (outDir == null || !outDir.Exists)
+        
+        if (outDir is not { Exists: true })
             throw new FileNotFoundException($"outDir {outDirName}");
 
-        var outDirFullName = outDir.FullName;
-        var subStartIndex = dir.FullName.Length;
+        string outDirFullName = outDir.FullName;
+        int subStartIndex = dir.FullName.Length;
+        
         foreach (var jFile in _javaFiles.Where(static x => x.Directory is not null))
         {
-            var jPath = jFile.Directory!.FullName;
-            var jOutPath = $"{outDirFullName}{jPath[subStartIndex..]}";
-            var jOutFileName = Path.GetFileNameWithoutExtension(jFile.Name) + ".cs";
-            var jOutFileFullName = Path.Combine(jOutPath, jOutFileName);
+            string jPath = jFile.Directory!.FullName;
+            string jOutPath = $"{outDirFullName}{jPath[subStartIndex..]}";
+            string jOutFileName = Path.GetFileNameWithoutExtension(jFile.Name) + ".cs";
+            string jOutFileFullName = Path.Combine(jOutPath, jOutFileName);
 
             _currentJavaFile = jFile.FullName;
+            
             if (!Directory.Exists(jOutPath))
                 Directory.CreateDirectory(jOutPath);
 
-            var jText = File.ReadAllText(_currentJavaFile);
+            string jText = await File.ReadAllTextAsync(_currentJavaFile);
+            
             if (string.IsNullOrEmpty(jText))
                 continue;
 
             try
             {
-                var csText = JavaToCSharpConverter.ConvertText(jText, options);
-                File.WriteAllText(jOutFileFullName, csText);
+                string? csText = JavaToCSharpConverter.ConvertText(jText, options);
+                await File.WriteAllTextAsync(jOutFileFullName, csText);
 
                 await DispatcherInvoke(() =>
                 {
-                    CSharpText = $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}out.path: { jOutPath },{Environment.NewLine}\t\tfile: {jOutFileName}";
+                    CSharpText =
+                        $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}out.path: {jOutPath},{Environment.NewLine}\t\tfile: {jOutFileName}";
                 });
             }
             catch (Exception ex)
             {
                 await DispatcherInvoke(() =>
                 {
-                    CSharpText = $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[ERROR]out.path: { jOutPath },{Environment.NewLine}ex: { ex } {Environment.NewLine}";
+                    CSharpText =
+                        $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[ERROR]out.path: {jOutPath},{Environment.NewLine}ex: {ex} {Environment.NewLine}";
                 });
             }
         }
     }
 
-    #endregion
-
     [RelayCommand]
-    public void ClearMessage()
+    private void ClearMessage()
     {
         MessageTitle = "";
         Message = "";
         IsMessageShown = false;
     }
 
-    private void ShowMessage(string message, string title = "") {
+    private void ShowMessage(string message, string title = "")
+    {
         MessageTitle = title;
         Message = message;
         IsMessageShown = true;
     }
 
-    [ObservableProperty]
-    private bool _isMessageShown;
+    [ObservableProperty] private bool _isMessageShown;
 
     private void Options_StateChanged(object? sender, ConversionStateChangedEventArgs e)
     {
-        switch (e.NewState)
+        ConversionStateLabel = e.NewState switch
         {
-            case ConversionState.Starting:
-                ConversionStateLabel = "Starting...";
-                break;
-
-            case ConversionState.ParsingJavaAst:
-                ConversionStateLabel = "Parsing Java code...";
-                break;
-
-            case ConversionState.BuildingCSharpAst:
-                ConversionStateLabel = "Building C# AST...";
-                break;
-
-            case ConversionState.Done:
-                ConversionStateLabel = "Done!";
-                break;
-
-            default:
-                break;
-        }
+            ConversionState.Starting => "Starting...",
+            ConversionState.ParsingJavaAst => "Parsing Java code...",
+            ConversionState.BuildingCSharpAst => "Building C# AST...",
+            ConversionState.Done => "Done!",
+            _ => ConversionStateLabel
+        };
     }
 
     private async void Options_WarningEncountered(object? sender, ConversionWarningEventArgs e)
@@ -403,7 +385,8 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             await DispatcherInvoke(() =>
             {
-                CSharpText = $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[WARN]out.path: { _currentJavaFile },{Environment.NewLine}\t\tConversionWarning-JavaLine:[{ e.JavaLineNumber}]-Message:[{ e.Message}]{Environment.NewLine}";
+                CSharpText =
+                    $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[WARN]out.path: {_currentJavaFile},{Environment.NewLine}\t\tConversionWarning-JavaLine:[{e.JavaLineNumber}]-Message:[{e.Message}]{Environment.NewLine}";
             });
         }
         else
@@ -413,13 +396,13 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public async Task OpenFileDialog()
+    private async Task OpenFileDialog()
     {
         if (UseFolderConvert)
         {
             await OpenFolderDialog();
         }
-        else if(_storageProvider?.CanOpen is true)
+        else if (_storageProvider?.CanOpen is true)
         {
             var filePickerOpenOptions = new FilePickerOpenOptions
             {
@@ -427,45 +410,47 @@ public partial class MainWindowViewModel : ViewModelBase
                 {
                     new("Java files")
                     {
-                        Patterns = new[]{ "*.java" },
+                        Patterns = new[] { "*.java" },
                     }
                 },
             };
 
             var result = await _storageProvider.OpenFilePickerAsync(filePickerOpenOptions);
+            
             if (result.Any())
             {
                 OpenPath = result[0].Path.AbsolutePath;
-                JavaText = File.ReadAllText(result[0].Path.AbsolutePath);
+                JavaText = await File.ReadAllTextAsync(result[0].Path.AbsolutePath);
             }
         }
     }
 
     [RelayCommand]
-    public async Task CopyOutput()
+    private async Task CopyOutput()
     {
-        if(_clipboard is null)
+        if (_clipboard is null)
         {
             return;
         }
+
         await _clipboard.SetTextAsync(CSharpText);
-        CopiedText = "Copied!";
-        await _dispatcher.InvokeAsync(async () => {
-            await Task.Delay(500);
-            CopiedText = "";
+        CopyToClipboardText = "Copied!";
+        
+        await Task.Delay(1000);
+        
+        await _dispatcher.InvokeAsync(() =>
+        {
+            CopyToClipboardText = CopyToClipboardDefaultText;
         }, DispatcherPriority.Background);
     }
 
     [RelayCommand]
-    public void ForkMeOnGitHub() => Process.Start(new ProcessStartInfo
+    private static void ForkMeOnGitHub() => Process.Start(new ProcessStartInfo
     {
-        FileName = "http://www.github.com/paulirwin/javatocsharp",
+        FileName = "https://www.github.com/paulirwin/javatocsharp",
         UseShellExecute = true
     });
 
-    /// <summary>
-    /// Dispatcher.UIThread.InvokeAsync
-    /// </summary>
-    /// <param name="callback"></param>
-    private async Task DispatcherInvoke(Action callback) => await _dispatcher.InvokeAsync(callback, DispatcherPriority.Normal);
+    private async Task DispatcherInvoke(Action callback) =>
+        await _dispatcher.InvokeAsync(callback, DispatcherPriority.Normal);
 }
