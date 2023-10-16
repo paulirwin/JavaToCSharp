@@ -260,7 +260,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            string path = result[0].Path.AbsolutePath;
+            string path = result[0].Path.LocalPath;
             var dir = new DirectoryInfo(path);
             
             if (!dir.Exists)
@@ -419,8 +419,8 @@ public partial class MainWindowViewModel : ViewModelBase
             
             if (result.Any())
             {
-                OpenPath = result[0].Path.AbsolutePath;
-                JavaText = await File.ReadAllTextAsync(result[0].Path.AbsolutePath);
+                OpenPath = result[0].Path.LocalPath;
+                JavaText = await File.ReadAllTextAsync(result[0].Path.LocalPath);
             }
         }
     }
