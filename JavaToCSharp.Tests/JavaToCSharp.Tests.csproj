@@ -20,7 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="IKVM" Version="8.6.2" />
+    <PackageReference Include="IKVM" Version="8.7.0-pre.2" />
   </ItemGroup>
 
   <ItemGroup>
