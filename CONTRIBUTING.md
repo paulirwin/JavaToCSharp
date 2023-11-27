@@ -1,7 +1,7 @@
-# Contributing to JavaParser
+# Contributing to JavaToCSharp
 
 Thank you for your interest in helping this project grow!
-Here are some general guidelines to follow when contributing to JavaParser:
+Here are some general guidelines to follow when contributing to JavaToCSharp:
 
 - Please file an issue before submitting a PR, and reference the issue from your PR.
   The issue should clearly outline the problem or feature request, what benefits it provides, etc.

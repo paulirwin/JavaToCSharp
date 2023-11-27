@@ -1,5 +1,4 @@
-Java to C# Converter
-====================
+# Java to C# Converter
 
 [![.NET Build](https://github.com/paulirwin/JavaToCSharp/actions/workflows/build.yml/badge.svg)](https://github.com/paulirwin/JavaToCSharp/actions/workflows/build.yml) [![Nuget](https://img.shields.io/nuget/v/JavaToCSharp)](https://www.nuget.org/packages/JavaToCSharp/)
 
@@ -11,8 +10,7 @@ and [Roslyn](https://github.com/dotnet/roslyn) for C# AST generation.
 
 Pull requests and issue submission welcome.
 
-Getting Started
-===============
+## Getting Started
 
 Clone the repo, build, and launch the Gui WPF app. Click the "..." button on
 the left side to load a Java file, and then click Convert to convert to
@@ -24,7 +22,6 @@ from the command line.
 
 The core library is installable via NuGet at https://www.nuget.org/packages/JavaToCSharp/
 
-License for JavaParser
-======================
+## License for JavaParser
 
 Licensed under the Apache License available at https://github.com/javaparser/javaparser/blob/master/LICENSE.APACHE
