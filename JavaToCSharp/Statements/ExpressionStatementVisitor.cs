@@ -49,18 +49,19 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
             }
 
             var initExpr = item.getInitializer().FromOptional<Expression>();
+            var variableName = TypeHelper.EscapeIdentifier(name);
 
             if (initExpr != null)
             {
                 var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
                 if (initSyntax is not null)
                 {
-                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(variableName).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
                     variables.Add(varDeclarationSyntax);
                 }
             }
             else
-                variables.Add(SyntaxFactory.VariableDeclarator(name));
+                variables.Add(SyntaxFactory.VariableDeclarator(variableName));
         }
 
         return SyntaxFactory.LocalDeclarationStatement(

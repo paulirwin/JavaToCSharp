@@ -37,6 +37,7 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
                 if (name.EndsWith("[]"))
                     name = name[..^2];
             }
+            var fieldName = TypeHelper.EscapeIdentifier(name);
 
             var initExpr = item.getInitializer().FromOptional<Expression>();
 
@@ -45,12 +46,12 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
                 var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
                 if (initSyntax is not null)
                 {
-                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(fieldName).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
                     variables.Add(varDeclarationSyntax);
                 }
             }
             else
-                variables.Add(SyntaxFactory.VariableDeclarator(name));
+                variables.Add(SyntaxFactory.VariableDeclarator(fieldName));
         }
 
         typeName = TypeHelper.ConvertType(typeName);
