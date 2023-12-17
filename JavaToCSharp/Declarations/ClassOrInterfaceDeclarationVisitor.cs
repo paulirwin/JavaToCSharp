@@ -2,6 +2,7 @@
 using System.Linq;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.type;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -180,6 +181,53 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                     classSyntax = classSyntax.AddMembers(anon);
                 }
             }
+
+        bool isObsolete = false;
+        
+        var annotations = javac.getAnnotations().ToList<AnnotationExpr>();
+
+        if (annotations is { Count: > 0 })
+        {
+            foreach (var annotation in annotations)
+            {
+                string annotationName = annotation.getNameAsString();
+                string annotationText = "Obsolete"; // TODO parse from java comment
+
+                if (annotationName == "Deprecated")
+                {
+
+                    classSyntax = classSyntax.AddAttributeLists(
+                         new AttributeListSyntax[]{
+                            SyntaxFactory.AttributeList(
+                                SyntaxFactory.SingletonSeparatedList<AttributeSyntax>(
+                                    SyntaxFactory.Attribute(
+                                        SyntaxFactory.IdentifierName("Obsolete")
+                                    )
+                                    .WithArgumentList(
+                                        SyntaxFactory.AttributeArgumentList(
+                                            SyntaxFactory.SingletonSeparatedList<AttributeArgumentSyntax>(
+                                                SyntaxFactory.AttributeArgument(
+                                                    SyntaxFactory.LiteralExpression(
+                                                        SyntaxKind.StringLiteralExpression,
+                                                        SyntaxFactory.Literal(annotationText)
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                         }
+                     );
+                    isObsolete = true;
+                }
+
+                if (isObsolete)
+                {
+                    break;
+                }
+            }
+        }
 
         return classSyntax.WithJavaComments(context, javac);
     }
