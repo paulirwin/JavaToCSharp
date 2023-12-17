@@ -17,8 +17,8 @@ namespace JavaToCSharp.Declarations;
 public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
 {
     public override MemberDeclarationSyntax VisitForClass(
-        ConversionContext context, 
-        ClassDeclarationSyntax classSyntax, 
+        ConversionContext context,
+        ClassDeclarationSyntax classSyntax,
         MethodDeclaration methodDecl,
         IReadOnlyList<ClassOrInterfaceType> extends,
         IReadOnlyList<ClassOrInterfaceType> implements)
@@ -26,8 +26,8 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         return VisitInternal(context, false, classSyntax.Identifier.Text, classSyntax.Modifiers, methodDecl, extends);
     }
 
-    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, 
-        InterfaceDeclarationSyntax interfaceSyntax, 
+    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context,
+        InterfaceDeclarationSyntax interfaceSyntax,
         MethodDeclaration methodDecl)
     {
         // If there is a body, mostly treat it like a class method
@@ -36,7 +36,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             return VisitInternal(context, true, interfaceSyntax.Identifier.Text, interfaceSyntax.Modifiers, methodDecl,
                 ArraySegment<ClassOrInterfaceType>.Empty);
         }
-        
+
         var returnType = methodDecl.getType();
         var returnTypeName = TypeHelper.ConvertType(returnType.toString());
 
@@ -54,7 +54,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-        if (parameters is {Count: > 0})
+        if (parameters is { Count: > 0 })
         {
             var paramSyntax = parameters.Select(i =>
                 SyntaxFactory.Parameter(
@@ -108,19 +108,21 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
         if (mods.Contains(Modifier.Keyword.ABSTRACT))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
+        if (!mods.Contains(Modifier.Keyword.PUBLIC) && !mods.Contains(Modifier.Keyword.PROTECTED) && !mods.Contains(Modifier.Keyword.PRIVATE))
+            methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword));
 
         var annotations = methodDecl.getAnnotations().ToList<AnnotationExpr>();
         bool isOverride = false;
 
         // TODO: figure out how to check for a non-interface base type
-        if (annotations is {Count: > 0})
+        if (annotations is { Count: > 0 })
         {
             foreach (var annotation in annotations)
             {
                 string name = annotation.getNameAsString();
-                
+
                 // ignore @Override annotation on interface-only classes. Unfortunately this is as good as we can get for now.
-                if (name == "Override" 
+                if (name == "Override"
                     && extends.Count > 0)
                 {
                     methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.OverrideKeyword));
@@ -140,7 +142,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-        if (parameters is {Count: > 0})
+        if (parameters is { Count: > 0 })
         {
             var paramSyntaxes = new List<ParameterSyntax>();
 

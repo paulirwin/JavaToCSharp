@@ -68,6 +68,9 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
         if (mods.Contains(Modifier.Keyword.PRIVATE))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+        if (!mods.Contains(Modifier.Keyword.PUBLIC) && !mods.Contains(Modifier.Keyword.PROTECTED) && !mods.Contains(Modifier.Keyword.PRIVATE))
+            fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword));
+
         if (mods.Contains(Modifier.Keyword.STATIC))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
         if (mods.Contains(Modifier.Keyword.FINAL))

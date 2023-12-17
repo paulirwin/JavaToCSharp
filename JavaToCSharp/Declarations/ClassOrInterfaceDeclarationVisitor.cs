@@ -58,6 +58,8 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
         if (mods.Contains(Modifier.Keyword.PUBLIC))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+        if (!mods.Contains(Modifier.Keyword.PUBLIC) && !mods.Contains(Modifier.Keyword.PROTECTED) && !mods.Contains(Modifier.Keyword.PRIVATE))
+            classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword));
         if (mods.Contains(Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
@@ -121,6 +123,8 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
         if (mods.Contains(Modifier.Keyword.PUBLIC))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+        if (!mods.Contains(Modifier.Keyword.PUBLIC) && !mods.Contains(Modifier.Keyword.PROTECTED) && !mods.Contains(Modifier.Keyword.PRIVATE))
+            classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword));
         if (mods.Contains(Modifier.Keyword.ABSTRACT))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
         if (mods.Contains(Modifier.Keyword.FINAL))
