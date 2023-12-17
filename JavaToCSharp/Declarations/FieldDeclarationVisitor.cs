@@ -72,7 +72,7 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
         if (mods.Contains(Modifier.Keyword.FINAL))
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
-        if (mods.Contains(Modifier.Keyword.VOLATILE))
+        if (mods.Contains(Modifier.Keyword.VOLATILE) && !typeName.Equals("long") && !typeName.Equals("double")) // long and double can not be volatile in C#
             fieldSyntax = fieldSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.VolatileKeyword));
 
         return fieldSyntax;
