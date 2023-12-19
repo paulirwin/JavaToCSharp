@@ -12,7 +12,7 @@ namespace JavaToCSharp.Declarations;
 public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOrInterfaceDeclaration>
 {
     public override MemberDeclarationSyntax? VisitForClass(
-        ConversionContext context, 
+        ConversionContext context,
         ClassDeclarationSyntax classSyntax,
         ClassOrInterfaceDeclaration declaration,
         IReadOnlyList<ClassOrInterfaceType> extends,
@@ -21,16 +21,20 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         return VisitClassDeclaration(context, declaration);
     }
 
-    public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context, InterfaceDeclarationSyntax interfaceSyntax,
-                                                               ClassOrInterfaceDeclaration declaration)
+    public override MemberDeclarationSyntax? VisitForInterface(ConversionContext context,
+        InterfaceDeclarationSyntax interfaceSyntax,
+        ClassOrInterfaceDeclaration declaration)
     {
         return VisitClassDeclaration(context, declaration);
     }
 
-    public static InterfaceDeclarationSyntax? VisitInterfaceDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javai, bool isNested = false)
+    public static InterfaceDeclarationSyntax? VisitInterfaceDeclaration(ConversionContext context,
+        ClassOrInterfaceDeclaration javai, bool isNested = false)
     {
         var originalTypeName = javai.getName();
-        var newTypeName = context.Options.StartInterfaceNamesWithI ? $"I{originalTypeName.getIdentifier()}" : originalTypeName.getIdentifier();
+        var newTypeName = context.Options.StartInterfaceNamesWithI
+            ? $"I{originalTypeName.getIdentifier()}"
+            : originalTypeName.getIdentifier();
 
         if (context.Options.StartInterfaceNamesWithI)
         {
@@ -46,9 +50,11 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
 
         var typeParams = javai.getTypeParameters().ToList<TypeParameter>();
 
-        if (typeParams is {Count: > 0})
+        if (typeParams is { Count: > 0 })
         {
-            classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
+            classSyntax =
+                classSyntax.AddTypeParameterListParameters(typeParams
+                    .Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
         }
 
         var mods = javai.getModifiers().ToModifierKeywordSet();
@@ -67,7 +73,8 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         {
             foreach (var extend in extends)
             {
-                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
+                classSyntax =
+                    classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
             }
         }
 
@@ -76,7 +83,8 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         {
             foreach (var implement in implements)
             {
-                classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
+                classSyntax =
+                    classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
             }
         }
 
@@ -96,7 +104,8 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         return classSyntax.WithJavaComments(context, javai);
     }
 
-    public static ClassDeclarationSyntax? VisitClassDeclaration(ConversionContext context, ClassOrInterfaceDeclaration javac, bool isNested = false)
+    public static ClassDeclarationSyntax? VisitClassDeclaration(ConversionContext context,
+        ClassOrInterfaceDeclaration javac, bool isNested = false)
     {
         string name = javac.getNameAsString();
 
@@ -109,9 +118,11 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
 
         var typeParams = javac.getTypeParameters().ToList<TypeParameter>();
 
-        if (typeParams is {Count: > 0})
+        if (typeParams is { Count: > 0 })
         {
-            classSyntax = classSyntax.AddTypeParameterListParameters(typeParams.Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
+            classSyntax =
+                classSyntax.AddTypeParameterListParameters(typeParams
+                    .Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
         }
 
         var mods = javac.getModifiers().ToModifierKeywordSet();
@@ -131,19 +142,22 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
 
         foreach (var extend in extends)
         {
-            classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
+            classSyntax =
+                classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
         }
 
         var implements = javac.getImplementedTypes().ToList<ClassOrInterfaceType>() ?? new List<ClassOrInterfaceType>();
 
         foreach (var implement in implements)
         {
-            classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
+            classSyntax =
+                classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(implement)));
         }
 
         var members = javac.getMembers()?.ToList<BodyDeclaration>();
 
         if (members is not null)
+        {
             foreach (var member in members)
             {
                 if (member is ClassOrInterfaceDeclaration childType)
@@ -181,9 +195,8 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                     classSyntax = classSyntax.AddMembers(anon);
                 }
             }
+        }
 
-        bool isObsolete = false;
-        
         var annotations = javac.getAnnotations().ToList<AnnotationExpr>();
 
         if (annotations is { Count: > 0 })
@@ -191,39 +204,21 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             foreach (var annotation in annotations)
             {
                 string annotationName = annotation.getNameAsString();
-                string annotationText = "Obsolete"; // TODO parse from java comment
+                const string annotationText = "Obsolete"; // TODO parse from java comment
 
                 if (annotationName == "Deprecated")
                 {
-
-                    classSyntax = classSyntax.AddAttributeLists(
-                         new AttributeListSyntax[]{
-                            SyntaxFactory.AttributeList(
-                                SyntaxFactory.SingletonSeparatedList<AttributeSyntax>(
-                                    SyntaxFactory.Attribute(
-                                        SyntaxFactory.IdentifierName("Obsolete")
-                                    )
+                    classSyntax = classSyntax.AddAttributeLists(SyntaxFactory.AttributeList(
+                            SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("Obsolete"))
                                     .WithArgumentList(
                                         SyntaxFactory.AttributeArgumentList(
-                                            SyntaxFactory.SingletonSeparatedList<AttributeArgumentSyntax>(
+                                            SyntaxFactory.SingletonSeparatedList(
                                                 SyntaxFactory.AttributeArgument(
                                                     SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.StringLiteralExpression,
-                                                        SyntaxFactory.Literal(annotationText)
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                         }
-                     );
-                    isObsolete = true;
-                }
+                                                        SyntaxFactory.Literal(annotationText)))))))));
 
-                if (isObsolete)
-                {
                     break;
                 }
             }

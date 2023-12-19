@@ -25,10 +25,10 @@ public class IntegrationTests
         {
             IncludeComments = false,
         };
-        
+
         options.WarningEncountered += (_, eventArgs)
             => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
-        
+
         var parsed = JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options);
         Assert.NotNull(parsed);
     }
@@ -41,10 +41,11 @@ public class IntegrationTests
         {
             IncludeComments = false,
         };
-        
+
         options.WarningEncountered += (_, eventArgs)
-            => throw new InvalidOperationException($"Encountered a warning in conversion when we expected a failure: {eventArgs.Message}");
-        
+            => throw new InvalidOperationException(
+                $"Encountered a warning in conversion when we expected a failure: {eventArgs.Message}");
+
         Assert.ThrowsAny<Exception>(() => JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options));
     }
 
@@ -57,6 +58,7 @@ public class IntegrationTests
     [InlineData("Resources/Java10TypeInference.java")]
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
+    [InlineData("Resources/DeprecatedAnnotation.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions
@@ -64,20 +66,20 @@ public class IntegrationTests
             ConvertSystemOutToConsole = true,
             IncludeComments = false,
         };
-        
+
         options.WarningEncountered += (_, eventArgs)
             => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
 
         var javaText = File.ReadAllText(filePath);
-        
+
         var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
         Assert.NotNull(parsed);
 
         var fileName = Path.GetFileNameWithoutExtension(filePath);
         var assembly = CompileAssembly(fileName, parsed);
-        
+
         var expectation = ParseExpectation(javaText);
-        
+
         // NOTE: examples must have a class name of Program in the example package
         var programType = assembly.GetType("Example.Program");
 
@@ -85,17 +87,17 @@ public class IntegrationTests
         {
             throw new InvalidOperationException("Cannot find expected Program type in assembly");
         }
-        
+
         var mainMethod = programType.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);
 
         if (mainMethod is null)
         {
             throw new InvalidOperationException("Cannot find expected Main method in assembly");
         }
-        
+
         using var sw = new StringWriter();
         Console.SetOut(sw);
-        
+
         try
         {
             mainMethod.Invoke(null, new object[] { Array.Empty<string>() });
@@ -109,7 +111,7 @@ public class IntegrationTests
 
             return;
         }
-        
+
         var output = sw.ToString().ReplaceLineEndings("\n");
 
         if (expectation.Output != null)
@@ -129,14 +131,14 @@ public class IntegrationTests
     private static Assembly CompileAssembly(string assemblyName, string cSharpLanguageText)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(cSharpLanguageText);
-        
+
         var options = new CSharpCompilationOptions(OutputKind.ConsoleApplication)
             .WithOverflowChecks(true)
             .WithOptimizationLevel(OptimizationLevel.Debug);
-        
-        var compilation = CSharpCompilation.Create(assemblyName, 
-            new List<SyntaxTree> { syntaxTree }, 
-            GetMetadataReferencesForBcl(), 
+
+        var compilation = CSharpCompilation.Create(assemblyName,
+            new List<SyntaxTree> { syntaxTree },
+            GetMetadataReferencesForBcl(),
             options);
 
         var outputDir = Path.Join(Environment.CurrentDirectory, "bin");
@@ -150,7 +152,8 @@ public class IntegrationTests
 
             if (!emitResult.Success)
             {
-                throw new InvalidOperationException($"Failed to emit Roslyn assembly: {string.Join(", ", emitResult.Diagnostics)}");
+                throw new InvalidOperationException(
+                    $"Failed to emit Roslyn assembly: {string.Join(", ", emitResult.Diagnostics)}");
             }
 
             ms.Position = 0;
@@ -188,7 +191,7 @@ public class IntegrationTests
             yield return MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll"));
         }
     }
-    
+
     private static Expectation ParseExpectation(string contents)
     {
         using var sr = new StringReader(contents);
@@ -216,7 +219,7 @@ public class IntegrationTests
 
                 var literal = FindLiteralExpressionSyntax(root);
 
-                if (literal != null) 
+                if (literal != null)
                 {
                     expectation.Output = literal.Token.ValueText;
                 }
@@ -235,7 +238,7 @@ public class IntegrationTests
 
         return expectation;
     }
-    
+
     private static LiteralExpressionSyntax? FindLiteralExpressionSyntax(SyntaxNode node)
     {
         if (node is LiteralExpressionSyntax literal)
