@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -33,21 +29,57 @@ public static class CommentsHelper
         ["@throws"] = "exception"
     };
 
-    public static TSyntax? AddCommentsTrivias<TSyntax>(TSyntax? syntax, JavaAst.Node? node, string? commentEnding) where TSyntax : SyntaxNode
+    public static CompilationUnitSyntax AddPackageComments(CompilationUnitSyntax syntax,
+        JavaAst.CompilationUnit compilationUnit,
+        JavaAst.PackageDeclaration? packageDeclaration)
+    {
+        var leadingTriviaList = new List<SyntaxTrivia>();
+
+        if (compilationUnit.getComment().FromOptional<JavaComments.Comment>() is { } compilationUnitComment)
+        {
+            var (kind, pre, post) = GetCommentInfo(compilationUnitComment);
+            var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + compilationUnitComment.getContent() + post + Environment.NewLine);
+            leadingTriviaList.Add(commentTrivia);
+        }
+
+        if (packageDeclaration is not null)
+        {
+            var packageComments = GatherComments(packageDeclaration);
+
+            if (packageComments.Count > 0)
+            {
+                foreach (var (comment, _) in packageComments)
+                {
+                    var (kind, pre, post) = GetCommentInfo(comment);
+                    var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post + Environment.NewLine);
+                    leadingTriviaList.Add(commentTrivia);
+                }
+
+                syntax = syntax.WithLeadingTrivia(leadingTriviaList);
+            }
+        }
+
+        return leadingTriviaList.Count > 0 ? syntax.WithLeadingTrivia(leadingTriviaList) : syntax;
+    }
+
+    public static TSyntax? AddCommentsTrivias<TSyntax>(TSyntax? syntax, JavaAst.Node? node) where TSyntax : SyntaxNode
     {
         if (syntax is null)
         {
             return null;
         }
-        
+
         var comments = GatherComments(node);
+
         if (comments.Count > 0)
         {
             var leadingTriviaList = new List<SyntaxTrivia>();
             var trailingTriviaList = new List<SyntaxTrivia>();
+
             foreach (var (comment, pos) in comments)
             {
-                var (kind, pre, post) = GetCommentInfo(comment, commentEnding);
+                var (kind, pre, post) = GetCommentInfo(comment);
+
                 if (kind == SyntaxKind.XmlComment)
                 {
                     leadingTriviaList.AddRange(ConvertDocComment(comment, post));
@@ -75,14 +107,13 @@ public static class CommentsHelper
     }
 
     private static (SyntaxKind kind, string? pre, string? post) GetCommentInfo(
-        JavaComments.Comment comment, 
-        string? commentEnding)
+        JavaComments.Comment comment)
     {
         return comment switch
         {
-            JavaComments.BlockComment => (SyntaxKind.MultiLineCommentTrivia, "/*", "*/" + commentEnding),
-            JavaComments.JavadocComment => (SyntaxKind.XmlComment, null, commentEnding),
-            _ => (SyntaxKind.SingleLineCommentTrivia, "//", commentEnding),
+            JavaComments.BlockComment => (SyntaxKind.MultiLineCommentTrivia, "/*", "*/"),
+            JavaComments.JavadocComment => (SyntaxKind.XmlComment, null, null),
+            _ => (SyntaxKind.SingleLineCommentTrivia, "//", null),
         };
     }
 

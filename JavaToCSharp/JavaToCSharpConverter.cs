@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
@@ -24,7 +20,7 @@ public static class JavaToCSharpConverter
 
         var context = new ConversionContext(options);
 
-        var textBytes = Encoding.UTF8.GetBytes(javaText ?? System.String.Empty);
+        var textBytes = Encoding.UTF8.GetBytes(javaText ?? string.Empty);
 
         using var memoryStream = new MemoryStream(textBytes);
         using var wrapper = new InputStreamWrapper(memoryStream);
@@ -32,7 +28,7 @@ public static class JavaToCSharpConverter
         options.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
         var parser = new JavaParser();
-        
+
         var parsed = parser.parse(wrapper);
 
         if (!parsed.isSuccessful())
@@ -65,18 +61,17 @@ public static class JavaToCSharpConverter
 
             foreach (var packageReplacement in options.PackageReplacements)
             {
-                if (System.String.IsNullOrWhiteSpace(packageName))
+                if (string.IsNullOrWhiteSpace(packageName))
                 {
                     continue;
                 }
-                
+
                 packageName = packageReplacement.Replace(packageName)!;
             }
 
             packageName = TypeHelper.Capitalize(packageName);
 
-            namespaceSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(packageName))
-                .WithJavaComments(context, package);
+            namespaceSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(packageName));
         }
 
         foreach (var type in types)
@@ -124,7 +119,8 @@ public static class JavaToCSharpConverter
             )
             .NormalizeWhitespace();
 
-        root = root.WithJavaComments(context, result, Environment.NewLine);
+        root = root.WithPackageFileComments(context, result, package);
+
         if (root is null)
         {
             return null;
@@ -132,6 +128,7 @@ public static class JavaToCSharpConverter
 
         var postConversionSanitizer = new SanitizingSyntaxRewriter();
         var sanitizedRoot = postConversionSanitizer.VisitCompilationUnit(root);
+
         if (sanitizedRoot is null)
         {
             return null;
