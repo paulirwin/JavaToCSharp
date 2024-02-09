@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using java.util;
+﻿using java.util;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using JavaAst = com.github.javaparser.ast;
 
 namespace JavaToCSharp;
@@ -41,12 +39,24 @@ public static class Extensions
 
         return newList;
     }
-    
+
     public static bool HasFlag<T>(this java.util.EnumSet values, T flag) => values.contains(flag);
 
-    public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax, ConversionContext context, JavaAst.Node? node, string? singleLineCommentEnd = null) 
-        where TSyntax : SyntaxNode =>
-        context.Options.IncludeComments ? CommentsHelper.AddCommentsTrivias(syntax, node, singleLineCommentEnd) : syntax;
+    public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax,
+        ConversionContext context,
+        JavaAst.Node? node)
+        where TSyntax : SyntaxNode
+        => context.Options.IncludeComments
+            ? CommentsHelper.AddCommentsTrivias(syntax, node)
+            : syntax;
+
+    public static CompilationUnitSyntax WithPackageFileComments(this CompilationUnitSyntax syntax,
+            ConversionContext context,
+            JavaAst.CompilationUnit compilationUnit,
+            JavaAst.PackageDeclaration? packageDeclaration)
+        => context.Options.IncludeComments
+            ? CommentsHelper.AddPackageComments(syntax, compilationUnit, packageDeclaration)
+            : syntax;
 
     public static T? FromOptional<T>(this Optional optional)
         where T : class
@@ -63,6 +73,6 @@ public static class Extensions
             : throw new InvalidOperationException("Required optional did not have a value");
 
     public static ISet<JavaAst.Modifier.Keyword> ToModifierKeywordSet(this JavaAst.NodeList nodeList)
-        => nodeList.ToList<JavaAst.Modifier>()?.Select(i => i.getKeyword()).ToHashSet() 
+        => nodeList.ToList<JavaAst.Modifier>()?.Select(i => i.getKeyword()).ToHashSet()
            ?? new HashSet<JavaAst.Modifier.Keyword>();
 }
