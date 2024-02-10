@@ -29,10 +29,32 @@ public static class CommentsHelper
         ["@throws"] = "exception"
     };
 
+    public static UsingDirectiveSyntax AddUsingComments(UsingDirectiveSyntax syntax, JavaAst.ImportDeclaration import)
+    {
+        var comments = GatherComments(import);
+
+        if (comments.Count == 0)
+        {
+            return syntax;
+        }
+
+        var leadingTriviaList = new List<SyntaxTrivia>();
+
+        foreach (var (comment, _) in comments)
+        {
+            var (kind, pre, post) = GetCommentInfo(comment);
+            var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post);
+            leadingTriviaList.Add(commentTrivia);
+        }
+
+        return syntax.WithUsingKeyword(SyntaxFactory.Token(SyntaxKind.UsingKeyword).WithLeadingTrivia(leadingTriviaList));
+    }
+
     public static CompilationUnitSyntax AddPackageComments(CompilationUnitSyntax syntax,
         JavaAst.CompilationUnit compilationUnit,
         JavaAst.PackageDeclaration? packageDeclaration)
     {
+        var originalLeadingTrivia = syntax.GetLeadingTrivia();
         var leadingTriviaList = new List<SyntaxTrivia>();
 
         if (compilationUnit.getComment().FromOptional<JavaComments.Comment>() is { } compilationUnitComment)
@@ -54,10 +76,10 @@ public static class CommentsHelper
                     var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post + Environment.NewLine);
                     leadingTriviaList.Add(commentTrivia);
                 }
-
-                syntax = syntax.WithLeadingTrivia(leadingTriviaList);
             }
         }
+
+        leadingTriviaList.AddRange(originalLeadingTrivia);
 
         return leadingTriviaList.Count > 0 ? syntax.WithLeadingTrivia(leadingTriviaList) : syntax;
     }
