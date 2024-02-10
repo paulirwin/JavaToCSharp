@@ -1,4 +1,5 @@
-﻿using java.util;
+﻿using System.Diagnostics.CodeAnalysis;
+using java.util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using JavaAst = com.github.javaparser.ast;
@@ -42,6 +43,7 @@ public static class Extensions
 
     public static bool HasFlag<T>(this java.util.EnumSet values, T flag) => values.contains(flag);
 
+    [return: NotNullIfNotNull(nameof(node))]
     public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax,
         ConversionContext context,
         JavaAst.Node? node)

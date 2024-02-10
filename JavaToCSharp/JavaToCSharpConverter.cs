@@ -112,19 +112,14 @@ public static class JavaToCSharpConverter
             rootMembers.Add(namespaceSyntax);
 
         var root = SyntaxFactory.CompilationUnit(
-                externs: new SyntaxList<ExternAliasDirectiveSyntax>(),
-                usings: SyntaxFactory.List(UsingsHelper.GetUsings(imports, options)),
-                attributeLists: new SyntaxList<AttributeListSyntax>(),
+                externs: [],
+                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, options)),
+                attributeLists: [],
                 members: SyntaxFactory.List(rootMembers)
             )
             .NormalizeWhitespace();
 
         root = root.WithPackageFileComments(context, result, package);
-
-        if (root is null)
-        {
-            return null;
-        }
 
         var postConversionSanitizer = new SanitizingSyntaxRewriter();
         var sanitizedRoot = postConversionSanitizer.VisitCompilationUnit(root);
