@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaToCSharp.Tests", "JavaToCSharp.Tests\JavaToCSharp.Tests.csproj", "{0CBBEF05-FD79-474A-A5F0-25B341B8B77D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DE56E074-10C7-47BA-8E8A-DAB0F3F92181}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,7 +48,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{0CBBEF05-FD79-474A-A5F0-25B341B8B77D} = {DE56E074-10C7-47BA-8E8A-DAB0F3F92181}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EB538484-5025-4753-B0A5-2C66A6C06193}

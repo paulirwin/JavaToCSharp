@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast.expr;
+﻿using com.github.javaparser.ast.expr;
+using com.github.javaparser.ast.type;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ast = com.github.javaparser.ast;
+using Type = com.github.javaparser.ast.type.Type;
 
 namespace JavaToCSharp;
 
@@ -55,8 +55,8 @@ public static class TypeHelper
     {
         return ConvertType(typedNode.getType().toString());
     }
-    
-    public static string ConvertType(ast.type.Type type)
+
+    public static string ConvertType(Type type)
     {
         return ConvertType(type.toString());
     }
@@ -73,11 +73,47 @@ public static class TypeHelper
         });
     }
 
+    public static TypeSyntax ConvertTypeSyntax(Type type, int arrayRank)
+    {
+        if (type is ArrayType arrayType)
+        {
+            if (arrayRank > 0 && arrayType.getArrayLevel() != arrayRank)
+            {
+                throw new ArgumentException("Given array rank does not match the array level of the type", nameof(arrayRank));
+            }
+
+            arrayRank = arrayType.getArrayLevel();
+            Type elementType;
+
+            while ((elementType = arrayType.getElementType()) is ArrayType nestedArrayType)
+            {
+                arrayType = nestedArrayType;
+            }
+
+            return ConvertTypeSyntax(elementType, arrayRank);
+        }
+
+        return arrayRank == 0
+            ? SyntaxFactory.ParseTypeName(ConvertType(type))
+            : ConvertArrayTypeSyntax(type, arrayRank);
+    }
+
+    public static ArrayTypeSyntax ConvertArrayTypeSyntax(Type type, int arrayRank)
+    {
+        var rankSpecifiers = SyntaxFactory.ArrayRankSpecifier(
+            SyntaxFactory.SeparatedList<ExpressionSyntax>(
+                Enumerable.Repeat(SyntaxFactory.OmittedArraySizeExpression(), arrayRank)
+            ));
+
+        return SyntaxFactory.ArrayType(ConvertTypeSyntax(type, 0))
+            .WithRankSpecifiers(SyntaxFactory.SingletonList(rankSpecifiers));
+    }
+
     public static string Capitalize(string name)
     {
         var parts = name.Split('.');
 
-        var joined = System.String.Join(".", parts.Select(i =>
+        var joined = string.Join(".", parts.Select(i =>
         {
             if (i.Length == 1)
                 return i.ToUpper();
@@ -92,8 +128,8 @@ public static class TypeHelper
     {
         // @ (C# Reference): https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
         return name switch {
-            "string" or "ref" or "object" or "int" or "short" or "float" or "long" or "double" or "decimal" or "in" or 
-            "out" or "byte" or "class" or "delegate" or "params" or "is" or "as" or "base" or "namespace" or "event" or 
+            "string" or "ref" or "object" or "int" or "short" or "float" or "long" or "double" or "decimal" or "in" or
+            "out" or "byte" or "class" or "delegate" or "params" or "is" or "as" or "base" or "namespace" or "event" or
             "lock" or "operator" or "override" => "@" + name,
             _ => name,
         };
@@ -109,10 +145,10 @@ public static class TypeHelper
         };
     }
 
-    public static TypeSyntax GetSyntaxFromType(ast.type.ClassOrInterfaceType type)
+    public static TypeSyntax GetSyntaxFromType(ClassOrInterfaceType type)
     {
         string typeName = ConvertType(type.getNameAsString());
-        var typeArgs = type.getTypeArguments().FromOptional<ast.NodeList>()?.ToList<ast.type.Type>();
+        var typeArgs = type.getTypeArguments().FromOptional<ast.NodeList>()?.ToList<Type>();
 
         TypeSyntax typeSyntax;
 
@@ -150,7 +186,7 @@ public static class TypeHelper
             {
                 continue;
             }
-            
+
             argSyntaxes.Add(SyntaxFactory.Argument(argSyntax));
         }
 
@@ -182,23 +218,23 @@ public static class TypeHelper
 
                 case "get" when args.size() == 1:
                     var scopeSyntaxGet = ExpressionVisitor.VisitExpression(context, scope);
-                    if (scopeSyntaxGet is null) 
+                    if (scopeSyntaxGet is null)
                     {
                         transformedSyntax = null;
                         return false;
                     }
-                    
+
                     transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntaxGet, args);
                     return true;
 
                 case "set" when args.size() == 2:
                     var scopeSyntaxSet = ExpressionVisitor.VisitExpression(context, scope);
-                    if (scopeSyntaxSet is null) 
+                    if (scopeSyntaxSet is null)
                     {
                         transformedSyntax = null;
                         return false;
                     }
-                    
+
                     transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntaxSet, args);
                     return true;
             }
@@ -214,7 +250,7 @@ public static class TypeHelper
             {
                 return null;
             }
-            
+
             // Replace   expr.Size()   by   expr.Count
             return SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
@@ -233,7 +269,7 @@ public static class TypeHelper
         }
 
         static ExpressionSyntax? ReplaceSetByIndexAccess(
-            ConversionContext context, 
+            ConversionContext context,
             ExpressionSyntax scopeSyntax,
             java.util.List args)
         {
@@ -248,7 +284,7 @@ public static class TypeHelper
             {
                 return null;
             }
-            
+
             return SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, left, right);
         }
     }

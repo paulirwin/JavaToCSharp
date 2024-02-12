@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast;
+﻿using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.type;
-using com.sun.org.apache.bcel.@internal.classfile;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,28 +11,38 @@ namespace JavaToCSharp.Declarations;
 public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
 {
     public override MemberDeclarationSyntax VisitForClass(
-        ConversionContext context, 
-        ClassDeclarationSyntax? classSyntax, 
+        ConversionContext context,
+        ClassDeclarationSyntax? classSyntax,
         FieldDeclaration fieldDecl,
         IReadOnlyList<ClassOrInterfaceType> extends,
         IReadOnlyList<ClassOrInterfaceType> implements)
     {
         var variables = new List<VariableDeclaratorSyntax>();
 
-        string typeName = fieldDecl.getCommonType().toString();
+        var commonType = fieldDecl.getCommonType();
+        int? arrayRank = null;
 
-        var variableDeclarators = fieldDecl.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+        var variableDeclarators = fieldDecl.getVariables()?.ToList<VariableDeclarator>() ?? [];
+
         foreach (var item in variableDeclarators)
         {
             var type = item.getType();
+
+            if (arrayRank is not null && type.getArrayLevel() != arrayRank)
+            {
+                throw new InvalidOperationException("Different array levels in the same field declaration are not yet supported");
+            }
+
+            arrayRank ??= type.getArrayLevel();
+
             string name = item.getNameAsString();
 
             if (type.getArrayLevel() > 0)
             {
-                if (!typeName.EndsWith("[]"))
-                    typeName += "[]";
-                if (name.EndsWith("[]"))
+                while (name.EndsWith("[]"))
+                {
                     name = name[..^2];
+                }
             }
 
             var initExpr = item.getInitializer().FromOptional<Expression>();
@@ -43,6 +50,7 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
             if (initExpr != null)
             {
                 var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
+
                 if (initSyntax is not null)
                 {
                     var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
@@ -53,11 +61,11 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
                 variables.Add(SyntaxFactory.VariableDeclarator(name));
         }
 
-        typeName = TypeHelper.ConvertType(typeName);
+        var typeSyntax = TypeHelper.ConvertTypeSyntax(commonType, arrayRank ?? 0);
 
         var fieldSyntax = SyntaxFactory.FieldDeclaration(
             SyntaxFactory.VariableDeclaration(
-                SyntaxFactory.ParseTypeName(typeName),
+                typeSyntax,
                 SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
 
         var mods = fieldDecl.getModifiers().ToModifierKeywordSet();

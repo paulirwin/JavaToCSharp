@@ -19,15 +19,21 @@ public class IntegrationTests
     [InlineData("Resources/TestNumericDocValuesUpdates.java")]
     [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     [InlineData("Resources/Java11LambdaInference.java")]
-    public void GeneralSuccessfulConversionTest(string filePath)
+    [InlineData("Resources/MultidimensionalArrays.java", true)]
+    public void GeneralSuccessfulConversionTest(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions
         {
             IncludeComments = false,
         };
 
-        options.WarningEncountered += (_, eventArgs)
-            => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
+        options.WarningEncountered += (_, eventArgs) =>
+        {
+            if (!allowWarnings)
+            {
+                throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
+            }
+        };
 
         var parsed = JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options);
         Assert.NotNull(parsed);
@@ -59,6 +65,7 @@ public class IntegrationTests
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
     [InlineData("Resources/DeprecatedAnnotation.java")]
+    [InlineData("Resources/BooleanArrays.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions

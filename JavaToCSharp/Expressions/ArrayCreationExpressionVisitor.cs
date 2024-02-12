@@ -1,4 +1,5 @@
-﻿using com.github.javaparser.ast;
+﻿using com.github.javaparser;
+using com.github.javaparser.ast;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,8 +11,16 @@ public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExp
     public override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
     {
         var type = TypeHelper.ConvertType(expr.getElementType());
+        var typeSyntax = SyntaxFactory.ParseTypeName(type);
+        var arrayTypeSyntax = SyntaxFactory.ArrayType(typeSyntax);
 
         var rankDimensions = expr.getLevels().ToList<ArrayCreationLevel>();
+
+        if (rankDimensions is  { Count: > 1 })
+        {
+            context.Options.Warning("Multi-dimensional arrays will likely have conversion issues. Review the generated code carefully.",
+                expr.getBegin().FromRequiredOptional<Position>().line);
+        }
 
         var initializer = expr.getInitializer().FromOptional<ArrayInitializerExpr>();
 
@@ -30,7 +39,7 @@ public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExp
                 : SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SeparatedList(rankSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), rankSyntaxes.Count - 1)));
 
         if (initializer == null)
-            return SyntaxFactory.ArrayCreationExpression(SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(type)))
+            return SyntaxFactory.ArrayCreationExpression(arrayTypeSyntax)
                 .AddTypeRankSpecifiers(rankSpecifier);
 
         // todo: support multi-dimensional and jagged arrays
@@ -46,7 +55,7 @@ public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExp
                         Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1)))
                 : SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression);
 
-        return SyntaxFactory.ArrayCreationExpression(SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(type)), initSyntax)
+        return SyntaxFactory.ArrayCreationExpression(arrayTypeSyntax, initSyntax)
             .AddTypeRankSpecifiers(rankSpecifier);
     }
 }

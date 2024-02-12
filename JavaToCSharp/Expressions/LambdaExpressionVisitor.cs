@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using com.github.javaparser.ast.body;
+﻿using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using JavaToCSharp.Statements;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -14,7 +12,7 @@ public class LambdaExpressionVisitor : ExpressionVisitor<LambdaExpr>
     {
         var bodyStatement = expr.getBody();
         var bodyStatementSyntax = StatementVisitor.VisitStatement(context, bodyStatement);
-        
+
         ParenthesizedLambdaExpressionSyntax? lambdaExpressionSyntax = null;
 
         if (bodyStatementSyntax is ExpressionStatementSyntax ess)
@@ -35,11 +33,14 @@ public class LambdaExpressionVisitor : ExpressionVisitor<LambdaExpr>
 
         foreach (var param in parameters)
         {
-            string typeName = TypeHelper.ConvertTypeOf(param);
+            var type = param.getType();
+            int arrayLevel = type.getArrayLevel();
             string identifier = TypeHelper.EscapeIdentifier(param.getNameAsString());
 
-            if ((param.getType().getArrayLevel() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
-                typeName += "[]";
+            if (param.isVarArgs() && arrayLevel == 0)
+            {
+                arrayLevel = 1;
+            }
 
             var modifiers = SyntaxFactory.TokenList();
 
@@ -47,9 +48,9 @@ public class LambdaExpressionVisitor : ExpressionVisitor<LambdaExpr>
                 modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword));
 
             var paramSyntax = SyntaxFactory.Parameter(
-                attributeLists: new SyntaxList<AttributeListSyntax>(),
+                attributeLists: [],
                 modifiers: modifiers,
-                type: SyntaxFactory.ParseTypeName(typeName),
+                type: TypeHelper.ConvertTypeSyntax(type, arrayLevel),
                 identifier: SyntaxFactory.ParseToken(identifier),
                 @default: null);
 
