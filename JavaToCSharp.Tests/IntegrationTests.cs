@@ -66,6 +66,7 @@ public class IntegrationTests
     [InlineData("Resources/OctalLiteralBug.java")]
     [InlineData("Resources/DeprecatedAnnotation.java")]
     [InlineData("Resources/BooleanArrays.java")]
+    [InlineData("Resources/BinaryLiterals.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions

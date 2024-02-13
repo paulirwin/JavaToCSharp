@@ -15,7 +15,11 @@ public class IntegerLiteralExpressionVisitor : ExpressionVisitor<IntegerLiteralE
         {
             int32Value = Convert.ToInt32(value, 16);
         }
-        else if (value.StartsWith("0") && value.Length > 1)
+        else if (value.StartsWith("0b", StringComparison.OrdinalIgnoreCase))
+        {
+            int32Value = Convert.ToInt32(value[2..], 2);
+        }
+        else if (value.StartsWith('0') && value.Length > 1)
         {
             int32Value = Convert.ToInt32(value, 8);
             value = int32Value.ToString();
@@ -24,7 +28,7 @@ public class IntegerLiteralExpressionVisitor : ExpressionVisitor<IntegerLiteralE
         {
             int32Value = Convert.ToInt32(value);
         }
-        
+
         return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value, int32Value));
     }
 }

@@ -20,7 +20,11 @@ public class LongLiteralExpressionVisitor : ExpressionVisitor<LiteralStringValue
         {
             int64Value = Convert.ToInt64(value, 16);
         }
-        else if (value.StartsWith("0") && value.Length > 1)
+        else if (value.StartsWith("0b", StringComparison.OrdinalIgnoreCase))
+        {
+            int64Value = Convert.ToInt64(value[2..], 2);
+        }
+        else if (value.StartsWith('0') && value.Length > 1)
         {
             int64Value = Convert.ToInt64(value, 8);
             value = int64Value.ToString();
