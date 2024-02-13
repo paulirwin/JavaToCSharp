@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast;
+﻿using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
@@ -26,7 +23,7 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
         {
             return null;
         }
-        
+
         var ctorSyntax = SyntaxFactory.ConstructorDeclaration(identifier)
                                       .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
@@ -52,7 +49,7 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
 
                 if (param.isVarArgs())
                 {
-                    paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(param) + "[]"))
+                    paramSyntax = paramSyntax.WithType(TypeHelper.ConvertArrayTypeSyntax(param.getType(), 1))
                         .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)));
                 }
                 else
@@ -65,7 +62,7 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
 
             ctorSyntax = ctorSyntax.AddParameterListParameters(paramSyntaxes.ToArray());
         }
-        
+
         var block = ctorDecl.getBody();
         var statements = block.getStatements().ToList<Statement>();
 
@@ -82,8 +79,8 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
                 argsSyntax = TypeHelper.GetSyntaxFromArguments(context, initArgs);
             }
 
-            var constructorInitSyntax = SyntaxFactory.ConstructorInitializer(ctorInvStmt.isThis() 
-                ? SyntaxKind.ThisConstructorInitializer 
+            var constructorInitSyntax = SyntaxFactory.ConstructorInitializer(ctorInvStmt.isThis()
+                ? SyntaxKind.ThisConstructorInitializer
                 : SyntaxKind.BaseConstructorInitializer, argsSyntax);
 
             ctorSyntax = ctorSyntax.WithInitializer(constructorInitSyntax);

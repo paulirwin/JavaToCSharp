@@ -1,3 +1,5 @@
+using com.github.javaparser.ast.type;
+
 namespace JavaToCSharp.Tests;
 
 public class ConvertTypeTests
@@ -42,5 +44,73 @@ public class ConvertTypeTests
     public void ConvertType_WithGenericWildcard_ShouldReplaceToken()
     {
         Assert.Equal("MyType<TWildcardTodo>", TypeHelper.ConvertType("MyType<?>"));
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenNonArrayType_ShouldReturnCorrectSyntax()
+    {
+        var type = new PrimitiveType(PrimitiveType.Primitive.INT);
+
+        var syntax = TypeHelper.ConvertTypeSyntax(type, 0);
+
+        Assert.Equal("int", syntax.ToString());
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenNonArrayTypeWithRank_ShouldReturnCorrectSyntax()
+    {
+        var type = new PrimitiveType(PrimitiveType.Primitive.INT);
+
+        var syntax = TypeHelper.ConvertTypeSyntax(type, 1);
+
+        Assert.Equal("int[]", syntax.ToString());
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenNonArrayTypeWithMultidimensionalRank_ShouldReturnCorrectSyntax()
+    {
+        var type = new PrimitiveType(PrimitiveType.Primitive.INT);
+
+        var syntax = TypeHelper.ConvertTypeSyntax(type, 2);
+
+        Assert.Equal("int[,]", syntax.ToString());
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenArrayTypeWithoutRank_ShouldReturnCorrectSyntax()
+    {
+        var type = new ArrayType(new PrimitiveType(PrimitiveType.Primitive.INT));
+
+        var syntax = TypeHelper.ConvertTypeSyntax(type, 0);
+
+        Assert.Equal("int[]", syntax.ToString());
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenArrayTypeWithRank_ShouldReturnCorrectSyntax()
+    {
+        var type = new ArrayType(new PrimitiveType(PrimitiveType.Primitive.INT));
+
+        var syntax = TypeHelper.ConvertTypeSyntax(type, 1);
+
+        Assert.Equal("int[]", syntax.ToString());
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenArrayTypeWithMultidimensionalRank_ShouldReturnCorrectSyntax()
+    {
+        var type = new ArrayType(new ArrayType(new PrimitiveType(PrimitiveType.Primitive.INT)));
+
+        var syntax = TypeHelper.ConvertTypeSyntax(type, 2);
+
+        Assert.Equal("int[,]", syntax.ToString());
+    }
+
+    [Fact]
+    public void ConvertTypeSyntax_GivenMismatchedRank_ShouldThrowException()
+    {
+        var type = new ArrayType(new ArrayType(new PrimitiveType(PrimitiveType.Primitive.INT)));
+
+        Assert.Throws<ArgumentException>(() => TypeHelper.ConvertTypeSyntax(type, 1));
     }
 }

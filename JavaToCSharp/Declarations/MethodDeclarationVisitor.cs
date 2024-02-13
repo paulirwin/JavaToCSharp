@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast;
+﻿using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
@@ -17,8 +14,8 @@ namespace JavaToCSharp.Declarations;
 public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration>
 {
     public override MemberDeclarationSyntax VisitForClass(
-        ConversionContext context, 
-        ClassDeclarationSyntax classSyntax, 
+        ConversionContext context,
+        ClassDeclarationSyntax classSyntax,
         MethodDeclaration methodDecl,
         IReadOnlyList<ClassOrInterfaceType> extends,
         IReadOnlyList<ClassOrInterfaceType> implements)
@@ -26,8 +23,8 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         return VisitInternal(context, false, classSyntax.Identifier.Text, classSyntax.Modifiers, methodDecl, extends);
     }
 
-    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context, 
-        InterfaceDeclarationSyntax interfaceSyntax, 
+    public override MemberDeclarationSyntax VisitForInterface(ConversionContext context,
+        InterfaceDeclarationSyntax interfaceSyntax,
         MethodDeclaration methodDecl)
     {
         // If there is a body, mostly treat it like a class method
@@ -36,7 +33,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             return VisitInternal(context, true, interfaceSyntax.Identifier.Text, interfaceSyntax.Modifiers, methodDecl,
                 ArraySegment<ClassOrInterfaceType>.Empty);
         }
-        
+
         var returnType = methodDecl.getType();
         var returnTypeName = TypeHelper.ConvertType(returnType.toString());
 
@@ -118,9 +115,9 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             foreach (var annotation in annotations)
             {
                 string name = annotation.getNameAsString();
-                
+
                 // ignore @Override annotation on interface-only classes. Unfortunately this is as good as we can get for now.
-                if (name == "Override" 
+                if (name == "Override"
                     && extends.Count > 0)
                 {
                     methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.OverrideKeyword));
@@ -146,11 +143,14 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
             foreach (var param in parameters)
             {
-                string typeName = TypeHelper.ConvertTypeOf(param);
+                var type = param.getType();
+                int arrayLevel = type.getArrayLevel();
                 string identifier = TypeHelper.EscapeIdentifier(param.getNameAsString());
 
-                if ((param.getType().getArrayLevel() > 0 && !typeName.EndsWith("[]")) || param.isVarArgs())
-                    typeName += "[]";
+                if (param.isVarArgs() && arrayLevel == 0)
+                {
+                    arrayLevel = 1;
+                }
 
                 var modifiers = SyntaxFactory.TokenList();
 
@@ -158,9 +158,9 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
                     modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword));
 
                 var paramSyntax = SyntaxFactory.Parameter(
-                    attributeLists: new SyntaxList<AttributeListSyntax>(),
+                    attributeLists: [],
                     modifiers: modifiers,
-                    type: SyntaxFactory.ParseTypeName(typeName),
+                    type: TypeHelper.ConvertTypeSyntax(type, arrayLevel),
                     identifier: SyntaxFactory.ParseToken(identifier),
                     @default: null);
 

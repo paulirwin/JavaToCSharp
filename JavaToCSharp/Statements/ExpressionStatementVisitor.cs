@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast.body;
+﻿using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
@@ -20,32 +18,39 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
             return VisitVariableDeclarationStatement(context, expr);
 
         var expressionSyntax = ExpressionVisitor.VisitExpression(context, expression);
-        if (expressionSyntax is null)
-        {
-            return null;
-        }
 
-        return SyntaxFactory.ExpressionStatement(expressionSyntax);
+        return expressionSyntax is null ? null : SyntaxFactory.ExpressionStatement(expressionSyntax);
     }
 
     private static StatementSyntax VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
     {
-        var type = TypeHelper.ConvertType(varExpr.getCommonType());
+        var commonType = varExpr.getCommonType();
+        int? arrayRank = null;
 
         var variables = new List<VariableDeclaratorSyntax>();
 
-        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? [];
+
         foreach (var item in variableDeclarators)
         {
+            var type = item.getType();
+
+            if (arrayRank is not null && type.getArrayLevel() != arrayRank)
+            {
+                throw new InvalidOperationException("Different array levels in the same field declaration are not yet supported");
+            }
+
+            arrayRank ??= type.getArrayLevel();
+
             var id = item.getType();
             string name = item.getNameAsString();
 
-            if (id.getArrayLevel() > 0)
+            if (type.getArrayLevel() > 0)
             {
-                if (!type.EndsWith("[]"))
-                    type += "[]";
-                if (name.EndsWith("[]"))
-                    name = name.Substring(0, name.Length - 2);
+                while (name.EndsWith("[]"))
+                {
+                    name = name[..^2];
+                }
             }
 
             var initExpr = item.getInitializer().FromOptional<Expression>();
@@ -63,7 +68,9 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
                 variables.Add(SyntaxFactory.VariableDeclarator(name));
         }
 
+        var typeSyntax = TypeHelper.ConvertTypeSyntax(commonType, arrayRank ?? 0);
+
         return SyntaxFactory.LocalDeclarationStatement(
-            SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(type), SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
+            SyntaxFactory.VariableDeclaration(typeSyntax, SyntaxFactory.SeparatedList(variables, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), variables.Count - 1))));
     }
 }
