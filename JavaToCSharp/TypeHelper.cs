@@ -4,7 +4,7 @@ using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ast = com.github.javaparser.ast;
+using Ast = com.github.javaparser.ast;
 using Type = com.github.javaparser.ast.type.Type;
 
 namespace JavaToCSharp;
@@ -51,7 +51,7 @@ public static class TypeHelper
         _typeNameConversions[key] = value;
     }
 
-    public static string ConvertTypeOf(ast.nodeTypes.NodeWithType typedNode)
+    public static string ConvertTypeOf(Ast.nodeTypes.NodeWithType typedNode)
     {
         return ConvertType(typedNode.getType().toString());
     }
@@ -148,7 +148,7 @@ public static class TypeHelper
     public static TypeSyntax GetSyntaxFromType(ClassOrInterfaceType type)
     {
         string typeName = ConvertType(type.getNameAsString());
-        var typeArgs = type.getTypeArguments().FromOptional<ast.NodeList>()?.ToList<Type>();
+        var typeArgs = type.getTypeArguments().FromOptional<Ast.NodeList>()?.ToList<Type>();
 
         TypeSyntax typeSyntax;
 
