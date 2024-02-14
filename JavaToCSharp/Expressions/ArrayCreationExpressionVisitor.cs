@@ -8,7 +8,7 @@ namespace JavaToCSharp.Expressions;
 
 public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, ArrayCreationExpr expr)
     {
         var type = TypeHelper.ConvertType(expr.getElementType());
         var typeSyntax = SyntaxFactory.ParseTypeName(type);
@@ -34,7 +34,7 @@ public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExp
             rankSyntaxes.AddRange(expressionSyntaxes!);
         }
 
-        var rankSpecifier = rankDimensions?.Count > 0 && rankSyntaxes.Count == 0 
+        var rankSpecifier = rankDimensions?.Count > 0 && rankSyntaxes.Count == 0
                 ? SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(SyntaxFactory.OmittedArraySizeExpression()))
                 : SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SeparatedList(rankSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), rankSyntaxes.Count - 1)));
 

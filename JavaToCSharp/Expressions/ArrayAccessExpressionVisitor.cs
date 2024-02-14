@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, ArrayAccessExpr expr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, ArrayAccessExpr expr)
     {
         var nameExpr = expr.getName();
         var nameSyntax = VisitExpression(context, nameExpr);

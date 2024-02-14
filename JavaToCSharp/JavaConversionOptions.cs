@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace JavaToCSharp;
 
@@ -21,19 +19,21 @@ public class JavaConversionOptions
         "System.Text"
     };
 
+    public IList<string> StaticUsingEnumNames { get; } = new List<string>();
+
     public bool IncludeUsings { get; set; } = true;
 
     public bool IncludeNamespace { get; set; } = true;
 
     public bool UseDebugAssertForAsserts { get; set; }
-    
+
     public bool StartInterfaceNamesWithI { get; set; }
 
     /// <summary>
     /// Unrecognized code is translated into comments
     /// </summary>
     public bool UseUnrecognizedCodeToComment { get; set; } = true;
-    
+
     public bool ConvertSystemOutToConsole { get; set; }
 
     public bool IncludeComments { get; set; } = true;

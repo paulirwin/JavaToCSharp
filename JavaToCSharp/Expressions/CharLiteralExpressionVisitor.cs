@@ -7,7 +7,7 @@ namespace JavaToCSharp.Expressions;
 
 public class CharLiteralExpressionVisitor : ExpressionVisitor<CharLiteralExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, CharLiteralExpr expr)
     {
         var value = Regex.Unescape(expr.getValue());
         return SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal(value[0]));

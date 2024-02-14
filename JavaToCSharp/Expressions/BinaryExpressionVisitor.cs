@@ -10,14 +10,14 @@ namespace JavaToCSharp.Expressions;
 /// </summary>
 public class BinaryExpressionVisitor : ExpressionVisitor<BinaryExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, BinaryExpr binaryExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, BinaryExpr binaryExpr)
     {
         var leftExpr = binaryExpr.getLeft();
         if (leftExpr is null)
         {
             return null;
         }
-        
+
         var leftSyntax = VisitExpression(context, leftExpr);
         if (leftSyntax is null)
         {
@@ -29,7 +29,7 @@ public class BinaryExpressionVisitor : ExpressionVisitor<BinaryExpr>
         {
             return null;
         }
-        
+
         var rightSyntax = VisitExpression(context, rightExpr);
         if (rightSyntax is null)
         {

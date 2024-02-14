@@ -6,6 +6,6 @@ namespace JavaToCSharp.Expressions;
 
 public class NullLiteralExpressionVisitor : ExpressionVisitor<NullLiteralExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, NullLiteralExpr expr) => 
+    protected override ExpressionSyntax Visit(ConversionContext context, NullLiteralExpr expr) =>
         SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
 }

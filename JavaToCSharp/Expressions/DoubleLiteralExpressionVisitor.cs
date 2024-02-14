@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,13 +15,13 @@ public class DoubleLiteralExpressionVisitor : ExpressionVisitor<DoubleLiteralExp
         _cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
     }
 
-    public override ExpressionSyntax Visit(ConversionContext context, DoubleLiteralExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, DoubleLiteralExpr expr)
     {
-        var value = expr.getValue().Replace("_", String.Empty);
-        
-        var literalSyntax = value.EndsWith("f", StringComparison.OrdinalIgnoreCase) 
-            ? SyntaxFactory.Literal(Single.Parse(value.TrimEnd('f', 'F'), NumberStyles.Any, _cultureInfo)) 
-            : SyntaxFactory.Literal(Double.Parse(value.TrimEnd('d', 'D'), NumberStyles.Any, _cultureInfo));
+        var value = expr.getValue().Replace("_", string.Empty);
+
+        var literalSyntax = value.EndsWith("f", StringComparison.OrdinalIgnoreCase)
+            ? SyntaxFactory.Literal(float.Parse(value.TrimEnd('f', 'F'), NumberStyles.Any, _cultureInfo))
+            : SyntaxFactory.Literal(double.Parse(value.TrimEnd('d', 'D'), NumberStyles.Any, _cultureInfo));
 
         return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, literalSyntax);
     }

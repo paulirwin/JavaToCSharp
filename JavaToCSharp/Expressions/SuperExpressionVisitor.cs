@@ -6,5 +6,5 @@ namespace JavaToCSharp.Expressions;
 
 public class SuperExpressionVisitor : ExpressionVisitor<SuperExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, SuperExpr expr) => SyntaxFactory.BaseExpression();
+    protected override ExpressionSyntax Visit(ConversionContext context, SuperExpr expr) => SyntaxFactory.BaseExpression();
 }

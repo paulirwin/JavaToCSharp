@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class LongLiteralExpressionVisitor : ExpressionVisitor<LiteralStringValueExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, LiteralStringValueExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, LiteralStringValueExpr expr)
     {
         string value = expr is LongLiteralExpr longLiteralExpr ? longLiteralExpr.getValue() : expr.toString();
         value = value.Trim('\"')
@@ -33,7 +33,7 @@ public class LongLiteralExpressionVisitor : ExpressionVisitor<LiteralStringValue
         {
             int64Value = Convert.ToInt64(value);
         }
-        
+
         return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value, int64Value));
     }
 }

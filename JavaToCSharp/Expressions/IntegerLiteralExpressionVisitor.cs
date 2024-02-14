@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class IntegerLiteralExpressionVisitor : ExpressionVisitor<IntegerLiteralExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, IntegerLiteralExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, IntegerLiteralExpr expr)
     {
         string value = expr.getValue().Replace("_", string.Empty);
         int int32Value;

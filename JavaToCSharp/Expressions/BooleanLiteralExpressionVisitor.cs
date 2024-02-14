@@ -6,8 +6,8 @@ namespace JavaToCSharp.Expressions;
 
 public class BooleanLiteralExpressionVisitor : ExpressionVisitor<BooleanLiteralExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, BooleanLiteralExpr expr) => 
-        SyntaxFactory.LiteralExpression(expr.getValue() 
-            ? SyntaxKind.TrueLiteralExpression 
+    protected override ExpressionSyntax Visit(ConversionContext context, BooleanLiteralExpr expr) =>
+        SyntaxFactory.LiteralExpression(expr.getValue()
+            ? SyntaxKind.TrueLiteralExpression
             : SyntaxKind.FalseLiteralExpression);
 }

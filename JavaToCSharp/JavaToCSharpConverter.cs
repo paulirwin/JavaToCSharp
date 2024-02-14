@@ -28,6 +28,7 @@ public static class JavaToCSharpConverter
         options.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
         var parser = new JavaParser();
+        parser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
 
         var parsed = parser.parse(wrapper);
 
@@ -82,38 +83,52 @@ public static class JavaToCSharpConverter
                 {
                     var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType);
 
-                    if (namespaceSyntax != null && interfaceSyntax != null)
+                    if (namespaceSyntax != null)
+                    {
                         namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
-                    else if(interfaceSyntax != null)
+                    }
+                    else
+                    {
                         rootMembers.Add(interfaceSyntax);
+                    }
                 }
                 else
                 {
                     var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType);
 
-                    if (namespaceSyntax != null && classSyntax != null)
+                    if (namespaceSyntax != null)
+                    {
                         namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                    else if(classSyntax != null)
+                    }
+                    else
+                    {
                         rootMembers.Add(classSyntax);
+                    }
                 }
             }
             else if (type is EnumDeclaration enumType)
             {
                 var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
 
-                if (namespaceSyntax != null && classSyntax != null)
+                if (namespaceSyntax != null)
+                {
                     namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                else if(classSyntax != null)
+                }
+                else
+                {
                     rootMembers.Add(classSyntax);
+                }
             }
         }
 
         if (namespaceSyntax != null)
+        {
             rootMembers.Add(namespaceSyntax);
+        }
 
         var root = SyntaxFactory.CompilationUnit(
                 externs: [],
-                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, options)),
+                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, options, rootMembers, namespaceSyntax)),
                 attributeLists: [],
                 members: SyntaxFactory.List(rootMembers)
             )
