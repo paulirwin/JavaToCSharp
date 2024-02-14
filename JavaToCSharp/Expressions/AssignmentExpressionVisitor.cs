@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, AssignExpr assignExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, AssignExpr assignExpr)
     {
         var left = assignExpr.getTarget();
         var leftSyntax = VisitExpression(context, left);
@@ -49,7 +49,7 @@ public class AssignmentExpressionVisitor : ExpressionVisitor<AssignExpr>
             kind = SyntaxKind.MultiplyAssignmentExpression;
         else if (op == AssignExpr.Operator.XOR)
             kind = SyntaxKind.ExclusiveOrAssignmentExpression;
-        
+
         return SyntaxFactory.AssignmentExpression(kind, leftSyntax, rightSyntax);
     }
 }

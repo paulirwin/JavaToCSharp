@@ -14,7 +14,7 @@ public class Replacement
 
     public string? ReplacementValue { get; }
 
-    public string? Replace(string input) => System.String.IsNullOrWhiteSpace(ReplacementValue) ? null : Regex?.Replace(input, ReplacementValue);
+    public string? Replace(string input) => string.IsNullOrWhiteSpace(ReplacementValue) ? null : Regex?.Replace(input, ReplacementValue);
 
     protected bool Equals(Replacement other)
     {

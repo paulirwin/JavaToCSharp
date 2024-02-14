@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using com.github.javaparser.ast.expr;
+﻿using com.github.javaparser.ast.expr;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Expressions;
@@ -8,14 +6,15 @@ namespace JavaToCSharp.Expressions;
 public abstract class ExpressionVisitor<T> : ExpressionVisitor
     where T : Expression
 {
-    public abstract ExpressionSyntax? Visit(ConversionContext context, T expr);
+    protected abstract ExpressionSyntax? Visit(ConversionContext context, T expr);
 
-    protected sealed override ExpressionSyntax? Visit(ConversionContext context, Expression expr) => Visit(context, (T)expr);
+    protected sealed override ExpressionSyntax? Visit(ConversionContext context, Expression expr) =>
+        Visit(context, (T)expr);
 }
 
 public abstract class ExpressionVisitor
 {
-    private static readonly IDictionary<Type, ExpressionVisitor> _visitors;
+    private static readonly Dictionary<Type, ExpressionVisitor> _visitors;
 
     static ExpressionVisitor()
     {
@@ -45,9 +44,10 @@ public abstract class ExpressionVisitor
             { typeof(ThisExpr), new ThisExpressionVisitor() },
             { typeof(UnaryExpr), new UnaryExpressionVisitor() },
             { typeof(LongLiteralExpr), new LongLiteralExpressionVisitor() },
-            { typeof(LambdaExpr), new LambdaExpressionVisitor()  },
-            { typeof(MethodReferenceExpr), new MethodReferenceExpressionVisitor()  },
-            { typeof(TypeExpr), new TypeExpressionVisitor()   }
+            { typeof(LambdaExpr), new LambdaExpressionVisitor() },
+            { typeof(MethodReferenceExpr), new MethodReferenceExpressionVisitor() },
+            { typeof(TypeExpr), new TypeExpressionVisitor() },
+            { typeof(SwitchExpr), new SwitchExpressionVisitor() },
         };
     }
 
@@ -56,7 +56,9 @@ public abstract class ExpressionVisitor
     public static ExpressionSyntax? VisitExpression(ConversionContext context, Expression? expr)
     {
         if (expr == null)
+        {
             return null;
+        }
 
         ExpressionVisitor? visitor = null;
         var t = expr.GetType();
@@ -66,10 +68,13 @@ public abstract class ExpressionVisitor
             t = t.BaseType;
         }
 
-        if (visitor != null) 
+        if (visitor != null)
+        {
             return visitor.Visit(context, expr);
+        }
 
         var message = $"Expression visitor not implemented for expression type `{expr.GetType()}`{Environment.NewLine}{expr}";
+
         throw new NotImplementedException(message);
     }
 }

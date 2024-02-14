@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Xunit.Abstractions;
 
 namespace JavaToCSharp.Tests;
 
@@ -11,7 +12,7 @@ namespace JavaToCSharp.Tests;
 /// <remarks>
 /// Uses some BSD-2-Clause licensed code from Jaktnat. License: https://github.com/paulirwin/jaktnat/blob/main/LICENSE
 /// </remarks>
-public class IntegrationTests
+public class IntegrationTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("Resources/ArrayField.java")]
@@ -36,7 +37,10 @@ public class IntegrationTests
         };
 
         var parsed = JavaToCSharpConverter.ConvertText(File.ReadAllText(filePath), options);
+
         Assert.NotNull(parsed);
+
+        testOutputHelper.WriteLine(parsed);
     }
 
     [Theory]
@@ -62,6 +66,7 @@ public class IntegrationTests
     [InlineData("Resources/Java9TryWithResources.java")]
     [InlineData("Resources/Java9PrivateInterfaceMethods.java")]
     [InlineData("Resources/Java10TypeInference.java")]
+    [InlineData("Resources/Java14SwitchExpressions.java")]
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
     [InlineData("Resources/DeprecatedAnnotation.java")]
@@ -81,7 +86,10 @@ public class IntegrationTests
         var javaText = File.ReadAllText(filePath);
 
         var parsed = JavaToCSharpConverter.ConvertText(javaText, options);
+
         Assert.NotNull(parsed);
+
+        testOutputHelper.WriteLine(parsed);
 
         var fileName = Path.GetFileNameWithoutExtension(filePath);
         var assembly = CompileAssembly(fileName, parsed);

@@ -6,10 +6,11 @@ namespace JavaToCSharp.Expressions;
 
 public class UnaryExpressionVisitor : ExpressionVisitor<UnaryExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, UnaryExpr unaryExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, UnaryExpr unaryExpr)
     {
         var expr = unaryExpr.getExpression();
         var exprSyntax = VisitExpression(context, expr);
+
         if (exprSyntax is null)
         {
             return null;

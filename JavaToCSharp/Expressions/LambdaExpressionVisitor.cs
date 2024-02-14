@@ -8,7 +8,7 @@ namespace JavaToCSharp.Expressions;
 
 public class LambdaExpressionVisitor : ExpressionVisitor<LambdaExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, LambdaExpr expr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, LambdaExpr expr)
     {
         var bodyStatement = expr.getBody();
         var bodyStatementSyntax = StatementVisitor.VisitStatement(context, bodyStatement);
@@ -58,6 +58,7 @@ public class LambdaExpressionVisitor : ExpressionVisitor<LambdaExpr>
         }
 
         lambdaExpressionSyntax = lambdaExpressionSyntax?.AddParameterListParameters(paramSyntaxes.ToArray());
+
         return lambdaExpressionSyntax;
     }
 }

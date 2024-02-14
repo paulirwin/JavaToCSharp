@@ -475,7 +475,7 @@ public static class CommentsHelper
                     lines[l] = indentString + lines[l].TrimStart();
                 }
 
-                node = node.ReplaceTrivia(t, SyntaxFactory.Comment(String.Join(Environment.NewLine, lines).TrimEnd(' ')));
+                node = node.ReplaceTrivia(t, SyntaxFactory.Comment(string.Join(Environment.NewLine, lines).TrimEnd(' ')));
             }
         }
 

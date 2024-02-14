@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class CastExpressionVisitor : ExpressionVisitor<CastExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, CastExpr castExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, CastExpr castExpr)
     {
         var expr = castExpr.getExpression();
         var exprSyntax = VisitExpression(context, expr);

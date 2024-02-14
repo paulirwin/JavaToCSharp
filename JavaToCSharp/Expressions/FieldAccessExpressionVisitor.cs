@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, FieldAccessExpr fieldAccessExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, FieldAccessExpr fieldAccessExpr)
     {
         var scope = fieldAccessExpr.getScope();
         ExpressionSyntax? scopeSyntax = null;
@@ -14,11 +14,11 @@ public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
         if (scope != null)
         {
             scopeSyntax = VisitExpression(context, scope);
-            
+
             // TODO.PI: This should probably live in TypeHelper somehow
             if (context.Options.ConvertSystemOutToConsole)
             {
-                if (scopeSyntax is IdentifierNameSyntax { Identifier: { Text: "System" } }
+                if (scopeSyntax is IdentifierNameSyntax { Identifier.Text: "System" }
                     && fieldAccessExpr.getNameAsString() == "out")
                 {
                     return SyntaxFactory.IdentifierName("Console");
@@ -32,6 +32,7 @@ public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
         }
 
         var field = TypeHelper.EscapeIdentifier(fieldAccessExpr.getNameAsString());
+
         return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, scopeSyntax, SyntaxFactory.IdentifierName(field));
     }
 }

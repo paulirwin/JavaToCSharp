@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class ClassExpressionVisitor : ExpressionVisitor<ClassExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, ClassExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, ClassExpr expr)
     {
         var type = TypeHelper.ConvertTypeOf(expr);
 

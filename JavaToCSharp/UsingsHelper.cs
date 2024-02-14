@@ -6,7 +6,11 @@ namespace JavaToCSharp;
 
 public static class UsingsHelper
 {
-    public static IList<UsingDirectiveSyntax> GetUsings(ConversionContext context, List<ImportDeclaration> imports, JavaConversionOptions? options)
+    public static IEnumerable<UsingDirectiveSyntax> GetUsings(ConversionContext context,
+        IEnumerable<ImportDeclaration> imports,
+        JavaConversionOptions? options,
+        IEnumerable<MemberDeclarationSyntax> rootMembers,
+        NamespaceDeclarationSyntax? namespaceSyntax)
     {
         var usings = new List<UsingDirectiveSyntax>();
 
@@ -34,6 +38,18 @@ public static class UsingsHelper
             usings.AddRange(options.Usings
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns))));
+        }
+
+        if (namespaceSyntax != null)
+        {
+            foreach (var staticUsing in options?.StaticUsingEnumNames ?? [])
+            {
+                var usingSyntax = SyntaxFactory
+                    .UsingDirective(SyntaxFactory.ParseName($"{namespaceSyntax.Name}.{staticUsing}"))
+                    .WithStaticKeyword(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
+
+                usings.Add(usingSyntax);
+            }
         }
 
         return usings.Distinct(new UsingDirectiveSyntaxComparer()).ToList();

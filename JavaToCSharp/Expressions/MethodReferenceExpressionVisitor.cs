@@ -7,7 +7,7 @@ namespace JavaToCSharp.Expressions;
 
 public class MethodReferenceExpressionVisitor : ExpressionVisitor<MethodReferenceExpr>
 {
-    public override ExpressionSyntax Visit(ConversionContext context, MethodReferenceExpr expr)
+    protected override ExpressionSyntax Visit(ConversionContext context, MethodReferenceExpr expr)
     {
         var scope = expr.getScope();
         ExpressionSyntax? scopeSyntax = null;
@@ -32,8 +32,11 @@ public class MethodReferenceExpressionVisitor : ExpressionVisitor<MethodReferenc
         }
 
         var args = expr.getTypeArguments().FromOptional<NodeList>();
+
         if (args == null || args.size() == 0)
+        {
             return SyntaxFactory.InvocationExpression(methodExpression);
+        }
 
         return SyntaxFactory.InvocationExpression(methodExpression, TypeHelper.GetSyntaxFromArguments(context, args));
     }

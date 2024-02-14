@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, MethodCallExpr methodCallExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, MethodCallExpr methodCallExpr)
     {
         if (TypeHelper.TryTransformMethodCall(context, methodCallExpr, out var transformedSyntax))
         {
@@ -15,7 +15,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
 
         var scope = methodCallExpr.getScope().FromOptional<Expression>();
         ExpressionSyntax? scopeSyntax = null;
-        
+
         var methodName = TypeHelper.Capitalize(methodCallExpr.getNameAsString());
         methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
@@ -53,8 +53,11 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
         }
 
         var args = methodCallExpr.getArguments();
+
         if (args == null || args.size() == 0)
+        {
             return SyntaxFactory.InvocationExpression(methodExpression);
+        }
 
         return SyntaxFactory.InvocationExpression(methodExpression, TypeHelper.GetSyntaxFromArguments(context, args));
     }

@@ -6,7 +6,7 @@ namespace JavaToCSharp.Expressions;
 
 public class ConditionalExpressionVisitor : ExpressionVisitor<ConditionalExpr>
 {
-    public override ExpressionSyntax? Visit(ConversionContext context, ConditionalExpr conditionalExpr)
+    protected override ExpressionSyntax? Visit(ConversionContext context, ConditionalExpr conditionalExpr)
     {
         var condition = conditionalExpr.getCondition();
         var conditionSyntax = VisitExpression(context, condition);
