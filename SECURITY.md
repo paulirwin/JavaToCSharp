@@ -7,8 +7,8 @@ The following versions are supported for security updates:
 | Version | Supported          |
 | ------- | ------------------ |
 | trunk   | :white_check_mark: |
-| 2.1.x   | :white_check_mark: |
-| 2.0.x   | :x:                |
+| 3.0.x   | :white_check_mark: |
+| 2.x.x   | :x:                |
 | 1.x.x   | :x:                |
 
 ## Reporting a Vulnerability
