@@ -22,6 +22,23 @@ from the command line.
 
 The core library is installable via NuGet at https://www.nuget.org/packages/JavaToCSharp/
 
+## .NET Support
+
+Trunk will generally always target the latest LTS version of .NET for the core library and the CLI/GUI apps.
+If you require running the app on a prior version of .NET, please see the historical releases.
+Where STS BCL or preview (as of latest LTS SDK) C# language features are used in the converter, they will be options that are disabled by default.
+These options may become enabled by default when the next LTS ships, as a major version bump.
+
+.NET Framework is no longer supported and will not be supported going forward.
+This includes not just for the core library (i.e. .NET Standard will not be supported) and running the CLI/GUI apps, 
+but also for the C# code generation where applicable.
+You should be running .NET LTS nowadays anyways (.NET 6+ at the time of writing).
+
+Bug fixes and features may be backported to the latest major version that targets an actively-supported, non-latest .NET LTS,
+but only based on community interest.
+Please submit an issue if you want a bugfix or feature backported; better yet, please submit a PR.
+Only clean cherry-picks or minor merges will be supported for backports; significant/messy merges or PRs will likely not be supported or merged.
+
 ## License for JavaParser
 
 Licensed under the Apache License available at https://github.com/javaparser/javaparser/blob/master/LICENSE.APACHE
