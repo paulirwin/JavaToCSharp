@@ -23,9 +23,8 @@ public partial class MainWindow : Window
 
         var vm = new MainWindowViewModel(storageProvider, dispatcher, clipboard);
         DataContext = vm;
-        this.Usings.DoubleTapped += (_, _) => vm.RemoveSelectedUsingCommand.Execute(null);
     }
-    
+
     private void ToggleButton_OnIsCheckedChanged(object sender, RoutedEventArgs e)
     {
         var app = Application.Current;

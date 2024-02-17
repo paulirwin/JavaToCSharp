@@ -17,37 +17,37 @@ public class Program
         name: "--include-usings",
         description: "Include using directives in output",
         getDefaultValue: () => true);
-    
+
     private static readonly Option<bool> _includeNamespaceOption = new(
         name: "--include-namespace",
         description: "Include namespace in output",
         getDefaultValue: () => true);
-    
+
     private static readonly Option<bool> _includeCommentsOption = new(
         name: "--include-comments",
         description: "Include comments in output",
         getDefaultValue: () => true);
-    
+
     private static readonly Option<bool> _useDebugAssertOption = new(
         name: "--use-debug-assert",
         description: "Use Debug.Assert for asserts",
         getDefaultValue: () => false);
-    
+
     private static readonly Option<bool> _startInterfaceNamesWithIOption = new(
         name: "--start-interface-names-with-i",
         description: "Prefix interface names with the letter I",
         getDefaultValue: () => true);
-    
+
     private static readonly Option<bool> _commentUnrecognizedCodeOption = new(
         name: "--comment-unrecognized-code",
         description: "Include unrecognized code in output as commented-out code",
         getDefaultValue: () => true);
-    
+
     private static readonly Option<bool> _systemOutToConsoleOption = new(
         name: "--system-out-to-console",
         description: "Convert System.out calls to Console",
         getDefaultValue: () => false);
-    
+
     private static readonly Option<bool> _clearDefaultUsingsOption = new(
         name: "--clear-usings",
         description: "Remove all default usings provided by this app",
@@ -76,7 +76,7 @@ public class Program
 
         rootCommand.AddCommand(CreateFileCommand());
         rootCommand.AddCommand(CreateDirectoryCommand());
-        
+
         rootCommand.AddGlobalOption(_includeUsingsOption);
         rootCommand.AddGlobalOption(_includeNamespaceOption);
         rootCommand.AddGlobalOption(_includeCommentsOption);
@@ -138,12 +138,20 @@ public class Program
         {
             options.ClearUsings();
         }
+        else
+        {
+            options.AddUsing("System");
+            options.AddUsing("System.Collections.Generic");
+            options.AddUsing("System.Collections.ObjectModel");
+            options.AddUsing("System.Linq");
+            options.AddUsing("System.Text");
+        }
 
         foreach (string ns in context.ParseResult.GetValueForOption(_addUsingsOption) ?? new List<string>())
         {
             options.AddUsing(ns);
         }
-        
+
         return options;
     }
 

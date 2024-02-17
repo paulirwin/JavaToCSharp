@@ -10,14 +10,7 @@ public class JavaConversionOptions
 
     public IList<Replacement> PackageReplacements { get; } = new List<Replacement>();
 
-    public IList<string> Usings { get; } = new List<string>
-    {
-        "System",
-        "System.Collections.Generic",
-        "System.Collections.ObjectModel",
-        "System.Linq",
-        "System.Text"
-    };
+    public IList<string> Usings { get; } = new List<string>();
 
     public IList<string> StaticUsingEnumNames { get; } = new List<string>();
 
@@ -57,6 +50,18 @@ public class JavaConversionOptions
     public JavaConversionOptions AddUsing(string ns)
     {
         Usings.Add(ns);
+
+        return this;
+    }
+
+    public JavaConversionOptions SetUsings(IEnumerable<string> usings)
+    {
+        Usings.Clear();
+
+        foreach (string u in usings)
+        {
+            Usings.Add(u);
+        }
 
         return this;
     }

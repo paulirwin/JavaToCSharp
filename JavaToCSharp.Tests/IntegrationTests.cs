@@ -80,6 +80,8 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
             IncludeComments = false,
         };
 
+        options.AddUsing("System");
+
         options.WarningEncountered += (_, eventArgs)
             => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
 
