@@ -93,12 +93,19 @@
                                 <StackPanel Grid.Row="1"
                                             Orientation="Horizontal"
                                             HorizontalAlignment="Right"
+                                            Spacing="10"
                                             Margin="5">
                                     <Button Name="CopyOutput"
                                             ToolTip.Tip="Copy to Clipboard"
                                             AutomationProperties.Name="Copy to Clipboard"
                                             Command="{CompiledBinding CopyOutputCommand}">
                                         <i:Icon Value="fa-copy" />
+                                    </Button>
+                                    <Button Name="SaveOutput"
+                                            ToolTip.Tip="Save to File"
+                                            AutomationProperties.Name="Save to File"
+                                            Command="{CompiledBinding SaveOutputCommand}">
+                                        <i:Icon Value="fa-save" />
                                     </Button>
                                 </StackPanel>
                                 <TextBox Name="CSharpText"
