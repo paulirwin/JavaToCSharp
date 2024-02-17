@@ -325,6 +325,42 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task SaveOutput()
+    {
+        if (_storageProvider?.CanSave is true)
+        {
+            IStorageFolder? startLocation = null;
+
+            if (Path.GetDirectoryName(OpenPath) is string dir)
+            {
+                startLocation = await _storageProvider.TryGetFolderFromPathAsync(dir);
+            }
+
+            startLocation ??= await _storageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+
+            var filePickerSaveOptions = new FilePickerSaveOptions
+            {
+                SuggestedFileName = Path.GetFileNameWithoutExtension(OpenPath) + ".cs",
+                SuggestedStartLocation = startLocation,
+                Title = "Save C# File"
+            };
+
+            var result = await _storageProvider.OpenSaveFileDialogAsync(filePickerSaveOptions);
+
+            if (result is not null)
+            {
+                await File.WriteAllTextAsync(result.Path.LocalPath, CSharpText);
+
+                ConversionStateLabel = "Saved C# code to file!";
+
+                await Task.Delay(2000);
+
+                await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+            }
+        }
+    }
+
+    [RelayCommand]
     private static void ForkMeOnGitHub() => Process.Start(new ProcessStartInfo
     {
         FileName = "https://github.com/paulirwin/javatocsharp",

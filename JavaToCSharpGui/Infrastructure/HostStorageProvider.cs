@@ -3,33 +3,44 @@
 namespace JavaToCSharpGui.Infrastructure;
 
 /// <inheritdoc cref="IHostStorageProvider" />
-public class HostStorageProvider : IHostStorageProvider
+public class HostStorageProvider(IStorageProvider storageProvider) : IHostStorageProvider
 {
-    private readonly IStorageProvider _storageProvider;
-
-    public HostStorageProvider(IStorageProvider storageProvider) => _storageProvider = storageProvider;
+    /// <inheritdoc />
+    public bool CanPickFolder => storageProvider.CanPickFolder;
 
     /// <inheritdoc />
-    public bool CanPickFolder => _storageProvider.CanPickFolder;
+    public bool CanOpen => storageProvider.CanOpen;
 
     /// <inheritdoc />
-    public bool CanOpen => _storageProvider.CanOpen;
+    public bool CanSave => storageProvider.CanSave;
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<IStorageFile>> OpenFilePickerAsync(FilePickerOpenOptions options)
     {
-        return await _storageProvider.OpenFilePickerAsync(options);
+        return await storageProvider.OpenFilePickerAsync(options);
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<IStorageFolder>> OpenFolderPickerAsync(FolderPickerOpenOptions options)
     {
-        return await _storageProvider.OpenFolderPickerAsync(options);
+        return await storageProvider.OpenFolderPickerAsync(options);
     }
-    
+
     /// <inheritdoc />
     public async Task<IStorageFolder?> TryGetWellKnownFolderAsync(WellKnownFolder wellKnownFolder)
     {
-        return await _storageProvider.TryGetWellKnownFolderAsync(wellKnownFolder);
+        return await storageProvider.TryGetWellKnownFolderAsync(wellKnownFolder);
+    }
+
+    /// <inheritdoc />
+    public async Task<IStorageFile?> OpenSaveFileDialogAsync(FilePickerSaveOptions options)
+    {
+        return await storageProvider.SaveFilePickerAsync(options);
+    }
+
+    /// <inheritdoc />
+    public async Task<IStorageFolder?> TryGetFolderFromPathAsync(string path)
+    {
+        return await storageProvider.TryGetFolderFromPathAsync(path);
     }
 }

@@ -18,6 +18,11 @@ public interface IHostStorageProvider
     bool CanOpen { get; }
 
     /// <summary>
+    /// Can the save file picker be opened on the current platform.
+    /// </summary>
+    bool CanSave { get; }
+
+    /// <summary>
     /// Gets the path to a well known folder.
     /// </summary>
     /// <param name="wellKnownFolder">The well known folder to search for.</param>
@@ -37,4 +42,18 @@ public interface IHostStorageProvider
     /// <param name="options">The file picker configuration.</param>
     /// <returns>A list of selected files.</returns>
     Task<IReadOnlyList<IStorageFile>> OpenFilePickerAsync(FilePickerOpenOptions options);
+
+    /// <summary>
+    /// Opens the save file picker dialog.
+    /// </summary>
+    /// <param name="options">The file picker configuration.</param>
+    /// <returns>The selected file.</returns>
+    Task<IStorageFile?> OpenSaveFileDialogAsync(FilePickerSaveOptions options);
+
+    /// <summary>
+    /// Tries to get a folder from a path.
+    /// </summary>
+    /// <param name="path">The path to the folder.</param>
+    /// <returns>The folder, or <c>null</c> if not found.</returns>
+    Task<IStorageFolder?> TryGetFolderFromPathAsync(string path);
 }
