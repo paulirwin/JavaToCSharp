@@ -31,12 +31,7 @@ public class ConvertInterfaceTests
 
         const string expectedCSharpCode = """
                                           using Com.Github.Javaparser.Resolution;
-                                          using System;
-                                          using System.Collections.Generic;
-                                          using System.Collections.ObjectModel;
-                                          using System.Linq;
-                                          using System.Text;
-
+                                          
                                           namespace MyApp
                                           {
                                               public interface IResolvedType
@@ -77,12 +72,6 @@ public class ConvertInterfaceTests
         var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
 
         const string expected = """
-                                using System;
-                                using System.Collections.Generic;
-                                using System.Collections.ObjectModel;
-                                using System.Linq;
-                                using System.Text;
-
                                 namespace MyApp
                                 {
                                     public interface ICharTermAttribute : Attribute, CharSequence, Appendable

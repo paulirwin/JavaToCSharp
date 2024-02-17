@@ -3,6 +3,7 @@
         xmlns:vm="using:JavaToCSharpGui.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="JavaToCSharpGui.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -15,7 +16,7 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
     <Grid>
-        <Grid Grid.RowDefinitions="*, Auto" Margin="10">
+        <Grid RowDefinitions="*, Auto" Margin="10">
             <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*">
                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
                     <TextBlock TextWrapping="Wrap">
@@ -24,71 +25,35 @@
                         to C#. It does not resolve symbols or namespaces, so the resulting C# code likely will not compile without
                         modification. You must verify the results of the conversion manually.
                     </TextBlock>
-                    <StackPanel Grid.Column="1" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                    <StackPanel Grid.Column="1"
+                                Margin="10,0,0,0"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Right"
+                                Spacing="10"
                                 Orientation="Horizontal">
-                        <Button Content="fork me on GitHub!" Command="{CompiledBinding ForkMeOnGitHubCommand}" />
                         <ToggleSwitch
-                            Grid.Column="1"
                             Padding="4"
                             IsCheckedChanged="ToggleButton_OnIsCheckedChanged"
+                            ToolTip.Tip="Toggle Dark/Light Mode"
+                            AutomationProperties.Name="Toggle Dark/Light Mode"
                             Theme="{DynamicResource ButtonToggleSwitch}">
                             <ToggleSwitch.OnContent>
-                                <PathIcon
-                                    Width="16"
-                                    Height="16"
-                                    Data="M12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23ZM17 15C17.476 15 17.9408 14.9525 18.3901 14.862C17.296 17.3011 14.8464 19 12 19C8.13401 19 5 15.866 5 12C5 8.60996 7.40983 5.78277 10.6099 5.13803C10.218 6.01173 10 6.98041 10 8C10 11.866 13.134 15 17 15Z"
-                                    Foreground="{DynamicResource ButtonDefaultTertiaryForeground}" />
+                                <i:Icon Value="fa-moon" />
                             </ToggleSwitch.OnContent>
                             <ToggleSwitch.OffContent>
-                                <PathIcon
-                                    Width="16"
-                                    Height="16"
-                                    Data="M3.55 19.09L4.96 20.5L6.76 18.71L5.34 17.29M12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12C18 8.68 15.31 6 12 6M20 13H23V11H20M17.24 18.71L19.04 20.5L20.45 19.09L18.66 17.29M20.45 5L19.04 3.6L17.24 5.39L18.66 6.81M13 1H11V4H13M6.76 5.39L4.96 3.6L3.55 5L5.34 6.81L6.76 5.39M1 13H4V11H1M13 20H11V23H13"
-                                    Foreground="{DynamicResource ButtonDefaultTertiaryForeground}" />
+                                <i:Icon Value="fa-sun" />
                             </ToggleSwitch.OffContent>
                         </ToggleSwitch>
+                        <Button i:Attached.Icon="fa-brands fa-github"
+                                ToolTip.Tip="Fork me on GitHub"
+                                AutomationProperties.Name="Fork me on GitHub"
+                                Command="{CompiledBinding ForkMeOnGitHubCommand}" />
+                        <Button i:Attached.Icon="fa-gear"
+                                ToolTip.Tip="Settings"
+                                AutomationProperties.Name="Settings"
+                                Command="{CompiledBinding OpenSettingsCommand}" />
                     </StackPanel>
                 </Grid>
-                <!-- GroupBox -->
-                <DockPanel Grid.Row="1">
-                    <Label DockPanel.Dock="Top" FontWeight="Bold" Content="Options" />
-                    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,*">
-                        <StackPanel Orientation="Vertical" Margin="0,0,10,0">
-                            <TextBlock Margin="5">Add Usings:</TextBlock>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBox Name="AddUsingInput" Margin="5,2,5,2" Text="{CompiledBinding AddUsingInput}" />
-                                <Button Name="AddUsing" Grid.Column="1" Margin="5,2,5,2"
-                                        Command="{CompiledBinding AddUsingCommand}">
-                                    Add
-                                </Button>
-                            </Grid>
-                            <ListBox MinHeight="100"
-                                     Margin="5"
-                                     Name="Usings"
-                                     ItemsSource="{CompiledBinding Usings}"
-                                     SelectedItem="{CompiledBinding SelectedUsing}">
-                            </ListBox>
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical" Grid.Column="1">
-                            <CheckBox Margin="5" Name="IncludeUsings" IsChecked="{CompiledBinding IncludeUsings}">Include Usings in Output</CheckBox>
-                            <CheckBox Margin="5" Name="IncludeNamespace" IsChecked="{CompiledBinding IncludeNamespace}">Include Namespace in Output</CheckBox>
-                            <CheckBox Margin="5" Name="IncludeComments" IsChecked="{CompiledBinding IncludeComments}">Include Comments in Output</CheckBox>
-                            <CheckBox Margin="5" Name="UseDebugAssertForAsserts"
-                                      IsChecked="{CompiledBinding UseDebugAssertForAsserts}">
-                                Use Debug.Assert() for asserts
-                            </CheckBox>
-                            <CheckBox Margin="5" Name="UseUnrecognizedCodeToComment"
-                                      IsChecked="{CompiledBinding UseUnrecognizedCodeToComment}">
-                                Use Unrecognized Code To Comment
-                            </CheckBox>
-                            <CheckBox Margin="5" Name="UseFolderConvert" IsChecked="{CompiledBinding UseFolderConvert}">Use Folder Convert</CheckBox>
-                            <CheckBox Margin="5" Name="ConvertSystemOutToConsole"
-                                      IsChecked="{CompiledBinding ConvertSystemOutToConsole}">
-                                Convert System.out to Console
-                            </CheckBox>
-                        </StackPanel>
-                    </Grid>
-                </DockPanel>
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto,*">
                     <Grid RowDefinitions="Auto,Auto,*">
                         <TextBlock Margin="10">Java Source Code Input:</TextBlock>
@@ -96,8 +61,9 @@
                             <TextBlock Margin="10,5,10,5">File:</TextBlock>
                             <TextBox Name="OpenPath" Grid.Column="1" Margin="5" Text="{CompiledBinding OpenPath}" />
                             <Button Grid.Column="2" Margin="10,5,10,5"
+                                    AutomationProperties.Name="Open File"
                                     Command="{CompiledBinding OpenFileDialogCommand}" Name="OpenFileDialog">
-                                ...
+                                <i:Icon Value="fa-folder-open" />
                             </Button>
                         </Grid>
                         <TextBox Name="JavaText" 
@@ -113,20 +79,20 @@
                             Command="{CompiledBinding ConvertCommand}" Height="35" Margin="10">
                         Convert!
                     </Button>
-                    <Grid Grid.Column="2" RowDefinitions="Auto,*">
-                        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto">
-                            <TextBlock Margin="10">C# Output:</TextBlock>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <TextBlock Name="CopiedText" Margin="10"  />
-                                <Button Name="CopyOutput" 
-                                        Margin="10" 
-                                        Content="{CompiledBinding CopyToClipboardText}"
-                                        Command="{CompiledBinding CopyOutputCommand}" />
-                            </StackPanel>
-                        </Grid>
+                    <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
+                        <TextBlock Margin="10">C# Output:</TextBlock>
+                        <StackPanel Grid.Row="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="5">
+                            <Button Name="CopyOutput"
+                                    Command="{CompiledBinding CopyOutputCommand}">
+                                <i:Icon Value="fa-copy" />
+                            </Button>
+                        </StackPanel>
                         <TextBox Name="CSharpText" 
                                  Text="{CompiledBinding CSharpText}" 
-                                 Grid.Row="1" 
+                                 Grid.Row="2"
                                  Margin="10"
                                  ScrollViewer.VerticalScrollBarVisibility="Visible" 
                                  FontFamily="{CompiledBinding MonospaceFontFamily}"

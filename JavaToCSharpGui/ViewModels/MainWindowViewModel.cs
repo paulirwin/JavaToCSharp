@@ -1,28 +1,19 @@
 ﻿using System.Diagnostics;
 using Avalonia;
-using CommunityToolkit.Mvvm.Input;
-using Avalonia.Collections;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using JavaToCSharp;
 using JavaToCSharpGui.Infrastructure;
+using JavaToCSharpGui.Views;
 
 namespace JavaToCSharpGui.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private const string CopyToClipboardDefaultText = "Copy to Clipboard";
-    
-    private bool _includeUsings = true;
-    private bool _includeNamespace = true;
-    private bool _includeComments = true;
-    private bool _useDebugAssertForAsserts;
-    private bool _useUnrecognizedCodeToComment;
-    private bool _convertSystemOutToConsole;
-
     private readonly IHostStorageProvider? _storageProvider;
     private readonly IUIDispatcher _dispatcher;
     private readonly ITextClipboard? _clipboard;
@@ -33,7 +24,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _dispatcher = new UIDispatcher(Dispatcher.UIThread);
-        
+
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: not null } desktop)
         {
             _storageProvider = new HostStorageProvider(desktop.MainWindow.StorageProvider);
@@ -56,21 +47,10 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _isConvertEnabled = true;
         _useFolderConvert = false;
-
-        _includeUsings = Properties.Settings.Default.UseUsingsPreference;
-        _includeNamespace = Properties.Settings.Default.UseNamespacePreference;
-        _includeComments = Properties.Settings.Default.IncludeComments;
-        _useDebugAssertForAsserts = Properties.Settings.Default.UseDebugAssertPreference;
-        _useUnrecognizedCodeToComment = Properties.Settings.Default.UseUnrecognizedCodeToComment;
-        _convertSystemOutToConsole = Properties.Settings.Default.ConvertSystemOutToConsole;
     }
-
-    [ObservableProperty] private string _addUsingInput = "";
 
     private IList<FileInfo> _javaFiles = new List<FileInfo>();
     private string _currentJavaFile = "";
-
-    [ObservableProperty] private AvaloniaList<string> _usings = new();
 
     [ObservableProperty] private string _javaText = "";
 
@@ -78,112 +58,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string _openPath = "";
 
-    [ObservableProperty] private string _copyToClipboardText = CopyToClipboardDefaultText;
-
     [ObservableProperty] private string _conversionStateLabel = "";
-
-    [ObservableProperty] private string? _selectedUsing;
-
-    [RelayCommand]
-    private void RemoveSelectedUsing()
-    {
-        if (SelectedUsing is not null && Usings.Contains(SelectedUsing))
-        {
-            Usings.Remove(SelectedUsing);
-        }
-    }
-
-    public bool IncludeUsings
-    {
-        get => _includeUsings;
-        set
-        {
-            SetProperty(ref _includeUsings, value);
-            Properties.Settings.Default.UseUsingsPreference = value;
-            Properties.Settings.Default.Save();
-        }
-    }
-
-    public bool IncludeNamespace
-    {
-        get => _includeNamespace;
-        set
-        {
-            SetProperty(ref _includeNamespace, value);
-            Properties.Settings.Default.UseNamespacePreference = value;
-            Properties.Settings.Default.Save();
-        }
-    }
-
-    public bool IncludeComments
-    {
-        get => _includeComments;
-        set
-        {
-            SetProperty(ref _includeComments, value);
-            Properties.Settings.Default.IncludeComments = value;
-            Properties.Settings.Default.Save();
-        }
-    }
-
-    public bool UseDebugAssertForAsserts
-    {
-        get => _useDebugAssertForAsserts;
-        set
-        {
-            SetProperty(ref _useDebugAssertForAsserts, value);
-            Properties.Settings.Default.UseDebugAssertPreference = value;
-            Properties.Settings.Default.Save();
-
-            if (value && !Usings.Contains("System.Diagnostics"))
-            {
-                AddUsingInput = "System.Diagnostics";
-                AddUsing();
-            }
-        }
-    }
-
-    public bool UseUnrecognizedCodeToComment
-    {
-        get => _useUnrecognizedCodeToComment;
-        set
-        {
-            _useUnrecognizedCodeToComment = value;
-            SetProperty(ref _useUnrecognizedCodeToComment, value);
-            Properties.Settings.Default.UseUnrecognizedCodeToComment = value;
-            Properties.Settings.Default.Save();
-        }
-    }
-
-    public bool ConvertSystemOutToConsole
-    {
-        get => _convertSystemOutToConsole;
-        set
-        {
-            _convertSystemOutToConsole = value;
-            SetProperty(ref _convertSystemOutToConsole, value);
-            Properties.Settings.Default.ConvertSystemOutToConsole = value;
-            Properties.Settings.Default.Save();
-        }
-    }
 
     public FontFamily MonospaceFontFamily { get; } = FontFamily.Parse("Cascadia Code,SF Mono,DejaVu Sans Mono,Menlo,Consolas");
 
     [ObservableProperty] private bool _isConvertEnabled = true;
 
     [ObservableProperty] private bool _useFolderConvert;
-
-    [RelayCommand]
-    private void AddUsing()
-    {
-        Usings.Add(AddUsingInput);
-        AddUsingInput = string.Empty;
-    }
-
-    public void RemoveUsing(string value)
-    {
-        Usings.Remove(value);
-    }
 
     [ObservableProperty] private string _message = "";
 
@@ -192,23 +73,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task Convert()
     {
-        var options = new JavaConversionOptions();
-        options.ClearUsings();
-
-        foreach (string ns in Usings)
-        {
-            options.AddUsing(ns);
-        }
-
-        options.IncludeUsings = IncludeUsings;
-        options.IncludeNamespace = IncludeNamespace;
-        options.IncludeComments = IncludeComments;
-        options.UseDebugAssertForAsserts = UseDebugAssertForAsserts;
-        options.UseUnrecognizedCodeToComment = UseUnrecognizedCodeToComment;
-        options.ConvertSystemOutToConsole = ConvertSystemOutToConsole;
-
-        options.WarningEncountered += Options_WarningEncountered;
-        options.StateChanged += Options_StateChanged;
+        CurrentOptions.Options.WarningEncountered += Options_WarningEncountered;
+        CurrentOptions.Options.StateChanged += Options_StateChanged;
 
         IsConvertEnabled = false;
         await Task.Run(async () =>
@@ -217,11 +83,11 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 if (UseFolderConvert)
                 {
-                    await FolderConvert(options);
+                    await FolderConvert(CurrentOptions.Options);
                 }
                 else
                 {
-                    string? csharp = JavaToCSharpConverter.ConvertText(JavaText, options);
+                    string? csharp = JavaToCSharpConverter.ConvertText(JavaText, CurrentOptions.Options);
                     await DispatcherInvoke(() => CSharpText = csharp ?? "");
                 }
             }
@@ -235,6 +101,8 @@ public partial class MainWindowViewModel : ViewModelBase
             finally
             {
                 await DispatcherInvoke(() => IsConvertEnabled = true);
+                CurrentOptions.Options.WarningEncountered -= Options_WarningEncountered;
+                CurrentOptions.Options.StateChanged -= Options_StateChanged;
             }
         });
     }
@@ -252,9 +120,9 @@ public partial class MainWindowViewModel : ViewModelBase
                 AllowMultiple = false,
                 SuggestedStartLocation = await _storageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
             };
-            
+
             var result = await _storageProvider.OpenFolderPickerAsync(options);
-            
+
             if (!result.Any())
             {
                 return;
@@ -262,7 +130,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             string path = result[0].Path.LocalPath;
             var dir = new DirectoryInfo(path);
-            
+
             if (!dir.Exists)
             {
                 OpenPath = string.Empty;
@@ -304,13 +172,13 @@ public partial class MainWindowViewModel : ViewModelBase
         string dirName = dir.Name;
         string outDirName = $"{dirName}_net_{DateTime.Now.Millisecond}";
         var outDir = pDir.CreateSubdirectory(outDirName);
-        
+
         if (outDir is not { Exists: true })
             throw new FileNotFoundException($"outDir {outDirName}");
 
         string outDirFullName = outDir.FullName;
         int subStartIndex = dir.FullName.Length;
-        
+
         foreach (var jFile in _javaFiles.Where(static x => x.Directory is not null))
         {
             string jPath = jFile.Directory!.FullName;
@@ -319,12 +187,12 @@ public partial class MainWindowViewModel : ViewModelBase
             string jOutFileFullName = Path.Combine(jOutPath, jOutFileName);
 
             _currentJavaFile = jFile.FullName;
-            
+
             if (!Directory.Exists(jOutPath))
                 Directory.CreateDirectory(jOutPath);
 
             string jText = await File.ReadAllTextAsync(_currentJavaFile);
-            
+
             if (string.IsNullOrEmpty(jText))
                 continue;
 
@@ -416,7 +284,7 @@ public partial class MainWindowViewModel : ViewModelBase
             };
 
             var result = await _storageProvider.OpenFilePickerAsync(filePickerOpenOptions);
-            
+
             if (result.Any())
             {
                 OpenPath = result[0].Path.LocalPath;
@@ -434,22 +302,40 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         await _clipboard.SetTextAsync(CSharpText);
-        CopyToClipboardText = "Copied!";
-        
-        await Task.Delay(1000);
-        
+        ConversionStateLabel = "Copied C# code to clipboard!";
+
+        await Task.Delay(2000);
+
         await _dispatcher.InvokeAsync(() =>
         {
-            CopyToClipboardText = CopyToClipboardDefaultText;
+            ConversionStateLabel = "";
         }, DispatcherPriority.Background);
     }
 
     [RelayCommand]
     private static void ForkMeOnGitHub() => Process.Start(new ProcessStartInfo
     {
-        FileName = "https://www.github.com/paulirwin/javatocsharp",
+        FileName = "https://github.com/paulirwin/javatocsharp",
         UseShellExecute = true
     });
+
+    [RelayCommand]
+    private static void OpenSettings()
+    {
+        var parent = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow
+            : null;
+        var settings = new SettingsWindow();
+
+        if (parent is not null)
+        {
+            settings.ShowDialog(parent);
+        }
+        else
+        {
+            settings.Show();
+        }
+    }
 
     private async Task DispatcherInvoke(Action callback) =>
         await _dispatcher.InvokeAsync(callback, DispatcherPriority.Normal);

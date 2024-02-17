@@ -93,5 +93,18 @@ namespace JavaToCSharpGui.Properties {
                 this["IncludeComments"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("System;System.Collections.Generic;System.Collections.ObjectModel;System.Linq;Syst" +
+            "em.Text")]
+        public string Usings {
+            get {
+                return ((string)(this["Usings"]));
+            }
+            set {
+                this["Usings"] = value;
+            }
+        }
     }
 }

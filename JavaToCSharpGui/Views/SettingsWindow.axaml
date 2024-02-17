@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:JavaToCSharpGui.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+        x:Class="JavaToCSharpGui.Views.SettingsWindow"
+        x:DataType="vm:SettingsWindowViewModel"
+        Width="600" Height="400"
+        Title="Settings">
+    <Grid RowDefinitions="*, Auto">
+        <TabControl TabStripPlacement="Left">
+            <TabItem Header="Usings">
+                <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                    <TextBlock Margin="5">Add Usings:</TextBlock>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Name="AddUsingInput" Margin="5,2,5,2" Text="{CompiledBinding AddUsingInput}" />
+                        <Button Name="AddUsing" Grid.Column="1" Margin="5,2,5,2"
+                                Command="{CompiledBinding AddUsingCommand}">
+                            Add
+                        </Button>
+                    </Grid>
+                    <ListBox MinHeight="100"
+                             Margin="5"
+                             Name="Usings"
+                             ItemsSource="{CompiledBinding Usings}"
+                             SelectedItem="{CompiledBinding SelectedUsing}">
+                    </ListBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Options">
+                <StackPanel Orientation="Vertical">
+                    <CheckBox Margin="5" Name="IncludeUsings"
+                              IsChecked="{CompiledBinding IncludeUsings}">
+                        Include usings in output
+                    </CheckBox>
+                    <CheckBox Margin="5" Name="IncludeNamespace"
+                              IsChecked="{CompiledBinding IncludeNamespace}">
+                        Include namespace in output
+                    </CheckBox>
+                    <CheckBox Margin="5" Name="IncludeComments"
+                              IsChecked="{CompiledBinding IncludeComments}">
+                        Include comments in output
+                    </CheckBox>
+                    <CheckBox Margin="5" Name="UseDebugAssertForAsserts"
+                              IsChecked="{CompiledBinding UseDebugAssertForAsserts}">
+                        Use Debug.Assert() for asserts
+                    </CheckBox>
+                    <CheckBox Margin="5" Name="UseUnrecognizedCodeToComment"
+                              IsChecked="{CompiledBinding UnrecognizedCodeToComment}">
+                        Comment out unrecognized code
+                    </CheckBox>
+                    <CheckBox Margin="5" Name="ConvertSystemOutToConsole"
+                              IsChecked="{CompiledBinding ConvertSystemOutToConsole}">
+                        Convert System.out to Console
+                    </CheckBox>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Name="Cancel" Margin="5" Command="{CompiledBinding CancelCommand}" IsCancel="True">Cancel</Button>
+            <Button Name="Save" Margin="5" Command="{CompiledBinding SaveCommand}" IsDefault="True">Save</Button>
+        </StackPanel>
+    </Grid>
+</Window>
