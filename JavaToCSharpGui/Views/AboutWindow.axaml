@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:JavaToCSharpGui.Views"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="300"
+        Width="450" Height="300"
+        x:Class="JavaToCSharpGui.Views.AboutWindow"
+        x:DataType="views:AboutWindow"
+        Title="About Java to C#">
+    <StackPanel Orientation="Vertical" Spacing="20" Margin="20">
+        <TextBlock FontSize="16" FontWeight="Bold">Java to C#</TextBlock>
+        <TextBlock FontSize="16"
+                   Text="{CompiledBinding VersionString}"
+                   TextWrapping="NoWrap"
+                   TextTrimming="CharacterEllipsis"/> <!-- trimming for local dev version with git hash -->
+        <TextBlock TextWrapping="Wrap">
+            <Span FontWeight="Bold">NOTE:</Span> This tool does a
+            <Span FontStyle="Italic">syntactic conversion only</Span> from Java
+            to C#. It does not resolve symbols or namespaces, so the resulting C# code likely will not compile without
+            modification. You must verify the results of the conversion manually.
+        </TextBlock>
+        <TextBlock TextDecorations="Underline"
+                   Foreground="{DynamicResource SystemAccentColor}"
+                   Cursor="Hand"
+                   Tapped="GitHubLinkTapped">
+            https://github.com/paulirwin/javatocsharp
+        </TextBlock>
+    </StackPanel>
+</Window>

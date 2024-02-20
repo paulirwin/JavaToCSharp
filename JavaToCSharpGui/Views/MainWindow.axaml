@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="https://github.com/projektanker/icons.avalonia"
+        xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="JavaToCSharpGui.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -19,12 +20,7 @@
         <Grid RowDefinitions="*, Auto" Margin="10">
             <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*">
                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-                    <TextBlock TextWrapping="Wrap">
-                        <Span FontWeight="Bold">NOTE:</Span> This tool does a
-                        <Span FontStyle="Italic">syntactic conversion only</Span> from Java
-                        to C#. It does not resolve symbols or namespaces, so the resulting C# code likely will not compile without
-                        modification. You must verify the results of the conversion manually.
-                    </TextBlock>
+                    <TextBlock FontWeight="Bold" FontSize="16">Java to C#</TextBlock>
                     <StackPanel Grid.Column="1"
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Top"
@@ -44,6 +40,10 @@
                                 <i:Icon Value="fa-sun" />
                             </ToggleSwitch.OffContent>
                         </ToggleSwitch>
+                        <Button i:Attached.Icon="fa-info"
+                                ToolTip.Tip="About"
+                                AutomationProperties.Name="About"
+                                Command="{CompiledBinding OpenAboutCommand}" />
                         <Button i:Attached.Icon="fa-brands fa-github"
                                 ToolTip.Tip="Fork me on GitHub"
                                 AutomationProperties.Name="Fork me on GitHub"
@@ -59,8 +59,8 @@
                         <Grid ColumnDefinitions="*,Auto,*">
                             <Grid RowDefinitions="Auto,Auto,*">
                                 <TextBlock Margin="10">Java Source Code Input:</TextBlock>
-                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
-                                    <TextBlock Margin="10,5,10,5">File:</TextBlock>
+                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                    <TextBlock Margin="10,5,10,5" VerticalAlignment="Center">File:</TextBlock>
                                     <TextBox Name="OpenPath"
                                              Grid.Column="1"
                                              Margin="5"
@@ -74,15 +74,15 @@
                                         <i:Icon Value="fa-folder-open" />
                                     </Button>
                                 </Grid>
-                                <TextBox Name="JavaText"
-                                         Text="{CompiledBinding JavaText}"
-                                         Grid.Row="2"
-                                         Margin="10"
-                                         ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                         AutomationProperties.Name="Java Source Code Input"
-                                         FontFamily="{CompiledBinding MonospaceFontFamily}"
-                                         VerticalContentAlignment="Top"
-                                         AcceptsReturn="True" />
+                                <AvaloniaEdit:TextEditor
+                                    Name="JavaTextEditor"
+                                    Document="{CompiledBinding JavaText}"
+                                    Grid.Row="2"
+                                    Margin="10"
+                                    AutomationProperties.Name="Java Source Code Input"
+                                    ShowLineNumbers="True"
+                                    FontFamily="{CompiledBinding MonospaceFontFamily}"
+                                    />
                             </Grid>
                             <Button Grid.Column="1" Name="Convert" IsEnabled="{CompiledBinding IsConvertEnabled}"
                                     Command="{CompiledBinding ConvertCommand}" Height="35" Margin="10">
@@ -108,14 +108,15 @@
                                         <i:Icon Value="fa-save" />
                                     </Button>
                                 </StackPanel>
-                                <TextBox Name="CSharpText"
-                                         Text="{CompiledBinding CSharpText}"
-                                         Grid.Row="2"
-                                         Margin="10"
-                                         ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                         AutomationProperties.Name="C# Output"
-                                         FontFamily="{CompiledBinding MonospaceFontFamily}"
-                                         VerticalContentAlignment="Top" />
+                                <AvaloniaEdit:TextEditor
+                                    Name="CSharpTextEditor"
+                                    Document="{CompiledBinding CSharpText}"
+                                    Grid.Row="2"
+                                    Margin="10"
+                                    AutomationProperties.Name="C# Output"
+                                    ShowLineNumbers="True"
+                                    FontFamily="{CompiledBinding MonospaceFontFamily}"
+                                    />
                             </Grid>
                         </Grid>
                     </TabItem>

@@ -1,11 +1,15 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             x:Class="JavaToCSharpGui.App"
-            xmlns:local="using:JavaToCSharpGui"
             Name="Java to C#"
             RequestedThemeVariant="Default">
-            <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <Application.Resources>
+        <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>
+        <x:String x:Key="ContentControlThemeFontFamily">Cascadia Code,SF Mono,DejaVu Sans Mono,Menlo,Consolas</x:String>
+    </Application.Resources>
     <Application.Styles>
+        <FluentTheme /> <!-- FluentTheme will get overridden by the StyleInclude below but is needed for AvaloniaEdit -->
         <StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
     </Application.Styles>
 </Application>
