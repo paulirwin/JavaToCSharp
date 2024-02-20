@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JavaToCSharp;
@@ -58,9 +59,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private string _currentJavaFile = "";
 
-    [ObservableProperty] private string _javaText = "";
+    [ObservableProperty] private TextDocument _javaText = new();
 
-    [ObservableProperty] private string _cSharpText = "";
+    [ObservableProperty] private TextDocument _cSharpText = new();
 
     [ObservableProperty] private string _openPath = "";
 
@@ -86,12 +87,14 @@ public partial class MainWindowViewModel : ViewModelBase
         IsConvertEnabled = false;
         _usingFolderConvert = false;
 
+        var text = JavaText.Text;
+
         await Task.Run(async () =>
         {
             try
             {
-                string? csharp = JavaToCSharpConverter.ConvertText(JavaText, CurrentOptions.Options);
-                await DispatcherInvoke(() => CSharpText = csharp ?? "");
+                string? csharp = JavaToCSharpConverter.ConvertText(text, CurrentOptions.Options);
+                await DispatcherInvoke(() => CSharpText.Text = csharp ?? "");
             }
             catch (Exception ex)
             {
@@ -272,8 +275,10 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             await DispatcherInvoke(() =>
             {
-                CSharpText =
-                    $"{CSharpText} {Environment.NewLine}=================={Environment.NewLine}[WARN]out.path: {_currentJavaFile},{Environment.NewLine}\t\tConversionWarning-JavaLine:[{e.JavaLineNumber}]-Message:[{e.Message}]{Environment.NewLine}";
+                CSharpText.Text = $"{CSharpText.Text}{Environment.NewLine}" +
+                                  $"=================={Environment.NewLine}" +
+                                  $"[WARN] {_currentJavaFile}{e.JavaLineNumber}{Environment.NewLine}" +
+                                  $"\t\tMessage: {e.Message}{Environment.NewLine}";
             });
         }
         else
@@ -303,7 +308,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (result.Any())
             {
                 OpenPath = result[0].Path.LocalPath;
-                JavaText = await File.ReadAllTextAsync(result[0].Path.LocalPath);
+                JavaText.Text = await File.ReadAllTextAsync(result[0].Path.LocalPath);
             }
         }
     }
@@ -316,7 +321,7 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        await _clipboard.SetTextAsync(CSharpText);
+        await _clipboard.SetTextAsync(CSharpText.Text);
         ConversionStateLabel = "Copied C# code to clipboard!";
 
         await Task.Delay(2000);
@@ -349,7 +354,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             if (result is not null)
             {
-                await File.WriteAllTextAsync(result.Path.LocalPath, CSharpText);
+                await File.WriteAllTextAsync(result.Path.LocalPath, CSharpText.Text);
 
                 ConversionStateLabel = "Saved C# code to file!";
 
@@ -382,6 +387,24 @@ public partial class MainWindowViewModel : ViewModelBase
         else
         {
             settings.Show();
+        }
+    }
+
+    [RelayCommand]
+    private static void OpenAbout()
+    {
+        var parent = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow
+            : null;
+        var about = new AboutWindow();
+
+        if (parent is not null)
+        {
+            about.ShowDialog(parent);
+        }
+        else
+        {
+            about.Show();
         }
     }
 

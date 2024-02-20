@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>3.0.0</Version>
+    <Version>4.0.0</Version>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <OutputType>WinExe</OutputType>
@@ -16,6 +16,8 @@
   </ItemGroup>
   <ItemGroup>
 	<!-- Removes version conflict error -->
+	<PackageReference Include="Avalonia.AvaloniaEdit" Version="11.0.6" />
+	<PackageReference Include="AvaloniaEdit.TextMate" Version="11.0.6" />
 	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
 	  
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -28,6 +30,7 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.9" />
     <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.0.1" />
     <PackageReference Include="Semi.Avalonia" Version="11.0.7" />
+    <PackageReference Include="TextMateSharp.Grammars" Version="1.0.56" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
