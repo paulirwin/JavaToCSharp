@@ -24,6 +24,8 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     [ObservableProperty] private bool _convertSystemOutToConsole = CurrentOptions.Options.ConvertSystemOutToConsole;
 
+    [ObservableProperty] private bool _useFileScopedNamespaces = CurrentOptions.Options.UseFileScopedNamespaces;
+
     public event EventHandler? CloseRequested;
 
     [RelayCommand]
@@ -51,6 +53,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
         CurrentOptions.Options.UseDebugAssertForAsserts = UseDebugAssertForAsserts;
         CurrentOptions.Options.UseUnrecognizedCodeToComment = UnrecognizedCodeToComment;
         CurrentOptions.Options.ConvertSystemOutToConsole = ConvertSystemOutToConsole;
+        CurrentOptions.Options.UseFileScopedNamespaces = UseFileScopedNamespaces;
 
         CurrentOptions.Options.SetUsings(Usings);
 

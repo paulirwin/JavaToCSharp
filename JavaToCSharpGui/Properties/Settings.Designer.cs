@@ -106,5 +106,17 @@ namespace JavaToCSharpGui.Properties {
                 this["Usings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseFileScopedNamespaces {
+            get {
+                return ((bool)(this["UseFileScopedNamespaces"]));
+            }
+            set {
+                this["UseFileScopedNamespaces"] = value;
+            }
+        }
     }
 }

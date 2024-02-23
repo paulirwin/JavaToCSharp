@@ -3,7 +3,6 @@ using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
 using JavaToCSharp.Statements;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -24,8 +23,7 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
             return null;
         }
 
-        var ctorSyntax = SyntaxFactory.ConstructorDeclaration(identifier)
-                                      .WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
+        var ctorSyntax = SyntaxFactory.ConstructorDeclaration(identifier).WithLeadingNewLines();
 
         var mods = ctorDecl.getModifiers().ToModifierKeywordSet();
 

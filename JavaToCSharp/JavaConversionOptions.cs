@@ -31,6 +31,8 @@ public class JavaConversionOptions
 
     public bool IncludeComments { get; set; } = true;
 
+    public bool UseFileScopedNamespaces { get; set; }
+
     public ConversionState ConversionState { get; set; }
 
     public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)

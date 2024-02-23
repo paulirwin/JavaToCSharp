@@ -1,4 +1,5 @@
 using com.github.javaparser.ast;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9,8 +10,7 @@ public static class UsingsHelper
     public static IEnumerable<UsingDirectiveSyntax> GetUsings(ConversionContext context,
         IEnumerable<ImportDeclaration> imports,
         JavaConversionOptions? options,
-        IEnumerable<MemberDeclarationSyntax> rootMembers,
-        NamespaceDeclarationSyntax? namespaceSyntax)
+        NameSyntax? namespaceNameSyntax)
     {
         var usings = new List<UsingDirectiveSyntax>();
 
@@ -18,7 +18,7 @@ public static class UsingsHelper
         {
             // The import directive in Java will import a specific class.
             string importName = import.getNameAsString();
-            var lastPartStartIndex = importName.LastIndexOf(".", StringComparison.Ordinal);
+            var lastPartStartIndex = importName.LastIndexOf('.');
             var importNameWithoutClassName = lastPartStartIndex == -1 ?
                                                  importName :
                                                  importName[..lastPartStartIndex];
@@ -30,29 +30,38 @@ public static class UsingsHelper
                 usingSyntax = CommentsHelper.AddUsingComments(usingSyntax, import);
             }
 
-            usings.Add(usingSyntax);
+            usings.Add(usingSyntax.NormalizeWhitespace().WithTrailingNewLines());
         }
 
         if (options?.IncludeUsings == true)
         {
             usings.AddRange(options.Usings
                 .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns))));
+                .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns)).NormalizeWhitespace().WithTrailingNewLines()));
         }
 
-        if (namespaceSyntax != null)
+        if (namespaceNameSyntax != null)
         {
             foreach (var staticUsing in options?.StaticUsingEnumNames ?? [])
             {
                 var usingSyntax = SyntaxFactory
-                    .UsingDirective(SyntaxFactory.ParseName($"{namespaceSyntax.Name}.{staticUsing}"))
-                    .WithStaticKeyword(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
+                    .UsingDirective(SyntaxFactory.ParseName($"{namespaceNameSyntax}.{staticUsing}"))
+                    .WithStaticKeyword(SyntaxFactory.Token(SyntaxKind.StaticKeyword))
+                    .NormalizeWhitespace()
+                    .WithTrailingNewLines();
 
                 usings.Add(usingSyntax);
             }
         }
 
-        return usings.Distinct(new UsingDirectiveSyntaxComparer()).ToList();
+        usings = usings.Distinct(new UsingDirectiveSyntaxComparer()).ToList();
+
+        if (usings.Count > 0)
+        {
+            usings[^1] = usings[^1].WithTrailingNewLines(2);
+        }
+
+        return usings;
     }
 }
 

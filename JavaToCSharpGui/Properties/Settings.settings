@@ -23,5 +23,8 @@
     <Setting Name="Usings" Type="System.String" Scope="User">
       <Value Profile="(Default)">System;System.Collections.Generic;System.Collections.ObjectModel;System.Linq;System.Text</Value>
     </Setting>
+    <Setting Name="UseFileScopedNamespaces" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -13,6 +13,7 @@ public static class CurrentOptions
         Options.UseDebugAssertForAsserts = Settings.Default.UseDebugAssertPreference;
         Options.UseUnrecognizedCodeToComment = Settings.Default.UseUnrecognizedCodeToComment;
         Options.ConvertSystemOutToConsole = Settings.Default.ConvertSystemOutToConsole;
+        Options.UseFileScopedNamespaces = Settings.Default.UseFileScopedNamespaces;
 
         Options.SetUsings(Settings.Default.Usings.Split(';'));
     }
@@ -27,6 +28,7 @@ public static class CurrentOptions
         Settings.Default.UseDebugAssertPreference = Options.UseDebugAssertForAsserts;
         Settings.Default.UseUnrecognizedCodeToComment = Options.UseUnrecognizedCodeToComment;
         Settings.Default.ConvertSystemOutToConsole = Options.ConvertSystemOutToConsole;
+        Settings.Default.UseFileScopedNamespaces = Options.UseFileScopedNamespaces;
         Settings.Default.Usings = string.Join(";", Options.Usings);
 
         Settings.Default.Save();
