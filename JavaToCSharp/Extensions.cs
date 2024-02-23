@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using java.util;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using JavaAst = com.github.javaparser.ast;
 
@@ -77,4 +78,12 @@ public static class Extensions
     public static ISet<JavaAst.Modifier.Keyword> ToModifierKeywordSet(this JavaAst.NodeList nodeList)
         => nodeList.ToList<JavaAst.Modifier>()?.Select(i => i.getKeyword()).ToHashSet()
            ?? new HashSet<JavaAst.Modifier.Keyword>();
+
+    public static TSyntax WithLeadingNewLines<TSyntax>(this TSyntax syntax, int count = 1)
+        where TSyntax : SyntaxNode
+        => syntax.WithLeadingTrivia(Enumerable.Repeat(Whitespace.NewLine, count));
+
+    public static TSyntax WithTrailingNewLines<TSyntax>(this TSyntax syntax, int count = 1)
+        where TSyntax : SyntaxNode
+        => syntax.WithTrailingTrivia(Enumerable.Repeat(Whitespace.NewLine, count));
 }

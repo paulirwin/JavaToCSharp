@@ -54,7 +54,7 @@ public static class JavaToCSharpConverter
         var package = result.getPackageDeclaration().FromOptional<PackageDeclaration>();
 
         var rootMembers = new List<MemberDeclarationSyntax>();
-        NamespaceDeclarationSyntax? namespaceSyntax = null;
+        NameSyntax? namespaceNameSyntax = null;
 
         if (options.IncludeNamespace)
         {
@@ -72,7 +72,7 @@ public static class JavaToCSharpConverter
 
             packageName = TypeHelper.Capitalize(packageName);
 
-            namespaceSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(packageName));
+            namespaceNameSyntax = SyntaxFactory.ParseName(packageName);
         }
 
         foreach (var type in types)
@@ -82,57 +82,55 @@ public static class JavaToCSharpConverter
                 if (classOrIntType.isInterface())
                 {
                     var interfaceSyntax = ClassOrInterfaceDeclarationVisitor.VisitInterfaceDeclaration(context, classOrIntType);
-
-                    if (namespaceSyntax != null)
-                    {
-                        namespaceSyntax = namespaceSyntax.AddMembers(interfaceSyntax);
-                    }
-                    else
-                    {
-                        rootMembers.Add(interfaceSyntax);
-                    }
+                    rootMembers.Add(interfaceSyntax.NormalizeWhitespace().WithTrailingNewLines());
                 }
                 else
                 {
                     var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, classOrIntType);
-
-                    if (namespaceSyntax != null)
-                    {
-                        namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                    }
-                    else
-                    {
-                        rootMembers.Add(classSyntax);
-                    }
+                    rootMembers.Add(classSyntax.NormalizeWhitespace().WithTrailingNewLines());
                 }
             }
             else if (type is EnumDeclaration enumType)
             {
-                var classSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
-
-                if (namespaceSyntax != null)
-                {
-                    namespaceSyntax = namespaceSyntax.AddMembers(classSyntax);
-                }
-                else
-                {
-                    rootMembers.Add(classSyntax);
-                }
+                var enumSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
+                rootMembers.Add(enumSyntax.NormalizeWhitespace().WithTrailingNewLines());
             }
         }
 
-        if (namespaceSyntax != null)
+        if (rootMembers.Count > 1)
         {
-            rootMembers.Add(namespaceSyntax);
+            for (int i = 1; i < rootMembers.Count; i++)
+            {
+                rootMembers[i] = rootMembers[i].WithLeadingNewLines();
+            }
+        }
+
+        if (namespaceNameSyntax != null)
+        {
+            if (options.UseFileScopedNamespaces && rootMembers.Count > 0)
+            {
+                rootMembers[0] = rootMembers[0].WithLeadingNewLines();
+            }
+
+            MemberDeclarationSyntax namespaceSyntax =
+                options.UseFileScopedNamespaces
+                ? SyntaxFactory.FileScopedNamespaceDeclaration(namespaceNameSyntax)
+                    .NormalizeWhitespace()
+                    .WithTrailingNewLines()
+                    .WithMembers(SyntaxFactory.List(rootMembers))
+                : SyntaxFactory.NamespaceDeclaration(namespaceNameSyntax)
+                    .WithMembers(SyntaxFactory.List(rootMembers))
+                    .NormalizeWhitespace();
+
+            rootMembers = [namespaceSyntax];
         }
 
         var root = SyntaxFactory.CompilationUnit(
                 externs: [],
-                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, options, rootMembers, namespaceSyntax)),
+                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, options, namespaceNameSyntax)),
                 attributeLists: [],
                 members: SyntaxFactory.List(rootMembers)
-            )
-            .NormalizeWhitespace();
+            );
 
         root = root.WithPackageFileComments(context, result, package);
 

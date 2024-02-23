@@ -48,6 +48,11 @@ public class Program
         description: "Convert System.out calls to Console",
         getDefaultValue: () => false);
 
+    private static readonly Option<bool> _fileScopedNamespacesOption = new(
+        name: "--file-scoped-namespaces",
+        description: "Use file-scoped namespaces in C# output",
+        getDefaultValue: () => false);
+
     private static readonly Option<bool> _clearDefaultUsingsOption = new(
         name: "--clear-usings",
         description: "Remove all default usings provided by this app",
@@ -84,6 +89,7 @@ public class Program
         rootCommand.AddGlobalOption(_startInterfaceNamesWithIOption);
         rootCommand.AddGlobalOption(_commentUnrecognizedCodeOption);
         rootCommand.AddGlobalOption(_systemOutToConsoleOption);
+        rootCommand.AddGlobalOption(_fileScopedNamespacesOption);
         rootCommand.AddGlobalOption(_clearDefaultUsingsOption);
         rootCommand.AddGlobalOption(_addUsingsOption);
 
@@ -131,7 +137,8 @@ public class Program
             ConvertSystemOutToConsole = context.ParseResult.GetValueForOption(_systemOutToConsoleOption),
             StartInterfaceNamesWithI = context.ParseResult.GetValueForOption(_startInterfaceNamesWithIOption),
             UseDebugAssertForAsserts = context.ParseResult.GetValueForOption(_useDebugAssertOption),
-            UseUnrecognizedCodeToComment = context.ParseResult.GetValueForOption(_commentUnrecognizedCodeOption)
+            UseUnrecognizedCodeToComment = context.ParseResult.GetValueForOption(_commentUnrecognizedCodeOption),
+            UseFileScopedNamespaces = context.ParseResult.GetValueForOption(_fileScopedNamespacesOption),
         };
 
         if (context.ParseResult.GetValueForOption(_clearDefaultUsingsOption))

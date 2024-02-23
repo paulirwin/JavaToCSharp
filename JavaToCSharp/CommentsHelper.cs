@@ -448,7 +448,7 @@ public static class CommentsHelper
                     }
 
                     node = statement.InsertTriviaBefore(leading[index],
-                        Enumerable.Repeat(SyntaxFactory.CarriageReturnLineFeed, 1));
+                        Enumerable.Repeat(Whitespace.NewLine, 1));
                 }
             }
 
