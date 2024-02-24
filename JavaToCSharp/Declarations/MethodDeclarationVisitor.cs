@@ -51,7 +51,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-        if (parameters is {Count: > 0})
+        if (parameters is { Count: > 0 })
         {
             var paramSyntax = parameters.Select(i =>
                 SyntaxFactory.Parameter(
@@ -105,12 +105,14 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
         if (mods.Contains(Modifier.Keyword.ABSTRACT))
             methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
+        if (!mods.Contains(Modifier.Keyword.PUBLIC) && !mods.Contains(Modifier.Keyword.PROTECTED) && !mods.Contains(Modifier.Keyword.PRIVATE))
+            methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword));
 
         var annotations = methodDecl.getAnnotations().ToList<AnnotationExpr>();
         bool isOverride = false;
 
         // TODO: figure out how to check for a non-interface base type
-        if (annotations is {Count: > 0})
+        if (annotations is { Count: > 0 })
         {
             foreach (var annotation in annotations)
             {
@@ -137,7 +139,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var parameters = methodDecl.getParameters().ToList<Parameter>();
 
-        if (parameters is {Count: > 0})
+        if (parameters is { Count: > 0 })
         {
             var paramSyntaxes = new List<ParameterSyntax>();
 
