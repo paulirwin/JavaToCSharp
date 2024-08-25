@@ -41,6 +41,12 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
             }
         }
 
+        // Override methodName if a mapping is found
+        if (TryGetMappedMethodName(methodCallExpr.getNameAsString(), scope, context, out var mappedMethodName))
+        {
+            methodName = mappedMethodName;
+        }
+
         ExpressionSyntax methodExpression;
 
         if (scopeSyntax == null)
@@ -60,5 +66,22 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
         }
 
         return SyntaxFactory.InvocationExpression(methodExpression, TypeHelper.GetSyntaxFromArguments(context, args));
+    }
+
+    private static bool TryGetMappedMethodName(string methodName, Expression? scope, ConversionContext context, out string mappedMethodName)
+    {
+        var mappings = context.Options.SyntaxMappings;
+        if (scope == null && mappings.VoidMethodMappings.TryGetValue(methodName, out var voidMapping))
+        {
+            mappedMethodName = voidMapping;
+            return true;
+        }
+        else if (scope != null && mappings.NonVoidMethodMappings.TryGetValue(methodName, out var nonVoidMapping))
+        {
+            mappedMethodName = nonVoidMapping;
+            return true;
+        }
+        mappedMethodName = methodName;
+        return false;
     }
 }

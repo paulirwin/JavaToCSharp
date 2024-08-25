@@ -123,6 +123,14 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
                     methodSyntax = methodSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.OverrideKeyword));
                     isOverride = true;
                 }
+                // add annotation if a mapping is found
+                else if (context.Options != null && context.Options.SyntaxMappings.AnnotationMappings.TryGetValue(name, out var mappedAnnotation))
+                {
+                    var attributeList = SyntaxFactory.AttributeList(
+                        SyntaxFactory.SingletonSeparatedList(
+                            SyntaxFactory.Attribute(SyntaxFactory.ParseName(mappedAnnotation))));
+                    methodSyntax = methodSyntax.AddAttributeLists(attributeList);
+                }
             }
         }
 
