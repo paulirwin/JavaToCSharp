@@ -211,9 +211,14 @@ public static class TypeHelper
 
             switch (methodName.getIdentifier())
             {
+                case "length" when args.size() == 0:
+                    var scopeSyntaxLength = ExpressionVisitor.VisitExpression(context, scope);
+                    transformedSyntax = ReplaceMethodByProperty(scopeSyntaxLength, "Length");
+                    return true;
+
                 case "size" when args.size() == 0:
                     var scopeSyntaxSize = ExpressionVisitor.VisitExpression(context, scope);
-                    transformedSyntax = ReplaceSizeByCount(scopeSyntaxSize);
+                    transformedSyntax = ReplaceMethodByProperty(scopeSyntaxSize, "Count");
                     return true;
 
                 case "get" when args.size() == 1:
@@ -244,7 +249,7 @@ public static class TypeHelper
         return false;
 
 
-        static MemberAccessExpressionSyntax? ReplaceSizeByCount(ExpressionSyntax? scopeSyntax)
+        static MemberAccessExpressionSyntax? ReplaceMethodByProperty(ExpressionSyntax? scopeSyntax, string identifier)
         {
             if (scopeSyntax is null)
             {
@@ -255,7 +260,7 @@ public static class TypeHelper
             return SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 scopeSyntax,
-                SyntaxFactory.IdentifierName(SyntaxFactory.Identifier("Count")));
+                SyntaxFactory.IdentifierName(SyntaxFactory.Identifier(identifier)));
         }
 
         static ExpressionSyntax ReplaceGetByIndexAccess(ConversionContext context, ExpressionSyntax scopeSyntax,
