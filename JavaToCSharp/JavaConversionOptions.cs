@@ -33,6 +33,8 @@ public class JavaConversionOptions
 
     public bool UseFileScopedNamespaces { get; set; }
 
+    public SyntaxMapping SyntaxMappings { get; set; } = new SyntaxMapping();
+
     public ConversionState ConversionState { get; set; }
 
     public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)

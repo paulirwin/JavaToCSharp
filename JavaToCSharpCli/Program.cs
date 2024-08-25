@@ -65,6 +65,10 @@ public class Program
         ArgumentHelpName = "namespace"
     };
 
+    private static readonly Option<string> _mappingsFileNameOption = new(
+        name: "--mappings-file",
+        description: "A yaml file with syntax mappings from imports, methods and annotations");
+
     static Program()
     {
         _loggerFactory = LoggerFactory.Create(builder =>
@@ -92,6 +96,7 @@ public class Program
         rootCommand.AddGlobalOption(_fileScopedNamespacesOption);
         rootCommand.AddGlobalOption(_clearDefaultUsingsOption);
         rootCommand.AddGlobalOption(_addUsingsOption);
+        rootCommand.AddGlobalOption(_mappingsFileNameOption);
 
         await rootCommand.InvokeAsync(args);
 
@@ -159,7 +164,20 @@ public class Program
             options.AddUsing(ns);
         }
 
+        var mappingsFile = context.ParseResult.GetValueForOption(_mappingsFileNameOption);
+        if (!string.IsNullOrEmpty(mappingsFile))
+        {
+            options.SyntaxMappings = ReadMappingsFile(mappingsFile);
+        }
+
         return options;
+    }
+
+    private static SyntaxMapping ReadMappingsFile(string mappingsFile)
+    {
+        // Let fail if cannot be read or deserialized to display the exception message in the CLI
+        var mappingsStr = File.ReadAllText(mappingsFile);
+        return SyntaxMapping.Deserialize(mappingsStr);
     }
 
     private static Command CreateDirectoryCommand()
