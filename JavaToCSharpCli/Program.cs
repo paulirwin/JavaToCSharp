@@ -13,6 +13,11 @@ public class Program
     private static readonly ILoggerFactory _loggerFactory;
     private static readonly ILogger _logger;
 
+    private static readonly Option<bool> _includeSubdirectoriesOption = new(
+        name: "--include-subdirectories",
+        description: "When the command is dir, converts files in all subdirectories",
+        getDefaultValue: () => true);
+
     private static readonly Option<bool> _includeUsingsOption = new(
         name: "--include-usings",
         description: "Include using directives in output",
@@ -82,6 +87,7 @@ public class Program
         rootCommand.AddCommand(CreateFileCommand());
         rootCommand.AddCommand(CreateDirectoryCommand());
 
+        rootCommand.AddGlobalOption(_includeSubdirectoriesOption);
         rootCommand.AddGlobalOption(_includeUsingsOption);
         rootCommand.AddGlobalOption(_includeNamespaceOption);
         rootCommand.AddGlobalOption(_includeCommentsOption);
@@ -131,6 +137,7 @@ public class Program
     {
         var options = new JavaConversionOptions
         {
+            IncludeSubdirectories = context.ParseResult.GetValueForOption(_includeSubdirectoriesOption),
             IncludeUsings = context.ParseResult.GetValueForOption(_includeUsingsOption),
             IncludeComments = context.ParseResult.GetValueForOption(_includeCommentsOption),
             IncludeNamespace = context.ParseResult.GetValueForOption(_includeNamespaceOption),
@@ -193,7 +200,8 @@ public class Program
     {
         if (inputDirectory.Exists)
         {
-            foreach (var f in inputDirectory.GetFiles("*.java", SearchOption.AllDirectories))
+            var searchOption = options.IncludeSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            foreach (var f in inputDirectory.GetFiles("*.java", searchOption))
             {
                 string? directoryName = f.DirectoryName;
                 if (string.IsNullOrWhiteSpace(directoryName))
