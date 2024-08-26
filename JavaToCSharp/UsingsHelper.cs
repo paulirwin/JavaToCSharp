@@ -23,6 +23,17 @@ public static class UsingsHelper
                                                  importName :
                                                  importName[..lastPartStartIndex];
             var nameSpace = TypeHelper.Capitalize(importNameWithoutClassName);
+
+            // Override namespace if a non empty mapping is found (mapping to empty string removes the import)
+            if (options != null && options.SyntaxMappings.ImportMappings.TryGetValue(importName, out var mappedNamespace))
+            {
+                if (string.IsNullOrEmpty(mappedNamespace))
+                {
+                    continue;
+                }
+                nameSpace = mappedNamespace;
+            }
+
             var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(nameSpace));
 
             if (context.Options.IncludeComments)

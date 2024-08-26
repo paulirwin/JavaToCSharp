@@ -22,6 +22,63 @@ from the command line.
 
 The core library is installable via NuGet at https://www.nuget.org/packages/JavaToCSharp/
 
+## Syntax Mappings
+
+By default, JavaToCSharp translates some usual Java classes and methods into their C# counterparts 
+(e.g. Java maps are converted into dictionaries).
+You can specify additional mappings to fine tune the translation of the syntactic elements.
+
+The mappings are specified in a yaml file with root keys that represent the kind of mapping,
+each having a set of key-value pairs that specify the java to C# mappings:
+
+- `ImportMappings`: Mappings from Java package names to the C# namespaces.
+  If a key-value pair has an empty value, the package will be removed from the resulting C#.
+- `VoidMethodMappings`: Mappings from unqualified Java void methods to C#. 
+- `NonVoidMethodMappings`: Same as before, but for non-void java methods.
+- `AnnotationMappings`: Mappings from Java method annotations to C#.
+
+For example, to convert *JUnit* tests into *xUnit* you can create this mapping file:
+```yaml
+ImportMappings:
+  org.junit.Test : Xunit
+  org.junit.Assert.assertEquals : ""
+  org.junit.Assert.assertTrue : ""
+VoidMethodMappings:
+  assertEquals : Assert.Equal
+  assertTrue : Assert.True
+AnnotationMappings:
+  Test : Fact
+```
+
+If you specify this file in the `--mappings-file` CLI argument, the conversion of this JUnit test:
+```Java
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+public class MappingsTest {
+  @Test
+  public void testAsserts() {
+    assertEquals("a", "a");
+    assertTrue(true);
+  }
+}
+```
+
+will produce this xUnit test:
+```csharp
+using Xunit;
+
+public class MappingsTest
+{
+  [Fact]
+  public virtual void TestAsserts()
+  {
+    Assert.Equal("a", "a");
+    Assert.True(true);
+  }
+}
+```
+
 ## .NET Support
 
 Trunk will generally always target the latest LTS version of .NET for the core library and the CLI/GUI apps.
