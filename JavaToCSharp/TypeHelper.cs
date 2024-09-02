@@ -195,6 +195,31 @@ public static class TypeHelper
     }
 
     /// <summary>
+    /// Returns the list of C# type parameter constraints that must be added to a class syntax
+    /// to convert the java bounded type parameters of a class declaration.
+    /// e.g. to convert <![CDATA[ <T extends Clazz<T>> ]]> into <![CDATA[ <T> where T : Clazz<T> ]]>
+    /// </summary>
+    public static IEnumerable<TypeParameterConstraintClauseSyntax> GetTypeParameterListConstraints(List<TypeParameter> typeParams)
+    {
+        var typeParameterConstraints = new List<TypeParameterConstraintClauseSyntax>();
+        foreach (TypeParameter typeParam in typeParams)
+        {
+            if (typeParam.getTypeBound().size() > 0)
+            {
+                var typeConstraintsSyntax = new SeparatedSyntaxList<TypeParameterConstraintSyntax>();
+                foreach (ClassOrInterfaceType bound in typeParam.getTypeBound())
+                    typeConstraintsSyntax = typeConstraintsSyntax.Add(SyntaxFactory.TypeConstraint(SyntaxFactory.ParseTypeName(bound.asString())));
+
+                var typeIdentifier = SyntaxFactory.IdentifierName(typeParam.getName().asString());
+                var parameterConstraintClauseSyntax = SyntaxFactory.TypeParameterConstraintClause(typeIdentifier, typeConstraintsSyntax);
+
+                typeParameterConstraints.Add(parameterConstraintClauseSyntax);
+            }
+        }
+        return typeParameterConstraints;
+    }
+
+    /// <summary>
     /// Transforms method calls into property and indexer accesses where appropriate.
     /// </summary>
     /// <param name="context">The conversion context.</param>

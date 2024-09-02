@@ -113,4 +113,35 @@ public class ConvertTypeTests
 
         Assert.Throws<ArgumentException>(() => TypeHelper.ConvertTypeSyntax(type, 1));
     }
+
+    [Theory]
+    [InlineData("GenericClass<T>", "GenericClass<T>")]
+    [InlineData("GenericClass<T extends BoundType<T>>", "GenericClass<T>\n    where T : BoundType<T>")]
+    [InlineData("GenericClass<T extends BoundType>", "GenericClass<T>\n    where T : BoundType")]
+
+    [InlineData("GenericClass<T, U>", "GenericClass<T, U>")]
+    [InlineData("GenericClass<T, U extends BoundType<U>>", "GenericClass<T, U>\n    where U : BoundType<U>")]
+    [InlineData("GenericClass<T extends BoundType1<T>, U extends BoundType2<U>>", "GenericClass<T, U>\n    where T : BoundType1<T> where U : BoundType2<U>")]
+
+    [InlineData("GenericClass<T extends BoundType1<T> & BoundType2<T>>", "GenericClass<T>\n    where T : BoundType1<T>, BoundType2<T>")]
+    public void ConvertClassTypeBoundedParameters(string javaClass, string csharpClass)
+    {
+        string javaCode = $$"""
+                                public class {{javaClass}} { }
+                                """;
+        var options = new JavaConversionOptions
+        {
+            IncludeUsings = false,
+            IncludeNamespace = false,
+        };
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+        string expected = $$"""
+                                public class {{csharpClass}}
+                                {
+                                }
+
+                                """;
+
+        Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
+    }
 }
