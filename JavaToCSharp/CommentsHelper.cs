@@ -232,6 +232,7 @@ public static class CommentsHelper
         return parentNode.getChildNodes()
             .OfType<JavaAst.Node>()
             .Where(sibling => sibling is not JavaComments.Comment)
+            .OrderBy(sibling => sibling.getEnd().FromOptional<JavaParser.Position>()) // fix #88
             .LastOrDefault(sibling =>
             {
                 var siblingEnd = sibling.getEnd().FromOptional<JavaParser.Position>();
