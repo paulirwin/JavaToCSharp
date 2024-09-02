@@ -102,4 +102,68 @@ public class CommentTests(ITestOutputHelper testOutputHelper)
 
         Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
     }
+
+    [Theory]
+    [InlineData("Child", "Child")]
+    [InlineData("Child extends Parent", "Child : Parent")]
+    [InlineData("Child implements Parent", "Child : Parent")]
+    [InlineData("Child extends Parent implements IParent", "Child : Parent, IParent")]
+
+    [InlineData("Parent<T>", "Parent<T>")]
+    [InlineData("Child<T extends BoundType<T>>", "Child<T>")] // issue #125, should add: where T : BoundType<T>
+    [InlineData("Child extends Parent<BoundType>", "Child : Parent<BoundType>")]
+    public void CommentsInsideClass_ShouldNotBeDuplicated_Fix_88(string javaClass, string csharpClass)
+    {
+        string javaCode = $$"""
+                                //class comment
+                                public class {{javaClass}} {
+                                    //before comment 1
+                                    public void method1() {
+                                        doSomething(); //after comment1
+                                    }
+                                    //before comment 2
+                                    public void method1() {
+                                        doSomething(); //after comment2
+                                    }
+                                    //before comment 3
+                                    public void method1() {
+                                    }
+                                }
+                                """;
+        var options = new JavaConversionOptions
+        {
+            IncludeUsings = false,
+            IncludeNamespace = false,
+        };
+
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        testOutputHelper.WriteLine(parsed);
+
+        string expected = $$"""
+                                //class comment
+                                public class {{csharpClass}}
+                                {
+                                    //before comment 1
+                                    public virtual void Method1()
+                                    {
+                                        DoSomething(); //after comment1
+                                    }
+
+                                    //before comment 2
+                                    public virtual void Method1()
+                                    {
+                                        DoSomething(); //after comment2
+                                    }
+
+                                    //before comment 3
+                                    public virtual void Method1()
+                                    {
+                                    }
+                                }
+
+                                """;
+
+        Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
+    }
 }
