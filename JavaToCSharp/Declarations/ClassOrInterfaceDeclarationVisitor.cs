@@ -128,6 +128,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         {
             classSyntax = classSyntax.AddTypeParameterListParameters(typeParams
                     .Select(i => SyntaxFactory.TypeParameter(i.getNameAsString())).ToArray());
+            classSyntax = classSyntax.AddConstraintClauses(TypeHelper.GetTypeParameterListConstraints(typeParams).ToArray());
         }
 
         var mods = classDecl.getModifiers().ToModifierKeywordSet();
