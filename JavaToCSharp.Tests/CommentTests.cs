@@ -110,7 +110,7 @@ public class CommentTests(ITestOutputHelper testOutputHelper)
     [InlineData("Child extends Parent implements IParent", "Child : Parent, IParent")]
 
     [InlineData("Parent<T>", "Parent<T>")]
-    [InlineData("Child<T extends BoundType<T>>", "Child<T>")] // issue #125, should add: where T : BoundType<T>
+    [InlineData("Child<T extends BoundType<T>>", "Child<T>\n    where T : BoundType<T>")]
     [InlineData("Child extends Parent<BoundType>", "Child : Parent<BoundType>")]
     public void CommentsInsideClass_ShouldNotBeDuplicated_Fix_88(string javaClass, string csharpClass)
     {
