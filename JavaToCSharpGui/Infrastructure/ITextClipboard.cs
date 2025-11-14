@@ -17,4 +17,10 @@ public interface ITextClipboard
     /// <param name="text">The text to be copied to the clipboard.</param>
     /// <returns>A <c>Task</c> representing the async operation.</returns>
     Task SetTextAsync(string? text);
+
+    /// <summary>
+    /// Gets the clipboard's text.
+    /// </summary>
+    /// <returns>A <c>Task</c> representing the async operation. The result is the clipboard text, or null if unavailable.</returns>
+    Task<string?> GetTextAsync();
 }

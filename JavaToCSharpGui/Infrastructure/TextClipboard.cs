@@ -28,4 +28,14 @@ internal class TextClipboard : ITextClipboard
         }
         await _clipboard.SetTextAsync(text);
     }
+
+    /// <inheritdoc />
+    public async Task<string?> GetTextAsync()
+    {
+        if (_clipboard is null)
+        {
+            return null;
+        }
+        return await _clipboard.GetTextAsync();
+    }
 }

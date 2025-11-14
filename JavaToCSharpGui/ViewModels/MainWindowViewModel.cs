@@ -314,23 +314,26 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task PasteInput()
+    private async Task PasteJavaCode()
     {
         if (_clipboard is null)
         {
             return;
         }
 
-        var text = await _clipboard.GetTextAsync();
-        if (!string.IsNullOrEmpty(text))
+        string? clipboardText = await _clipboard.GetTextAsync();
+        if (clipboardText is null)
         {
-            JavaText.Text = text;
-            ConversionStateLabel = "Pasted Java code from clipboard!";
-
-            await Task.Delay(2000);
-
-            await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+            ShowMessage("Clipboard is empty or unavailable.", "Paste Error");
+            return;
         }
+
+        JavaText.Text = clipboardText;
+        ConversionStateLabel = "Pasted Java code from clipboard!";
+
+        await Task.Delay(2000);
+
+        await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
     }
 
     [RelayCommand]

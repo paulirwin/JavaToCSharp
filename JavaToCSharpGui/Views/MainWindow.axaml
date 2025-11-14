@@ -59,26 +59,26 @@
                         <Grid ColumnDefinitions="*,Auto,*">
                             <Grid RowDefinitions="Auto,Auto,*">
                                 <TextBlock Margin="10">Java Source Code Input:</TextBlock>
-                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto" VerticalAlignment="Center">
-                                    <TextBlock Margin="10,5,10,5" VerticalAlignment="Center">File:</TextBlock>
+                                <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,Auto" VerticalAlignment="Center">
+                                    <Button Grid.Column="0" Margin="10,5,10,5"
+                                            ToolTip.Tip="Paste from Clipboard"
+                                            AutomationProperties.Name="Paste from Clipboard"
+                                            Command="{CompiledBinding PasteJavaCodeCommand}"
+                                            Name="PasteJavaCode">
+                                        <i:Icon Value="fa-paste" />
+                                    </Button>
+                                    <TextBlock Grid.Column="1" Margin="10,5,10,5" VerticalAlignment="Center">File:</TextBlock>
                                     <TextBox Name="OpenPath"
-                                             Grid.Column="1"
+                                             Grid.Column="2"
                                              Margin="5"
                                              Text="{CompiledBinding OpenPath}"
                                              AutomationProperties.Name="File Path" />
-                                    <Button Grid.Column="2" Margin="10,5,10,5"
+                                    <Button Grid.Column="3" Margin="10,5,10,5"
                                             AutomationProperties.Name="Open File"
                                             ToolTip.Tip="Open File"
                                             Command="{CompiledBinding OpenFileDialogCommand}"
                                             Name="OpenFileDialog">
                                         <i:Icon Value="fa-folder-open" />
-                                    </Button>
-                                    <Button Grid.Column="3" Margin="10,5,10,5"
-                                            Name="PasteInput"
-                                            ToolTip.Tip="Paste from Clipboard"
-                                            AutomationProperties.Name="Paste from Clipboard"
-                                            Command="{CompiledBinding PasteInputCommand}">
-                                        <i:Icon Value="fa-paste" />
                                     </Button>
                                 </Grid>
                                 <AvaloniaEdit:TextEditor
