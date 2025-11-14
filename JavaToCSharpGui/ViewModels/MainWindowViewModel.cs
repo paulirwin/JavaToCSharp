@@ -337,6 +337,63 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task ClipboardConvert()
+    {
+        if (_clipboard is null)
+        {
+            return;
+        }
+
+        // Get clipboard text
+        string? clipboardText = await _clipboard.GetTextAsync();
+        if (clipboardText is null)
+        {
+            ShowMessage("Clipboard is empty or unavailable.", "Clipboard Convert Error");
+            return;
+        }
+
+        // Set Java text
+        JavaText.Text = clipboardText;
+
+        // Perform conversion
+        CurrentOptions.Options.WarningEncountered += Options_WarningEncountered;
+        CurrentOptions.Options.StateChanged += Options_StateChanged;
+
+        IsConvertEnabled = false;
+        _usingFolderConvert = false;
+
+        await Task.Run(async () =>
+        {
+            try
+            {
+                string? csharp = JavaToCSharpConverter.ConvertText(clipboardText, CurrentOptions.Options);
+                await DispatcherInvoke(() => CSharpText.Text = csharp ?? "");
+
+                // Copy result to clipboard
+                await _clipboard.SetTextAsync(csharp ?? "");
+                ConversionStateLabel = "Conversion complete! C# code copied to clipboard.";
+
+                await Task.Delay(2000);
+                await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+            }
+            catch (Exception ex)
+            {
+                await DispatcherInvoke(() =>
+                    ShowMessage($"There was an error converting the text to C#: {ex.GetBaseException().Message}",
+                        "Conversion Error"));
+
+                ConversionStateLabel = "";
+            }
+            finally
+            {
+                await DispatcherInvoke(() => IsConvertEnabled = true);
+                CurrentOptions.Options.WarningEncountered -= Options_WarningEncountered;
+                CurrentOptions.Options.StateChanged -= Options_StateChanged;
+            }
+        });
+    }
+
+    [RelayCommand]
     private async Task CopyOutput()
     {
         if (_clipboard is null)
