@@ -21,12 +21,13 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="IKVM" Version="8.15.0" />
+    <PackageReference Include="IKVM" Version="8.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <IkvmReference Include="../Lib/javaparser-core-3.25.4.jar" />
   </ItemGroup>

@@ -6,11 +6,11 @@
             RequestedThemeVariant="Default">
     <Application.Resources>
         <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>
-        <x:String x:Key="ContentControlThemeFontFamily">Cascadia Code,SF Mono,DejaVu Sans Mono,Menlo,Consolas</x:String>
+        <FontFamily x:Key="ContentControlThemeFontFamily">Cascadia Code,SF Mono,DejaVu Sans Mono,Menlo,Consolas</FontFamily>
     </Application.Resources>
     <Application.Styles>
-        <FluentTheme /> <!-- FluentTheme will get overridden by the StyleInclude below but is needed for AvaloniaEdit -->
-        <semi:SemiTheme />
-        <semi:AvaloniaEditSemiTheme />
+        <FluentTheme /> <!-- FluentTheme will get overridden by the SemiTheme below but is needed for AvaloniaEdit -->
+        <semi:SemiTheme Locale="en-US" />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
     </Application.Styles>
 </Application>

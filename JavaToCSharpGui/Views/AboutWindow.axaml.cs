@@ -18,8 +18,6 @@ public partial class AboutWindow : Window
 
         InitializeComponent();
         DataContext = this;
-
-
     }
 
     public string VersionString => $"Version {_version}";

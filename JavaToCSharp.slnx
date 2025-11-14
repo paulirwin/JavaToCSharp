@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Lib/">
+    <File Path="Lib/javaparser-core-3.25.4.jar" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="JavaToCSharp.Tests/JavaToCSharp.Tests.csproj" />
+  <Project Path="JavaToCSharp/JavaToCSharp.csproj" />
+  <Project Path="JavaToCSharpCli/JavaToCSharpCli.csproj" />
+  <Project Path="JavaToCSharpGui/JavaToCSharpGui.csproj" />
+</Solution>

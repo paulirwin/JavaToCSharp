@@ -95,26 +95,28 @@ public class Program
     {
         var rootCommand = new RootCommand("Java to C# Converter")
         {
-            Description = "A syntactic transformer of source code from Java to C#.",
+            Description = "A syntactic transformer of source code from Java to C#."
         };
 
-        rootCommand.Subcommands.Add(CreateFileCommand());
-        rootCommand.Subcommands.Add(CreateDirectoryCommand());
+        rootCommand.Add(CreateFileCommand());
+        rootCommand.Add(CreateDirectoryCommand());
 
-        rootCommand.Options.Add(_includeSubdirectoriesOption);
-        rootCommand.Options.Add(_includeUsingsOption);
-        rootCommand.Options.Add(_includeNamespaceOption);
-        rootCommand.Options.Add(_includeCommentsOption);
-        rootCommand.Options.Add(_useDebugAssertOption);
-        rootCommand.Options.Add(_startInterfaceNamesWithIOption);
-        rootCommand.Options.Add(_commentUnrecognizedCodeOption);
-        rootCommand.Options.Add(_systemOutToConsoleOption);
-        rootCommand.Options.Add(_fileScopedNamespacesOption);
-        rootCommand.Options.Add(_clearDefaultUsingsOption);
-        rootCommand.Options.Add(_addUsingsOption);
-        rootCommand.Options.Add(_mappingsFileNameOption);
+        rootCommand.Add(_includeSubdirectoriesOption);
+        rootCommand.Add(_includeUsingsOption);
+        rootCommand.Add(_includeNamespaceOption);
+        rootCommand.Add(_includeCommentsOption);
+        rootCommand.Add(_useDebugAssertOption);
+        rootCommand.Add(_startInterfaceNamesWithIOption);
+        rootCommand.Add(_commentUnrecognizedCodeOption);
+        rootCommand.Add(_systemOutToConsoleOption);
+        rootCommand.Add(_fileScopedNamespacesOption);
+        rootCommand.Add(_clearDefaultUsingsOption);
+        rootCommand.Add(_addUsingsOption);
+        rootCommand.Add(_mappingsFileNameOption);
 
-        await rootCommand.Parse(args).InvokeAsync();
+        var parseResult = rootCommand.Parse(args);
+
+        await parseResult.InvokeAsync();
 
         // flush logs
         _loggerFactory.Dispose();
@@ -133,18 +135,20 @@ public class Program
             DefaultValueFactory = _ => null,
         };
 
-        var fileCommand = new Command("file", "Convert a Java file to C#");
-        fileCommand.Arguments.Add(inputArgument);
-        fileCommand.Arguments.Add(outputArgument);
+        var fileCommand = new Command("file", "Convert a Java file to C#")
+        {
+            inputArgument,
+            outputArgument,
+        };
 
         fileCommand.SetAction(context =>
         {
-            var input = context.GetValue(inputArgument);
+            var input = context.GetRequiredValue(inputArgument);
             var output = context.GetValue(outputArgument);
 
             var options = GetJavaConversionOptions(context);
 
-            ConvertToCSharpFile(input!, output, options);
+            ConvertToCSharpFile(input, output, options);
         });
 
         return fileCommand;
@@ -178,7 +182,7 @@ public class Program
             options.AddUsing("System.Text");
         }
 
-        foreach (string ns in context.GetValue(_addUsingsOption) ?? new List<string>())
+        foreach (string ns in context.GetValue(_addUsingsOption) ?? [])
         {
             options.AddUsing(ns);
         }
@@ -203,26 +207,28 @@ public class Program
     {
         var inputArgument = new Argument<DirectoryInfo>("input")
         {
-            Description = "A directory containing Java source code files to convert"
+            Description = "A directory containing Java source code files to convert",
         };
 
         var outputArgument = new Argument<DirectoryInfo>("output")
         {
-            Description = "Path to place the C# output files"
+            Description = "Path to place the C# output files",
         };
 
-        var dirCommand = new Command("dir", "Convert a directory containing Java files to C#");
-        dirCommand.Arguments.Add(inputArgument);
-        dirCommand.Arguments.Add(outputArgument);
+        var dirCommand = new Command("dir", "Convert a directory containing Java files to C#")
+        {
+            inputArgument,
+            outputArgument,
+        };
 
         dirCommand.SetAction(context =>
         {
-            var input = context.GetValue(inputArgument);
-            var output = context.GetValue(outputArgument);
+            var input = context.GetRequiredValue(inputArgument);
+            var output = context.GetRequiredValue(outputArgument);
 
             var options = GetJavaConversionOptions(context);
 
-            ConvertToCSharpDir(input!, output!, options);
+            ConvertToCSharpDir(input, output, options);
         });
 
         return dirCommand;
@@ -253,17 +259,13 @@ public class Program
             }
         }
         else
-        {
             _logger.LogError("Java input folder {path} doesn't exist!", inputDirectory);
-        }
     }
 
     private static void ConvertToCSharpFile(FileSystemInfo inputFile, FileSystemInfo? outputFile, JavaConversionOptions options, bool overwrite = true)
     {
         if (!overwrite && outputFile is { Exists: true })
-        {
             _logger.LogInformation("{outputFilePath} exists, skip to next.", outputFile);
-        }
         else if (inputFile.Exists)
         {
             try
@@ -301,9 +303,7 @@ public class Program
             }
         }
         else
-        {
             _logger.LogError("Java input file {filePath} doesn't exist!", inputFile.FullName);
-        }
     }
 
     private static void OutputFileOrPrint(string? fileName, string contents)
