@@ -57,9 +57,9 @@
                 <TabControl Grid.Row="2" Margin="0,10,0,0">
                     <TabItem Header="Single File">
                         <Grid ColumnDefinitions="*,Auto,*">
-                            <Grid RowDefinitions="Auto,Auto,Auto,*">
+                            <Grid RowDefinitions="Auto,Auto,*">
                                 <TextBlock Margin="10">Java Source Code Input:</TextBlock>
-                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto" VerticalAlignment="Center">
                                     <TextBlock Margin="10,5,10,5" VerticalAlignment="Center">File:</TextBlock>
                                     <TextBox Name="OpenPath"
                                              Grid.Column="1"
@@ -73,23 +73,18 @@
                                             Name="OpenFileDialog">
                                         <i:Icon Value="fa-folder-open" />
                                     </Button>
-                                </Grid>
-                                <StackPanel Grid.Row="2"
-                                            Orientation="Horizontal"
-                                            HorizontalAlignment="Right"
-                                            Spacing="10"
-                                            Margin="5">
-                                    <Button Name="PasteInput"
+                                    <Button Grid.Column="3" Margin="10,5,10,5"
+                                            Name="PasteInput"
                                             ToolTip.Tip="Paste from Clipboard"
                                             AutomationProperties.Name="Paste from Clipboard"
                                             Command="{CompiledBinding PasteInputCommand}">
                                         <i:Icon Value="fa-paste" />
                                     </Button>
-                                </StackPanel>
+                                </Grid>
                                 <AvaloniaEdit:TextEditor
                                     Name="JavaTextEditor"
                                     Document="{CompiledBinding JavaText}"
-                                    Grid.Row="3"
+                                    Grid.Row="2"
                                     Margin="10"
                                     AutomationProperties.Name="Java Source Code Input"
                                     ShowLineNumbers="True"
