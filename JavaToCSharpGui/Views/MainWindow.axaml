@@ -59,7 +59,7 @@
                         <Grid ColumnDefinitions="*,Auto,*">
                             <Grid RowDefinitions="Auto,Auto,*">
                                 <TextBlock Margin="10">Java Source Code Input:</TextBlock>
-                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto" VerticalAlignment="Center">
                                     <TextBlock Margin="10,5,10,5" VerticalAlignment="Center">File:</TextBlock>
                                     <TextBox Name="OpenPath"
                                              Grid.Column="1"
@@ -72,6 +72,13 @@
                                             Command="{CompiledBinding OpenFileDialogCommand}"
                                             Name="OpenFileDialog">
                                         <i:Icon Value="fa-folder-open" />
+                                    </Button>
+                                    <Button Grid.Column="3" Margin="10,5,10,5"
+                                            Name="PasteInput"
+                                            ToolTip.Tip="Paste from Clipboard"
+                                            AutomationProperties.Name="Paste from Clipboard"
+                                            Command="{CompiledBinding PasteInputCommand}">
+                                        <i:Icon Value="fa-paste" />
                                     </Button>
                                 </Grid>
                                 <AvaloniaEdit:TextEditor

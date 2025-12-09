@@ -314,6 +314,26 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task PasteInput()
+    {
+        if (_clipboard is null)
+        {
+            return;
+        }
+
+        var text = await _clipboard.GetTextAsync();
+        if (!string.IsNullOrEmpty(text))
+        {
+            JavaText.Text = text;
+            ConversionStateLabel = "Pasted Java code from clipboard!";
+
+            await Task.Delay(2000);
+
+            await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+        }
+    }
+
+    [RelayCommand]
     private async Task CopyOutput()
     {
         if (_clipboard is null)

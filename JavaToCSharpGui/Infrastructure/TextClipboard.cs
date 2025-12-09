@@ -10,6 +10,16 @@ internal class TextClipboard : ITextClipboard
     public TextClipboard(IClipboard? clipboard) => _clipboard = clipboard;
 
     /// <inheritdoc />
+    public async Task<string?> GetTextAsync()
+    {
+        if (_clipboard is null)
+        {
+            return null;
+        }
+        return await _clipboard.GetTextAsync();
+    }
+
+    /// <inheritdoc />
     public async Task SetTextAsync(string? text)
     {
         if(_clipboard is null)
