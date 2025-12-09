@@ -12,7 +12,7 @@ internal class TextClipboard : ITextClipboard
     /// <inheritdoc />
     public async Task<string?> GetTextAsync()
     {
-        if(_clipboard is null)
+        if (_clipboard is null)
         {
             return null;
         }
