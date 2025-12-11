@@ -11,6 +11,6 @@
     <Application.Styles>
         <FluentTheme /> <!-- FluentTheme will get overridden by the SemiTheme below but is needed for AvaloniaEdit -->
         <semi:SemiTheme Locale="en-US" />
-        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        <semi:AvaloniaEditSemiTheme />
     </Application.Styles>
 </Application>

@@ -94,28 +94,26 @@ public class Program
     {
         var rootCommand = new RootCommand("Java to C# Converter")
         {
-            Description = "A syntactic transformer of source code from Java to C#."
+            Description = "A syntactic transformer of source code from Java to C#.",
         };
 
-        rootCommand.Add(CreateFileCommand());
-        rootCommand.Add(CreateDirectoryCommand());
+        rootCommand.Subcommands.Add(CreateFileCommand());
+        rootCommand.Subcommands.Add(CreateDirectoryCommand());
 
-        rootCommand.Add(_includeSubdirectoriesOption);
-        rootCommand.Add(_includeUsingsOption);
-        rootCommand.Add(_includeNamespaceOption);
-        rootCommand.Add(_includeCommentsOption);
-        rootCommand.Add(_useDebugAssertOption);
-        rootCommand.Add(_startInterfaceNamesWithIOption);
-        rootCommand.Add(_commentUnrecognizedCodeOption);
-        rootCommand.Add(_systemOutToConsoleOption);
-        rootCommand.Add(_fileScopedNamespacesOption);
-        rootCommand.Add(_clearDefaultUsingsOption);
-        rootCommand.Add(_addUsingsOption);
-        rootCommand.Add(_mappingsFileNameOption);
+        rootCommand.Options.Add(_includeSubdirectoriesOption);
+        rootCommand.Options.Add(_includeUsingsOption);
+        rootCommand.Options.Add(_includeNamespaceOption);
+        rootCommand.Options.Add(_includeCommentsOption);
+        rootCommand.Options.Add(_useDebugAssertOption);
+        rootCommand.Options.Add(_startInterfaceNamesWithIOption);
+        rootCommand.Options.Add(_commentUnrecognizedCodeOption);
+        rootCommand.Options.Add(_systemOutToConsoleOption);
+        rootCommand.Options.Add(_fileScopedNamespacesOption);
+        rootCommand.Options.Add(_clearDefaultUsingsOption);
+        rootCommand.Options.Add(_addUsingsOption);
+        rootCommand.Options.Add(_mappingsFileNameOption);
 
-        var parseResult = rootCommand.Parse(args);
-
-        await parseResult.InvokeAsync();
+        await rootCommand.Parse(args).InvokeAsync();
 
         // flush logs
         _loggerFactory.Dispose();
@@ -258,13 +256,17 @@ public class Program
             }
         }
         else
+        {
             _logger.LogError("Java input folder {path} doesn't exist!", inputDirectory);
+        }
     }
 
     private static void ConvertToCSharpFile(FileSystemInfo inputFile, FileSystemInfo? outputFile, JavaConversionOptions options, bool overwrite = true)
     {
         if (!overwrite && outputFile is { Exists: true })
+        {
             _logger.LogInformation("{outputFilePath} exists, skip to next.", outputFile);
+        }
         else if (inputFile.Exists)
         {
             try
@@ -302,7 +304,9 @@ public class Program
             }
         }
         else
+        {
             _logger.LogError("Java input file {filePath} doesn't exist!", inputFile.FullName);
+        }
     }
 
     private static void OutputFileOrPrint(string? fileName, string contents)

@@ -12,16 +12,18 @@ internal class TextClipboard(IClipboard? clipboard) : ITextClipboard
         {
             return null;
         }
+
         return await clipboard.TryGetTextAsync();
     }
 
     /// <inheritdoc />
     public async Task SetTextAsync(string? text)
     {
-        if(clipboard is null)
+        if (clipboard is null)
         {
             return;
         }
+
         await clipboard.SetTextAsync(text);
     }
 }
