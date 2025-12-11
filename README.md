@@ -89,7 +89,6 @@ These options may become enabled by default when the next LTS ships, as a major 
 .NET Framework is no longer supported and will not be supported going forward.
 This includes not just for the core library (i.e. .NET Standard will not be supported) and running the CLI/GUI apps, 
 but also for the C# code generation where applicable.
-You should be running .NET LTS nowadays anyways (.NET 6+ at the time of writing).
 
 Bug fixes and features may be backported to the latest major version that targets an actively-supported, non-latest .NET LTS,
 but only based on community interest.
