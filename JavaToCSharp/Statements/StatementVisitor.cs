@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast.stmt;
+﻿using com.github.javaparser.ast.stmt;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp.Statements;
@@ -48,11 +45,12 @@ public abstract class StatementVisitor
 
     protected abstract StatementSyntax? Visit(ConversionContext context, Statement statement);
 
-    public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement>? statements) =>
-        statements == null
-            ? new List<StatementSyntax>()
+    public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement>? statements)
+        => statements is null
+            ? []
             : statements.Select(statement => VisitStatement(context, statement))
-                        .Where(syntax => syntax != null)!.ToList<StatementSyntax>();
+                        .OfType<StatementSyntax>() // filter out nulls
+                        .ToList();
 
     public static StatementSyntax? VisitStatement(ConversionContext context, Statement statement)
     {

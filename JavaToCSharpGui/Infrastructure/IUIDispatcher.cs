@@ -3,7 +3,7 @@
 namespace JavaToCSharpGui.Infrastructure;
 
 /// <summary>
-/// Provides acces to the UI thread.
+/// Provides access to the UI thread.
 /// </summary>
 public interface IUIDispatcher
 {

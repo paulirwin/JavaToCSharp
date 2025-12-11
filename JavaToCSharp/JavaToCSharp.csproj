@@ -1,27 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Version>4.0.0</Version>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-    <Authors>Paul Irwin</Authors>
-    <Description>A Java to C# converter.</Description>
-    <Copyright>Copyright 2021-2023, Paul Irwin</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/paulirwin/JavaToCSharp</RepositoryUrl>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="IKVM" Version="8.15.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
-    <PackageReference Include="YamlDotNet" Version="16.3.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <IkvmReference Include="../Lib/javaparser-core-3.25.4.jar" />
-  </ItemGroup>
+    <PropertyGroup>
+        <Version>4.0.0</Version>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Authors>Paul Irwin</Authors>
+        <Description>A Java to C# converter.</Description>
+        <Copyright>Copyright 2021-2025, Paul Irwin</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/paulirwin/JavaToCSharp</RepositoryUrl>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\.editorconfig" Link=".editorconfig"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.15.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageReference Include="Nullable.Extended.Analyzer" Version="1.15.6581"/>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0"/>
+        <PackageReference Include="YamlDotNet" Version="16.3.0"/>
+    </ItemGroup>
+    <ItemGroup>
+        <IkvmReference Include="../Lib/javaparser-core-3.25.4.jar"/>
+    </ItemGroup>
 </Project>

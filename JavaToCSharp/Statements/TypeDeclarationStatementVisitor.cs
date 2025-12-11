@@ -13,11 +13,12 @@ public class TypeDeclarationStatementVisitor : StatementVisitor<LocalClassDeclar
         var typeDeclaration = statement.getClassDeclaration();
         var classSyntax = ClassOrInterfaceDeclarationVisitor.VisitClassDeclaration(context, typeDeclaration);
         var text = classSyntax?.NormalizeWhitespace().GetText().ToString();
+
         if (string.IsNullOrWhiteSpace(text))
         {
             return null;
         }
-            
+
         return SyntaxFactory.ParseStatement(text);
     }
 }

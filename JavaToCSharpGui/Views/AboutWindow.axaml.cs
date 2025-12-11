@@ -7,22 +7,18 @@ namespace JavaToCSharpGui.Views;
 
 public partial class AboutWindow : Window
 {
-    private readonly string _version;
-
     public AboutWindow()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        _version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        VersionString = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
                    ?? assembly.GetName().Version?.ToString()
                    ?? "Unknown";
 
         InitializeComponent();
         DataContext = this;
-
-
     }
 
-    public string VersionString => $"Version {_version}";
+    public string VersionString => $"Version {field}";
 
     private void GitHubLinkTapped(object? sender, TappedEventArgs e) => Process.Start(new ProcessStartInfo
     {

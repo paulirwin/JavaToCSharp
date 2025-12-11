@@ -56,7 +56,7 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
                     var classBody = itemConst.getClassBody();
                     if (!constArgs.isEmpty() || !classBody.isEmpty())
                     {
-                        var bodyCodes = CommentsHelper.ConvertToComment(new[] { itemConst }, "enum member body", false);
+                        var bodyCodes = CommentsHelper.ConvertToComment([itemConst], "enum member body", false);
 
                         if (memberDecl.HasLeadingTrivia)
                         {

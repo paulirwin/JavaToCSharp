@@ -8,7 +8,7 @@ public interface ITextClipboard
     /// <summary>
     /// Gets the clipboard's text.
     /// </summary>
-    /// <returns>A <c>Task</c> representing the async operation that returns the clipboard text.</returns>
+    /// <returns>A <c>Task</c> representing the async operation. The result is the clipboard text, or null if unavailable.</returns>
     Task<string?> GetTextAsync();
 
     /// <summary>

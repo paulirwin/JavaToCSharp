@@ -21,6 +21,7 @@ public class SyntaxMapping
         ValidateMethodMapping(VoidMethodMappings);
         ValidateMethodMapping(NonVoidMethodMappings);
     }
+
     private static void ValidateMethodMapping(Dictionary<string,string> mapping)
     {
         // Throw exception if any of the requirements are not meet
@@ -39,5 +40,4 @@ public class SyntaxMapping
             }
         }
     }
-
 }

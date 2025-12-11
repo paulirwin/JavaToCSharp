@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using java.util;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using JavaAst = com.github.javaparser.ast;
 
@@ -9,81 +8,98 @@ namespace JavaToCSharp;
 
 public static class Extensions
 {
-    /// <summary>
-    /// Converts a Java Iterable to a .NET IEnumerable&lt;T&gt; and filters the elements of type T.
-    /// </summary>
-    /// <typeparam name="T">Type of items to be returned.</typeparam>
     /// <param name="iterable">The java Iterable to be enumerated.</param>
-    /// <returns>A filtered enumeration of items of type T</returns>
-    public static IEnumerable<T> OfType<T>(this java.lang.Iterable iterable)
+    extension(java.lang.Iterable iterable)
     {
-        var iterator = iterable.iterator();
-        while (iterator.hasNext())
+        /// <summary>
+        /// Converts a Java Iterable to a .NET IEnumerable&lt;T&gt; and filters the elements of type T.
+        /// </summary>
+        /// <typeparam name="T">Type of items to be returned.</typeparam>
+        /// <returns>A filtered enumeration of items of type T</returns>
+        public IEnumerable<T> OfType<T>()
         {
-            if (iterator.next() is T item)
+            var iterator = iterable.iterator();
+            while (iterator.hasNext())
             {
-                yield return item;
+                if (iterator.next() is T item)
+                {
+                    yield return item;
+                }
             }
         }
     }
 
-    public static List<T>? ToList<T>(this java.util.List? list)
+    extension(java.util.List? list)
     {
-        if (list == null)
-            return null;
-
-        var newList = new List<T>();
-
-        for (int i = 0; i < list.size(); i++)
+        public List<T>? ToList<T>()
         {
-            newList.Add((T)list.get(i));
-        }
+            if (list is null)
+            {
+                return null;
+            }
 
-        return newList;
+            var newList = new List<T>();
+
+            for (int i = 0; i < list.size(); i++)
+            {
+                newList.Add((T)list.get(i));
+            }
+
+            return newList;
+        }
     }
 
-    public static bool HasFlag<T>(this java.util.EnumSet values, T flag) => values.contains(flag);
+    extension(java.util.EnumSet values)
+    {
+        public bool HasFlag<T>(T flag) => values.contains(flag);
+    }
 
-    [return: NotNullIfNotNull(nameof(node))]
-    public static TSyntax? WithJavaComments<TSyntax>(this TSyntax? syntax,
-        ConversionContext context,
-        JavaAst.Node? node)
-        where TSyntax : SyntaxNode
-        => context.Options.IncludeComments
-            ? CommentsHelper.AddCommentsTrivias(syntax, node)
-            : syntax;
-
-    public static CompilationUnitSyntax WithPackageFileComments(this CompilationUnitSyntax syntax,
-            ConversionContext context,
+    extension(CompilationUnitSyntax syntax)
+    {
+        public CompilationUnitSyntax WithPackageFileComments(ConversionContext context,
             JavaAst.CompilationUnit compilationUnit,
             JavaAst.PackageDeclaration? packageDeclaration)
-        => context.Options.IncludeComments
-            ? CommentsHelper.AddPackageComments(syntax, compilationUnit, packageDeclaration)
-            : syntax;
+            => context.Options.IncludeComments
+                ? CommentsHelper.AddPackageComments(syntax, compilationUnit, packageDeclaration)
+                : syntax;
+    }
 
-    public static T? FromOptional<T>(this Optional optional)
-        where T : class
-        => optional.isPresent()
-            ? optional.get() as T ??
-              throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
-            : null;
+    extension(Optional optional)
+    {
+        public T? FromOptional<T>()
+            where T : class
+            => optional.isPresent()
+                ? optional.get() as T ?? throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
+                : null;
 
-    public static T FromRequiredOptional<T>(this Optional optional)
-        where T : class
-        => optional.isPresent()
-            ? optional.get() as T ??
-              throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
-            : throw new InvalidOperationException("Required optional did not have a value");
+        public T FromRequiredOptional<T>()
+            where T : class
+            => optional.isPresent()
+                ? optional.get() as T ?? throw new InvalidOperationException($"Optional did not convert to {typeof(T)}")
+                : throw new InvalidOperationException("Required optional did not have a value");
+    }
 
-    public static ISet<JavaAst.Modifier.Keyword> ToModifierKeywordSet(this JavaAst.NodeList nodeList)
-        => nodeList.ToList<JavaAst.Modifier>()?.Select(i => i.getKeyword()).ToHashSet()
-           ?? new HashSet<JavaAst.Modifier.Keyword>();
+    extension(JavaAst.NodeList nodeList)
+    {
+        public ISet<JavaAst.Modifier.Keyword> ToModifierKeywordSet()
+            => nodeList.ToList<JavaAst.Modifier>()?.Select(i => i.getKeyword()).ToHashSet() ?? [];
+    }
 
-    public static TSyntax WithLeadingNewLines<TSyntax>(this TSyntax syntax, int count = 1)
-        where TSyntax : SyntaxNode
-        => syntax.WithLeadingTrivia(Enumerable.Repeat(Whitespace.NewLine, count));
+    extension<TSyntax>(TSyntax syntax) where TSyntax : SyntaxNode
+    {
+        public TSyntax WithLeadingNewLines(int count = 1)
+            => syntax.WithLeadingTrivia(Enumerable.Repeat(Whitespace.NewLine, count));
 
-    public static TSyntax WithTrailingNewLines<TSyntax>(this TSyntax syntax, int count = 1)
-        where TSyntax : SyntaxNode
-        => syntax.WithTrailingTrivia(Enumerable.Repeat(Whitespace.NewLine, count));
+        public TSyntax WithTrailingNewLines(int count = 1)
+            => syntax.WithTrailingTrivia(Enumerable.Repeat(Whitespace.NewLine, count));
+    }
+
+    extension<TSyntax>(TSyntax? syntax) where TSyntax : SyntaxNode
+    {
+        [return: NotNullIfNotNull(nameof(node))]
+        public TSyntax? WithJavaComments(ConversionContext context, JavaAst.Node? node)
+            => context.Options.IncludeComments
+                ? CommentsHelper.AddCommentsTrivias(syntax, node)
+                : syntax;
+    }
 }

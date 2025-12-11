@@ -19,7 +19,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
         var methodName = TypeHelper.Capitalize(methodCallExpr.getNameAsString());
         methodName = TypeHelper.ReplaceCommonMethodNames(methodName);
 
-        if (scope != null)
+        if (scope is not null)
         {
             scopeSyntax = VisitExpression(context, scope);
 
@@ -49,7 +49,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
 
         ExpressionSyntax methodExpression;
 
-        if (scopeSyntax == null)
+        if (scopeSyntax is null)
         {
             methodExpression = SyntaxFactory.IdentifierName(methodName);
         }
@@ -60,7 +60,7 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
 
         var args = methodCallExpr.getArguments();
 
-        if (args == null || args.size() == 0)
+        if (args is null || args.size() == 0)
         {
             return SyntaxFactory.InvocationExpression(methodExpression);
         }
@@ -71,12 +71,12 @@ public class MethodCallExpressionVisitor : ExpressionVisitor<MethodCallExpr>
     private static bool TryGetMappedMethodName(string methodName, Expression? scope, ConversionContext context, out string mappedMethodName)
     {
         var mappings = context.Options.SyntaxMappings;
-        if (scope == null && mappings.VoidMethodMappings.TryGetValue(methodName, out var voidMapping))
+        if (scope is null && mappings.VoidMethodMappings.TryGetValue(methodName, out var voidMapping))
         {
             mappedMethodName = voidMapping;
             return true;
         }
-        else if (scope != null && mappings.NonVoidMethodMappings.TryGetValue(methodName, out var nonVoidMapping))
+        else if (scope is not null && mappings.NonVoidMethodMappings.TryGetValue(methodName, out var nonVoidMapping))
         {
             mappedMethodName = nonVoidMapping;
             return true;

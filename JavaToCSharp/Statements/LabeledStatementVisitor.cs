@@ -11,6 +11,6 @@ public class LabeledStatementVisitor : StatementVisitor<LabeledStmt>
         var statement = labeledStmt.getStatement();
         var syntax = VisitStatement(context, statement);
 
-        return syntax == null ? null : SyntaxFactory.LabeledStatement(labeledStmt.getLabel().asString(), syntax);
+        return syntax is null ? null : SyntaxFactory.LabeledStatement(labeledStmt.getLabel().asString(), syntax);
     }
 }

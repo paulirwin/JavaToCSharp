@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Invocation;
 using JavaToCSharp;
 using Microsoft.Extensions.Logging;
 
@@ -133,18 +132,20 @@ public class Program
             DefaultValueFactory = _ => null,
         };
 
-        var fileCommand = new Command("file", "Convert a Java file to C#");
-        fileCommand.Arguments.Add(inputArgument);
-        fileCommand.Arguments.Add(outputArgument);
+        var fileCommand = new Command("file", "Convert a Java file to C#")
+        {
+            inputArgument,
+            outputArgument,
+        };
 
         fileCommand.SetAction(context =>
         {
-            var input = context.GetValue(inputArgument);
+            var input = context.GetRequiredValue(inputArgument);
             var output = context.GetValue(outputArgument);
 
             var options = GetJavaConversionOptions(context);
 
-            ConvertToCSharpFile(input!, output, options);
+            ConvertToCSharpFile(input, output, options);
         });
 
         return fileCommand;
@@ -178,7 +179,7 @@ public class Program
             options.AddUsing("System.Text");
         }
 
-        foreach (string ns in context.GetValue(_addUsingsOption) ?? new List<string>())
+        foreach (string ns in context.GetValue(_addUsingsOption) ?? [])
         {
             options.AddUsing(ns);
         }
@@ -203,26 +204,28 @@ public class Program
     {
         var inputArgument = new Argument<DirectoryInfo>("input")
         {
-            Description = "A directory containing Java source code files to convert"
+            Description = "A directory containing Java source code files to convert",
         };
 
         var outputArgument = new Argument<DirectoryInfo>("output")
         {
-            Description = "Path to place the C# output files"
+            Description = "Path to place the C# output files",
         };
 
-        var dirCommand = new Command("dir", "Convert a directory containing Java files to C#");
-        dirCommand.Arguments.Add(inputArgument);
-        dirCommand.Arguments.Add(outputArgument);
+        var dirCommand = new Command("dir", "Convert a directory containing Java files to C#")
+        {
+            inputArgument,
+            outputArgument,
+        };
 
         dirCommand.SetAction(context =>
         {
-            var input = context.GetValue(inputArgument);
-            var output = context.GetValue(outputArgument);
+            var input = context.GetRequiredValue(inputArgument);
+            var output = context.GetRequiredValue(outputArgument);
 
             var options = GetJavaConversionOptions(context);
 
-            ConvertToCSharpDir(input!, output!, options);
+            ConvertToCSharpDir(input, output, options);
         });
 
         return dirCommand;

@@ -1,15 +1,15 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Text.RegularExpressions;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using JavaAst = com.github.javaparser.ast;
 using JavaComments = com.github.javaparser.ast.comments;
 using JavaParser = com.github.javaparser;
-using SysRegex = System.Text.RegularExpressions;
 
 namespace JavaToCSharp;
 
-public static class CommentsHelper
+public static partial class CommentsHelper
 {
     private enum CommentPosition
     {
@@ -18,8 +18,8 @@ public static class CommentsHelper
     }
 
     // Regex: Optional *, capture optional @par, capture optional text (keep leading whitespaces, trim end).
-    private static readonly SysRegex.Regex _analyzeDocString =
-        new(@"^(\s*\*)?(\s*(?<param>@[a-z]+))?\s?(?<text>.*?)\s*$", SysRegex.RegexOptions.Compiled);
+    [GeneratedRegex(@"^(\s*\*)?(\s*(?<param>@[a-z]+))?\s?(?<text>.*?)\s*$", RegexOptions.Compiled)]
+    private static partial Regex AnalyzeDocStringRegex { get; }
 
     private static readonly Dictionary<string, string> _knownTagsDict = new()
     {
@@ -142,9 +142,14 @@ public static class CommentsHelper
     private static List<(JavaComments.Comment c, CommentPosition pos)> GatherComments(JavaAst.Node? node)
     {
         var result = new List<(JavaComments.Comment c, CommentPosition pos)>();
-        if (node == null) return result;
+
+        if (node is null)
+        {
+            return result;
+        }
 
         var parentNode = node.getParentNode().FromOptional<JavaAst.Node>();
+
         if (parentNode is null)
         {
             if (node.getComment().FromOptional<JavaComments.Comment>() is { } comment)
@@ -155,6 +160,7 @@ public static class CommentsHelper
         else
         {
             var unsortedComments = parentNode.getAllContainedComments();
+
             if (unsortedComments.size() != 0)
             {
                 var comments = unsortedComments.OfType<JavaComments.Comment>()
@@ -163,7 +169,7 @@ public static class CommentsHelper
                     .ToList();
 
                 // Find leading comments
-                var nodeBegin = node.getBegin().FromOptional<JavaParser.Position>() 
+                var nodeBegin = node.getBegin().FromOptional<JavaParser.Position>()
                                 ?? throw new InvalidOperationException("Node did not have a begin position");
                 var previousSibling = GetPreviousSibling(parentNode, nodeBegin);
                 int previousPos = previousSibling?.getEnd().FromOptional<JavaParser.Position>()?.line ?? 0;
@@ -173,7 +179,7 @@ public static class CommentsHelper
                 // Find trailing comments.
                 // We consider only comments either appearing on the same line or, if no sibling nodes follow,
                 // then also comments on the succeeding lines (because otherwise they belong to the next sibling).
-                var nodeEnd = node.getEnd().FromOptional<JavaParser.Position>() 
+                var nodeEnd = node.getEnd().FromOptional<JavaParser.Position>()
                               ?? throw new InvalidOperationException("Node did not have an end position");
 
                 var trailingComments = HasNextSibling(parentNode, nodeEnd)
@@ -191,7 +197,7 @@ public static class CommentsHelper
         comments.Where(c =>
             {
                 var commentBegin = c.getBegin().FromOptional<JavaParser.Position>();
-                return commentBegin != null && (commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column || commentBegin.line > nodeEnd.line);
+                return commentBegin is not null && (commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column || commentBegin.line > nodeEnd.line);
             })
             .Select(c => (c, CommentPosition.Trailing));
 
@@ -200,7 +206,7 @@ public static class CommentsHelper
             .Where(c =>
             {
                 var commentBegin = c.getBegin().FromOptional<JavaParser.Position>();
-                return commentBegin != null && commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column;
+                return commentBegin is not null && commentBegin.line == nodeEnd.line && commentBegin.column > nodeEnd.column;
             })
             .Select(c => (c, CommentPosition.Trailing));
 
@@ -212,7 +218,7 @@ public static class CommentsHelper
             .Any(sibling =>
             {
                 var siblingBegin = sibling.getBegin().FromOptional<JavaParser.Position>();
-                return siblingBegin != null && (siblingBegin.line > nodeEnd.line || siblingBegin.line == nodeEnd.line && siblingBegin.column > nodeEnd.column);
+                return siblingBegin is not null && (siblingBegin.line > nodeEnd.line || siblingBegin.line == nodeEnd.line && siblingBegin.column > nodeEnd.column);
             });
     }
 
@@ -222,7 +228,7 @@ public static class CommentsHelper
             {
                 var commentBegin = c.getBegin().FromOptional<JavaParser.Position>();
                 var commentEnd = c.getEnd().FromOptional<JavaParser.Position>();
-                return commentBegin != null && commentEnd != null && commentBegin.line > previousPos && (commentEnd.line < nodeBegin.line || commentEnd.line == nodeBegin.line && commentEnd.column < nodeBegin.column);
+                return commentBegin is not null && commentEnd is not null && commentBegin.line > previousPos && (commentEnd.line < nodeBegin.line || commentEnd.line == nodeBegin.line && commentEnd.column < nodeBegin.column);
             })
             .Select(c => (c, CommentPosition.Leading));
     }
@@ -236,7 +242,7 @@ public static class CommentsHelper
             .LastOrDefault(sibling =>
             {
                 var siblingEnd = sibling.getEnd().FromOptional<JavaParser.Position>();
-                return siblingEnd != null && (siblingEnd.line < nodeBegin.line || siblingEnd.line == nodeBegin.line && siblingEnd.column < nodeBegin.column);
+                return siblingEnd is not null && (siblingEnd.line < nodeBegin.line || siblingEnd.line == nodeBegin.line && siblingEnd.column < nodeBegin.column);
             });
     }
 
@@ -252,7 +258,7 @@ public static class CommentsHelper
         var outputs = new List<string>();
         foreach (var code in codes)
         {
-            string[] input = code.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] input = code.ToString().Split([Environment.NewLine], StringSplitOptions.None);
             outputs.AddRange(input);
         }
 
@@ -277,14 +283,14 @@ public static class CommentsHelper
 
     private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string? post)
     {
-        string[] input = comment.getContent().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+        string[] input = comment.getContent().Split([Environment.NewLine], StringSplitOptions.None);
         var output = new List<string>();
         var remarks = new List<string>(); // For Java tags unknown in C#
         var currentOutput = output;
         string? tag = null;
         foreach (string inputLine in input)
         {
-            var match = _analyzeDocString.Match(inputLine);
+            var match = AnalyzeDocStringRegex.Match(inputLine);
             if (match.Success)
             {
                 string paramName = match.Groups["param"].Value;
@@ -304,7 +310,7 @@ public static class CommentsHelper
                     remarks.Add(paramName + text);
                     tag = "remarks";
                 }
-                else if (tag == null)
+                else if (tag is null)
                 {
                     tag = "summary";
                     OpenSection(output, tag, text);
@@ -358,14 +364,14 @@ public static class CommentsHelper
             }
             else
             {
-                output[output.Count - 1] += xmlEndTag;
+                output[^1] += xmlEndTag;
             }
         }
     }
 
     private static void TrimTrailingEmptyLines(IList<string> lines)
     {
-        while (lines.Count > 0 && lines[lines.Count - 1].Trim() == "")
+        while (lines.Count > 0 && lines[^1].Trim() == "")
         {
             lines.RemoveAt(lines.Count - 1);
         }
@@ -468,7 +474,7 @@ public static class CommentsHelper
             if (t.IsKind(SyntaxKind.MultiLineCommentTrivia))
             {
                 int indentation = GetIndentation(leading, i) + 1; // Add one to align stars.
-                string[] lines = t.ToFullString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                string[] lines = t.ToFullString().Split([Environment.NewLine], StringSplitOptions.None);
                 string indentString = new(' ', indentation);
                 for (int l = 1; l < lines.Length; l++)
                 {

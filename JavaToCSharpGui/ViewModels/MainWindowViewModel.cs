@@ -188,6 +188,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 foreach (var jFile in FolderInputFiles.Where(static x => x.Directory is not null))
                 {
+                    // ! null checked above
                     string jPath = jFile.Directory!.FullName;
                     string jOutPath = $"{outDirFullName}{jPath[subStartIndex..]}";
                     string jOutFileName = Path.GetFileNameWithoutExtension(jFile.Name) + ".cs";
@@ -314,23 +315,83 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task PasteInput()
+    private async Task PasteJavaCode()
     {
         if (_clipboard is null)
         {
             return;
         }
 
-        var text = await _clipboard.GetTextAsync();
-        if (!string.IsNullOrEmpty(text))
+        string? clipboardText = await _clipboard.GetTextAsync();
+        if (clipboardText is null)
         {
-            JavaText.Text = text;
-            ConversionStateLabel = "Pasted Java code from clipboard!";
-
-            await Task.Delay(2000);
-
-            await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+            ShowMessage("Clipboard is empty or unavailable.", "Paste Error");
+            return;
         }
+
+        JavaText.Text = clipboardText;
+        ConversionStateLabel = "Pasted Java code from clipboard!";
+
+        await Task.Delay(2000);
+
+        await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+    }
+
+    [RelayCommand]
+    private async Task ClipboardConvert()
+    {
+        if (_clipboard is null)
+        {
+            return;
+        }
+
+        // Get clipboard text
+        string? clipboardText = await _clipboard.GetTextAsync();
+        if (clipboardText is null)
+        {
+            ShowMessage("Clipboard is empty or unavailable.", "Clipboard Convert Error");
+            return;
+        }
+
+        // Set Java text
+        JavaText.Text = clipboardText;
+
+        // Perform conversion
+        CurrentOptions.Options.WarningEncountered += Options_WarningEncountered;
+        CurrentOptions.Options.StateChanged += Options_StateChanged;
+
+        IsConvertEnabled = false;
+        _usingFolderConvert = false;
+
+        await Task.Run(async () =>
+        {
+            try
+            {
+                string? csharp = JavaToCSharpConverter.ConvertText(clipboardText, CurrentOptions.Options);
+                await DispatcherInvoke(() => CSharpText.Text = csharp ?? "");
+
+                // Copy result to clipboard
+                await _clipboard.SetTextAsync(csharp ?? "");
+                ConversionStateLabel = "Conversion complete! C# code copied to clipboard.";
+
+                await Task.Delay(2000);
+                await _dispatcher.InvokeAsync(() => { ConversionStateLabel = ""; }, DispatcherPriority.Background);
+            }
+            catch (Exception ex)
+            {
+                await DispatcherInvoke(() =>
+                    ShowMessage($"There was an error converting the text to C#: {ex.GetBaseException().Message}",
+                        "Conversion Error"));
+
+                ConversionStateLabel = "";
+            }
+            finally
+            {
+                await DispatcherInvoke(() => IsConvertEnabled = true);
+                CurrentOptions.Options.WarningEncountered -= Options_WarningEncountered;
+                CurrentOptions.Options.StateChanged -= Options_StateChanged;
+            }
+        });
     }
 
     [RelayCommand]
@@ -356,7 +417,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             IStorageFolder? startLocation = null;
 
-            if (Path.GetDirectoryName(OpenPath) is string dir)
+            if (Path.GetDirectoryName(OpenPath) is { } dir)
             {
                 startLocation = await _storageProvider.TryGetFolderFromPathAsync(dir);
             }

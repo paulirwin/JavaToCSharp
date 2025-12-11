@@ -49,8 +49,8 @@ public static class JavaToCSharpConverter
 
         options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
-        var types = result.getTypes().ToList<TypeDeclaration>() ?? new List<TypeDeclaration>();
-        var imports = result.getImports()?.ToList<ImportDeclaration>() ?? new List<ImportDeclaration>();
+        var types = result.getTypes().ToList<TypeDeclaration>() ?? [];
+        var imports = result.getImports()?.ToList<ImportDeclaration>() ?? [];
         var package = result.getPackageDeclaration().FromOptional<PackageDeclaration>();
 
         var rootMembers = new List<MemberDeclarationSyntax>();
@@ -67,7 +67,7 @@ public static class JavaToCSharpConverter
                     continue;
                 }
 
-                packageName = packageReplacement.Replace(packageName)!;
+                packageName = packageReplacement.Replace(packageName);
             }
 
             packageName = TypeHelper.Capitalize(packageName);
@@ -105,7 +105,7 @@ public static class JavaToCSharpConverter
             }
         }
 
-        if (namespaceNameSyntax != null)
+        if (namespaceNameSyntax is not null)
         {
             if (options.UseFileScopedNamespaces && rootMembers.Count > 0)
             {

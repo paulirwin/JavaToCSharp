@@ -12,7 +12,7 @@ public class MethodReferenceExpressionVisitor : ExpressionVisitor<MethodReferenc
         var scope = expr.getScope();
         ExpressionSyntax? scopeSyntax = null;
 
-        if (scope != null)
+        if (scope is not null)
         {
             scopeSyntax = VisitExpression(context, scope);
         }
@@ -22,7 +22,7 @@ public class MethodReferenceExpressionVisitor : ExpressionVisitor<MethodReferenc
 
         ExpressionSyntax methodExpression;
 
-        if (scopeSyntax == null)
+        if (scopeSyntax is null)
         {
             methodExpression = SyntaxFactory.IdentifierName(methodName);
         }
@@ -33,7 +33,7 @@ public class MethodReferenceExpressionVisitor : ExpressionVisitor<MethodReferenc
 
         var args = expr.getTypeArguments().FromOptional<NodeList>();
 
-        if (args == null || args.size() == 0)
+        if (args is null || args.size() == 0)
         {
             return SyntaxFactory.InvocationExpression(methodExpression);
         }
