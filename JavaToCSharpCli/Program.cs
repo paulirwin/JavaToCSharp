@@ -13,63 +13,75 @@ public class Program
     private static readonly ILoggerFactory _loggerFactory;
     private static readonly ILogger _logger;
 
-    private static readonly Option<bool> _includeSubdirectoriesOption = new("--include-subdirectories") {
+    private static readonly Option<bool> _includeSubdirectoriesOption = new("--include-subdirectories")
+    {
         Description = "When the command is dir, converts files in all subdirectories",
         DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<bool> _includeUsingsOption = new("--include-usings") {
+    private static readonly Option<bool> _includeUsingsOption = new("--include-usings")
+    {
         Description = "Include using directives in output",
-		DefaultValueFactory = _ => true,
+        DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<bool> _includeNamespaceOption = new("--include-namespace") {
-		Description = "Include namespace in output",
-        DefaultValueFactory = _ => true
+    private static readonly Option<bool> _includeNamespaceOption = new("--include-namespace")
+    {
+        Description = "Include namespace in output",
+        DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<bool> _includeCommentsOption = new("--include-comments") {
-		Description = "Include comments in output",
-        DefaultValueFactory = _ => true
+    private static readonly Option<bool> _includeCommentsOption = new("--include-comments")
+    {
+        Description = "Include comments in output",
+        DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<bool> _useDebugAssertOption = new("--use-debug-assert") {
+    private static readonly Option<bool> _useDebugAssertOption = new("--use-debug-assert")
+    {
         Description = "Use Debug.Assert for asserts",
-        DefaultValueFactory = _ => false
+        DefaultValueFactory = _ => false,
     };
 
-    private static readonly Option<bool> _startInterfaceNamesWithIOption = new("--start-interface-names-with-i") {
+    private static readonly Option<bool> _startInterfaceNamesWithIOption = new("--start-interface-names-with-i")
+    {
         Description = "Prefix interface names with the letter I",
-        DefaultValueFactory = _ => true
+        DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<bool> _commentUnrecognizedCodeOption = new("--comment-unrecognized-code") {
+    private static readonly Option<bool> _commentUnrecognizedCodeOption = new("--comment-unrecognized-code")
+    {
         Description = "Include unrecognized code in output as commented-out code",
-        DefaultValueFactory = _ => true
+        DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<bool> _systemOutToConsoleOption = new("--system-out-to-console") {
+    private static readonly Option<bool> _systemOutToConsoleOption = new("--system-out-to-console")
+    {
         Description = "Convert System.out calls to Console",
-        DefaultValueFactory = _ => false
+        DefaultValueFactory = _ => false,
     };
 
-    private static readonly Option<bool> _fileScopedNamespacesOption = new("--file-scoped-namespaces") {
+    private static readonly Option<bool> _fileScopedNamespacesOption = new("--file-scoped-namespaces")
+    {
         Description = "Use file-scoped namespaces in C# output",
-        DefaultValueFactory = _ => false
+        DefaultValueFactory = _ => false,
     };
 
-    private static readonly Option<bool> _clearDefaultUsingsOption = new("--clear-usings") {
+    private static readonly Option<bool> _clearDefaultUsingsOption = new("--clear-usings")
+    {
         Description = "Remove all default usings provided by this app",
-        DefaultValueFactory = _ => false
+        DefaultValueFactory = _ => false,
     };
 
-    private static readonly Option<List<string>> _addUsingsOption = new("--add-using") {
+    private static readonly Option<List<string>> _addUsingsOption = new("--add-using")
+    {
         Description = "Adds a using directive to the collection of usings",
-        HelpName = "namespace"
+        HelpName = "namespace",
     };
 
-    private static readonly Option<string> _mappingsFileNameOption = new("--mappings-file") {
-        Description = "A yaml file with syntax mappings from imports, methods and annotations"
+    private static readonly Option<string> _mappingsFileNameOption = new("--mappings-file")
+    {
+        Description = "A yaml file with syntax mappings from imports, methods and annotations",
     };
 
     static Program()
@@ -83,7 +95,7 @@ public class Program
     {
         var rootCommand = new RootCommand("Java to C# Converter")
         {
-            Description = "A syntactic transformer of source code from Java to C#."
+            Description = "A syntactic transformer of source code from Java to C#.",
         };
 
         rootCommand.Subcommands.Add(CreateFileCommand());
@@ -110,13 +122,15 @@ public class Program
 
     private static Command CreateFileCommand()
     {
-        var inputArgument = new Argument<FileInfo>("input") {
-            Description = "A Java source code file to convert"
+        var inputArgument = new Argument<FileInfo>("input")
+        {
+            Description = "A Java source code file to convert",
         };
 
-        var outputArgument = new Argument<FileInfo?>("output") {
+        var outputArgument = new Argument<FileInfo?>("output")
+        {
             Description = "Path to place the C# output file, or stdout if omitted",
-            DefaultValueFactory = _ => null
+            DefaultValueFactory = _ => null,
         };
 
         var fileCommand = new Command("file", "Convert a Java file to C#");
@@ -187,11 +201,13 @@ public class Program
 
     private static Command CreateDirectoryCommand()
     {
-        var inputArgument = new Argument<DirectoryInfo>("input") {
+        var inputArgument = new Argument<DirectoryInfo>("input")
+        {
             Description = "A directory containing Java source code files to convert"
         };
 
-        var outputArgument = new Argument<DirectoryInfo>("output") {
+        var outputArgument = new Argument<DirectoryInfo>("output")
+        {
             Description = "Path to place the C# output files"
         };
 
@@ -237,13 +253,17 @@ public class Program
             }
         }
         else
+        {
             _logger.LogError("Java input folder {path} doesn't exist!", inputDirectory);
+        }
     }
 
     private static void ConvertToCSharpFile(FileSystemInfo inputFile, FileSystemInfo? outputFile, JavaConversionOptions options, bool overwrite = true)
     {
         if (!overwrite && outputFile is { Exists: true })
+        {
             _logger.LogInformation("{outputFilePath} exists, skip to next.", outputFile);
+        }
         else if (inputFile.Exists)
         {
             try
@@ -281,7 +301,9 @@ public class Program
             }
         }
         else
+        {
             _logger.LogError("Java input file {filePath} doesn't exist!", inputFile.FullName);
+        }
     }
 
     private static void OutputFileOrPrint(string? fileName, string contents)

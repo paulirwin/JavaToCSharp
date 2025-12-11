@@ -1,6 +1,6 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			xmlns:semi="https://irihi.tech/semi"
+            xmlns:semi="https://irihi.tech/semi"
             x:Class="JavaToCSharpGui.App"
             Name="Java to C#"
             RequestedThemeVariant="Default">
@@ -10,7 +10,7 @@
     </Application.Resources>
     <Application.Styles>
         <FluentTheme /> <!-- FluentTheme will get overridden by the StyleInclude below but is needed for AvaloniaEdit -->
-		<semi:SemiTheme />
-		<semi:AvaloniaEditSemiTheme />
+        <semi:SemiTheme />
+        <semi:AvaloniaEditSemiTheme />
     </Application.Styles>
 </Application>
