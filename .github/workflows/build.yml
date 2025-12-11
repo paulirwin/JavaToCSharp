@@ -11,10 +11,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET 8
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
     - name: Build JavaToCSharp
       run: dotnet build ./JavaToCSharp/JavaToCSharp.csproj --configuration Release
 
@@ -30,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET 8
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
     - name: Build JavaToCSharp
       run: dotnet build ./JavaToCSharp/JavaToCSharp.csproj --configuration Release
 

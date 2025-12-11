@@ -13,66 +13,76 @@ public class Program
     private static readonly ILoggerFactory _loggerFactory;
     private static readonly ILogger _logger;
 
-    private static readonly Option<bool> _includeSubdirectoriesOption = new(
-        name: "--include-subdirectories",
-        description: "When the command is dir, converts files in all subdirectories",
-        getDefaultValue: () => true);
-
-    private static readonly Option<bool> _includeUsingsOption = new(
-        name: "--include-usings",
-        description: "Include using directives in output",
-        getDefaultValue: () => true);
-
-    private static readonly Option<bool> _includeNamespaceOption = new(
-        name: "--include-namespace",
-        description: "Include namespace in output",
-        getDefaultValue: () => true);
-
-    private static readonly Option<bool> _includeCommentsOption = new(
-        name: "--include-comments",
-        description: "Include comments in output",
-        getDefaultValue: () => true);
-
-    private static readonly Option<bool> _useDebugAssertOption = new(
-        name: "--use-debug-assert",
-        description: "Use Debug.Assert for asserts",
-        getDefaultValue: () => false);
-
-    private static readonly Option<bool> _startInterfaceNamesWithIOption = new(
-        name: "--start-interface-names-with-i",
-        description: "Prefix interface names with the letter I",
-        getDefaultValue: () => true);
-
-    private static readonly Option<bool> _commentUnrecognizedCodeOption = new(
-        name: "--comment-unrecognized-code",
-        description: "Include unrecognized code in output as commented-out code",
-        getDefaultValue: () => true);
-
-    private static readonly Option<bool> _systemOutToConsoleOption = new(
-        name: "--system-out-to-console",
-        description: "Convert System.out calls to Console",
-        getDefaultValue: () => false);
-
-    private static readonly Option<bool> _fileScopedNamespacesOption = new(
-        name: "--file-scoped-namespaces",
-        description: "Use file-scoped namespaces in C# output",
-        getDefaultValue: () => false);
-
-    private static readonly Option<bool> _clearDefaultUsingsOption = new(
-        name: "--clear-usings",
-        description: "Remove all default usings provided by this app",
-        getDefaultValue: () => false);
-
-    private static readonly Option<List<string>> _addUsingsOption = new(
-        name: "--add-using",
-        description: "Adds a using directive to the collection of usings")
+    private static readonly Option<bool> _includeSubdirectoriesOption = new("--include-subdirectories")
     {
-        ArgumentHelpName = "namespace"
+        Description = "When the command is dir, converts files in all subdirectories",
+        DefaultValueFactory = _ => true,
     };
 
-    private static readonly Option<string> _mappingsFileNameOption = new(
-        name: "--mappings-file",
-        description: "A yaml file with syntax mappings from imports, methods and annotations");
+    private static readonly Option<bool> _includeUsingsOption = new("--include-usings")
+    {
+        Description = "Include using directives in output",
+        DefaultValueFactory = _ => true,
+    };
+
+    private static readonly Option<bool> _includeNamespaceOption = new("--include-namespace")
+    {
+        Description = "Include namespace in output",
+        DefaultValueFactory = _ => true,
+    };
+
+    private static readonly Option<bool> _includeCommentsOption = new("--include-comments")
+    {
+        Description = "Include comments in output",
+        DefaultValueFactory = _ => true,
+    };
+
+    private static readonly Option<bool> _useDebugAssertOption = new("--use-debug-assert")
+    {
+        Description = "Use Debug.Assert for asserts",
+        DefaultValueFactory = _ => false,
+    };
+
+    private static readonly Option<bool> _startInterfaceNamesWithIOption = new("--start-interface-names-with-i")
+    {
+        Description = "Prefix interface names with the letter I",
+        DefaultValueFactory = _ => true,
+    };
+
+    private static readonly Option<bool> _commentUnrecognizedCodeOption = new("--comment-unrecognized-code")
+    {
+        Description = "Include unrecognized code in output as commented-out code",
+        DefaultValueFactory = _ => true,
+    };
+
+    private static readonly Option<bool> _systemOutToConsoleOption = new("--system-out-to-console")
+    {
+        Description = "Convert System.out calls to Console",
+        DefaultValueFactory = _ => false,
+    };
+
+    private static readonly Option<bool> _fileScopedNamespacesOption = new("--file-scoped-namespaces")
+    {
+        Description = "Use file-scoped namespaces in C# output",
+        DefaultValueFactory = _ => false,
+    };
+
+    private static readonly Option<bool> _clearDefaultUsingsOption = new("--clear-usings")
+    {
+        Description = "Remove all default usings provided by this app",
+        DefaultValueFactory = _ => false,
+    };
+
+    private static readonly Option<List<string>> _addUsingsOption = new("--add-using")
+    {
+        Description = "Adds a using directive to the collection of usings",
+        HelpName = "namespace",
+    };
+
+    private static readonly Option<string> _mappingsFileNameOption = new("--mappings-file")
+    {
+        Description = "A yaml file with syntax mappings from imports, methods and annotations",
+    };
 
     static Program()
     {
@@ -85,26 +95,26 @@ public class Program
     {
         var rootCommand = new RootCommand("Java to C# Converter")
         {
-            Description = "A syntactic transformer of source code from Java to C#."
+            Description = "A syntactic transformer of source code from Java to C#.",
         };
 
-        rootCommand.AddCommand(CreateFileCommand());
-        rootCommand.AddCommand(CreateDirectoryCommand());
+        rootCommand.Subcommands.Add(CreateFileCommand());
+        rootCommand.Subcommands.Add(CreateDirectoryCommand());
 
-        rootCommand.AddGlobalOption(_includeSubdirectoriesOption);
-        rootCommand.AddGlobalOption(_includeUsingsOption);
-        rootCommand.AddGlobalOption(_includeNamespaceOption);
-        rootCommand.AddGlobalOption(_includeCommentsOption);
-        rootCommand.AddGlobalOption(_useDebugAssertOption);
-        rootCommand.AddGlobalOption(_startInterfaceNamesWithIOption);
-        rootCommand.AddGlobalOption(_commentUnrecognizedCodeOption);
-        rootCommand.AddGlobalOption(_systemOutToConsoleOption);
-        rootCommand.AddGlobalOption(_fileScopedNamespacesOption);
-        rootCommand.AddGlobalOption(_clearDefaultUsingsOption);
-        rootCommand.AddGlobalOption(_addUsingsOption);
-        rootCommand.AddGlobalOption(_mappingsFileNameOption);
+        rootCommand.Options.Add(_includeSubdirectoriesOption);
+        rootCommand.Options.Add(_includeUsingsOption);
+        rootCommand.Options.Add(_includeNamespaceOption);
+        rootCommand.Options.Add(_includeCommentsOption);
+        rootCommand.Options.Add(_useDebugAssertOption);
+        rootCommand.Options.Add(_startInterfaceNamesWithIOption);
+        rootCommand.Options.Add(_commentUnrecognizedCodeOption);
+        rootCommand.Options.Add(_systemOutToConsoleOption);
+        rootCommand.Options.Add(_fileScopedNamespacesOption);
+        rootCommand.Options.Add(_clearDefaultUsingsOption);
+        rootCommand.Options.Add(_addUsingsOption);
+        rootCommand.Options.Add(_mappingsFileNameOption);
 
-        await rootCommand.InvokeAsync(args);
+        await rootCommand.Parse(args).InvokeAsync();
 
         // flush logs
         _loggerFactory.Dispose();
@@ -112,48 +122,50 @@ public class Program
 
     private static Command CreateFileCommand()
     {
-        var inputArgument = new Argument<FileInfo>(
-            name: "input",
-            description: "A Java source code file to convert");
+        var inputArgument = new Argument<FileInfo>("input")
+        {
+            Description = "A Java source code file to convert",
+        };
 
-        var outputArgument = new Argument<FileInfo?>(
-            name: "output",
-            description: "Path to place the C# output file, or stdout if omitted",
-            getDefaultValue: () => null);
+        var outputArgument = new Argument<FileInfo?>("output")
+        {
+            Description = "Path to place the C# output file, or stdout if omitted",
+            DefaultValueFactory = _ => null,
+        };
 
         var fileCommand = new Command("file", "Convert a Java file to C#");
-        fileCommand.AddArgument(inputArgument);
-        fileCommand.AddArgument(outputArgument);
+        fileCommand.Arguments.Add(inputArgument);
+        fileCommand.Arguments.Add(outputArgument);
 
-        fileCommand.SetHandler(context =>
+        fileCommand.SetAction(context =>
         {
-            var input = context.ParseResult.GetValueForArgument(inputArgument);
-            var output = context.ParseResult.GetValueForArgument(outputArgument);
+            var input = context.GetValue(inputArgument);
+            var output = context.GetValue(outputArgument);
 
             var options = GetJavaConversionOptions(context);
 
-            ConvertToCSharpFile(input, output, options);
+            ConvertToCSharpFile(input!, output, options);
         });
 
         return fileCommand;
     }
 
-    private static JavaConversionOptions GetJavaConversionOptions(InvocationContext context)
+    private static JavaConversionOptions GetJavaConversionOptions(ParseResult context)
     {
         var options = new JavaConversionOptions
         {
-            IncludeSubdirectories = context.ParseResult.GetValueForOption(_includeSubdirectoriesOption),
-            IncludeUsings = context.ParseResult.GetValueForOption(_includeUsingsOption),
-            IncludeComments = context.ParseResult.GetValueForOption(_includeCommentsOption),
-            IncludeNamespace = context.ParseResult.GetValueForOption(_includeNamespaceOption),
-            ConvertSystemOutToConsole = context.ParseResult.GetValueForOption(_systemOutToConsoleOption),
-            StartInterfaceNamesWithI = context.ParseResult.GetValueForOption(_startInterfaceNamesWithIOption),
-            UseDebugAssertForAsserts = context.ParseResult.GetValueForOption(_useDebugAssertOption),
-            UseUnrecognizedCodeToComment = context.ParseResult.GetValueForOption(_commentUnrecognizedCodeOption),
-            UseFileScopedNamespaces = context.ParseResult.GetValueForOption(_fileScopedNamespacesOption),
+            IncludeSubdirectories = context.GetValue(_includeSubdirectoriesOption),
+            IncludeUsings = context.GetValue(_includeUsingsOption),
+            IncludeComments = context.GetValue(_includeCommentsOption),
+            IncludeNamespace = context.GetValue(_includeNamespaceOption),
+            ConvertSystemOutToConsole = context.GetValue(_systemOutToConsoleOption),
+            StartInterfaceNamesWithI = context.GetValue(_startInterfaceNamesWithIOption),
+            UseDebugAssertForAsserts = context.GetValue(_useDebugAssertOption),
+            UseUnrecognizedCodeToComment = context.GetValue(_commentUnrecognizedCodeOption),
+            UseFileScopedNamespaces = context.GetValue(_fileScopedNamespacesOption),
         };
 
-        if (context.ParseResult.GetValueForOption(_clearDefaultUsingsOption))
+        if (context.GetValue(_clearDefaultUsingsOption))
         {
             options.ClearUsings();
         }
@@ -166,12 +178,12 @@ public class Program
             options.AddUsing("System.Text");
         }
 
-        foreach (string ns in context.ParseResult.GetValueForOption(_addUsingsOption) ?? new List<string>())
+        foreach (string ns in context.GetValue(_addUsingsOption) ?? new List<string>())
         {
             options.AddUsing(ns);
         }
 
-        var mappingsFile = context.ParseResult.GetValueForOption(_mappingsFileNameOption);
+        var mappingsFile = context.GetValue(_mappingsFileNameOption);
         if (!string.IsNullOrEmpty(mappingsFile))
         {
             options.SyntaxMappings = ReadMappingsFile(mappingsFile);
@@ -189,26 +201,28 @@ public class Program
 
     private static Command CreateDirectoryCommand()
     {
-        var inputArgument = new Argument<DirectoryInfo>(
-            name: "input",
-            description: "A directory containing Java source code files to convert");
+        var inputArgument = new Argument<DirectoryInfo>("input")
+        {
+            Description = "A directory containing Java source code files to convert"
+        };
 
-        var outputArgument = new Argument<DirectoryInfo>(
-            name: "output",
-            description: "Path to place the C# output files");
+        var outputArgument = new Argument<DirectoryInfo>("output")
+        {
+            Description = "Path to place the C# output files"
+        };
 
         var dirCommand = new Command("dir", "Convert a directory containing Java files to C#");
-        dirCommand.AddArgument(inputArgument);
-        dirCommand.AddArgument(outputArgument);
+        dirCommand.Arguments.Add(inputArgument);
+        dirCommand.Arguments.Add(outputArgument);
 
-        dirCommand.SetHandler(context =>
+        dirCommand.SetAction(context =>
         {
-            var input = context.ParseResult.GetValueForArgument(inputArgument);
-            var output = context.ParseResult.GetValueForArgument(outputArgument);
+            var input = context.GetValue(inputArgument);
+            var output = context.GetValue(outputArgument);
 
             var options = GetJavaConversionOptions(context);
 
-            ConvertToCSharpDir(input, output, options);
+            ConvertToCSharpDir(input!, output!, options);
         });
 
         return dirCommand;
@@ -239,13 +253,17 @@ public class Program
             }
         }
         else
+        {
             _logger.LogError("Java input folder {path} doesn't exist!", inputDirectory);
+        }
     }
 
     private static void ConvertToCSharpFile(FileSystemInfo inputFile, FileSystemInfo? outputFile, JavaConversionOptions options, bool overwrite = true)
     {
         if (!overwrite && outputFile is { Exists: true })
+        {
             _logger.LogInformation("{outputFilePath} exists, skip to next.", outputFile);
+        }
         else if (inputFile.Exists)
         {
             try
@@ -283,7 +301,9 @@ public class Program
             }
         }
         else
+        {
             _logger.LogError("Java input file {filePath} doesn't exist!", inputFile.FullName);
+        }
     }
 
     private static void OutputFileOrPrint(string? fileName, string contents)
