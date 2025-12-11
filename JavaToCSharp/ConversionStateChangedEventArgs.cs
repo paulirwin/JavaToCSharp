@@ -1,13 +1,6 @@
-﻿using System;
+﻿namespace JavaToCSharp;
 
-namespace JavaToCSharp;
-
-public sealed class ConversionStateChangedEventArgs : EventArgs
+public sealed class ConversionStateChangedEventArgs(ConversionState newState) : EventArgs
 {
-    public ConversionStateChangedEventArgs(ConversionState newState)
-    {
-        NewState = newState;
-    }
-
-    public ConversionState NewState { get; }
+    public ConversionState NewState { get; } = newState;
 }

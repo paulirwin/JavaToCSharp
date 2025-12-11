@@ -2,24 +2,19 @@
 
 namespace JavaToCSharp;
 
-public class Replacement
+public class Replacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
 {
-    public Replacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
-    {
-        Regex = new Regex(pattern, options);
-        ReplacementValue = replacement;
-    }
+    public Regex Regex { get; } = new(pattern, options);
 
-    public Regex? Regex { get; }
+    public string? ReplacementValue { get; } = replacement;
 
-    public string? ReplacementValue { get; }
-
-    public string? Replace(string input) => string.IsNullOrWhiteSpace(ReplacementValue) ? null : Regex?.Replace(input, ReplacementValue);
+    public string Replace(string input)
+        => string.IsNullOrWhiteSpace(ReplacementValue)
+        ? string.Empty
+        : Regex.Replace(input, ReplacementValue);
 
     protected bool Equals(Replacement other)
-    {
-        return Equals(Regex, other.Regex) && ReplacementValue == other.ReplacementValue;
-    }
+        => Equals(Regex, other.Regex) && ReplacementValue == other.ReplacementValue;
 
     public override bool Equals(object? obj)
     {
@@ -30,10 +25,5 @@ public class Replacement
     }
 
     public override int GetHashCode()
-    {
-        unchecked
-        {
-            return ((Regex != null ? Regex.GetHashCode() : 0) * 397) ^ (ReplacementValue != null ? ReplacementValue.GetHashCode() : 0);
-        }
-    }
+        => HashCode.Combine(Regex, ReplacementValue);
 }

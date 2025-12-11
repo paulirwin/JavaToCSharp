@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis.CSharp;
 using Xunit.Abstractions;
 
 namespace JavaToCSharp.Tests;

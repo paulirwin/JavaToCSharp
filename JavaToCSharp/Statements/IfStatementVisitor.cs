@@ -11,6 +11,7 @@ public class IfStatementVisitor : StatementVisitor<IfStmt>
     {
         var condition = ifStmt.getCondition();
         var conditionSyntax = ExpressionVisitor.VisitExpression(context, condition);
+
         if (conditionSyntax is null)
         {
             return null;
@@ -19,20 +20,25 @@ public class IfStatementVisitor : StatementVisitor<IfStmt>
         var thenStmt = ifStmt.getThenStmt();
         var thenSyntax = VisitStatement(context, thenStmt);
 
-        if (thenSyntax == null)
+        if (thenSyntax is null)
+        {
             return null;
+        }
 
         var elseStmt = ifStmt.getElseStmt().FromOptional<Statement>();
 
-        if (elseStmt == null)
+        if (elseStmt is null)
+        {
             return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax);
+        }
 
         var elseStatementSyntax = VisitStatement(context, elseStmt);
+
         if (elseStatementSyntax is null)
         {
             return null;
         }
-        
+
         var elseSyntax = SyntaxFactory.ElseClause(elseStatementSyntax);
         return SyntaxFactory.IfStatement(conditionSyntax, thenSyntax, elseSyntax);
     }

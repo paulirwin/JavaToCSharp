@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast;
+﻿using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.type;
@@ -71,7 +69,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
 
         var extends = interfaceDecl.getExtendedTypes().ToList<ClassOrInterfaceType>();
 
-        if (extends != null)
+        if (extends is not null)
         {
             foreach (var extend in extends)
             {
@@ -81,7 +79,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
 
         var implements = interfaceDecl.getImplementedTypes().ToList<ClassOrInterfaceType>();
 
-        if (implements != null)
+        if (implements is not null)
         {
             foreach (var implement in implements)
             {
@@ -98,7 +96,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                 var syntax = VisitBodyDeclarationForInterface(context, classSyntax, member);
                 var memberWithComments = syntax?.WithJavaComments(context, member);
 
-                if (memberWithComments != null)
+                if (memberWithComments is not null)
                 {
                     classSyntax = classSyntax.AddMembers(memberWithComments);
                 }
@@ -144,14 +142,14 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         if (mods.Contains(Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
-        var extends = classDecl.getExtendedTypes().ToList<ClassOrInterfaceType>() ?? new List<ClassOrInterfaceType>();
+        var extends = classDecl.getExtendedTypes().ToList<ClassOrInterfaceType>() ?? [];
 
         foreach (var extend in extends)
         {
             classSyntax = classSyntax.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.GetSyntaxFromType(extend)));
         }
 
-        var implements = classDecl.getImplementedTypes().ToList<ClassOrInterfaceType>() ?? new List<ClassOrInterfaceType>();
+        var implements = classDecl.getImplementedTypes().ToList<ClassOrInterfaceType>() ?? [];
 
         foreach (var implement in implements)
         {
@@ -184,7 +182,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
                     var syntax = VisitBodyDeclarationForClass(context, classSyntax, member, extends, implements);
                     var withJavaComments = syntax?.WithJavaComments(context, member);
 
-                    if (withJavaComments != null)
+                    if (withJavaComments is not null)
                     {
                         classSyntax = classSyntax.AddMembers(withJavaComments);
                     }

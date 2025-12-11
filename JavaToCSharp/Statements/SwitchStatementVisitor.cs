@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast.expr;
+﻿using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,6 +12,7 @@ public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
     {
         var selector = switchStmt.getSelector();
         var selectorSyntax = ExpressionVisitor.VisitExpression(context, selector);
+
         if (selectorSyntax is null)
         {
             return null;
@@ -21,8 +20,10 @@ public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
 
         var cases = switchStmt.getEntries().ToList<SwitchEntry>();
 
-        if (cases == null)
+        if (cases is null)
+        {
             return SyntaxFactory.SwitchStatement(selectorSyntax, SyntaxFactory.List<SwitchSectionSyntax>());
+        }
 
         var caseSyntaxes = new List<SwitchSectionSyntax>();
 
@@ -58,9 +59,9 @@ public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
             {
                 var labelSyntaxes = labels
                     .Select(i => ExpressionVisitor.VisitExpression(context, i))
-                    .Where(i => i != null)
-                    .Select(i => (SwitchLabelSyntax)SyntaxFactory.CaseSwitchLabel(i!));
-                
+                    .OfType<ExpressionSyntax>()
+                    .Select(SwitchLabelSyntax (i) => SyntaxFactory.CaseSwitchLabel(i));
+
                 var caseSyntax = SyntaxFactory.SwitchSection(
                     SyntaxFactory.List(labelSyntaxes.ToList()),
                     SyntaxFactory.List(syntaxes.AsEnumerable()));

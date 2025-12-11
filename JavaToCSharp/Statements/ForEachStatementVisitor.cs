@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast.body;
+﻿using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -23,7 +21,7 @@ public class ForEachStatementVisitor : StatementVisitor<ForEachStmt>
         var varType = varExpr.getCommonType();
         var type = TypeHelper.ConvertType(varType);
 
-        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>()?? new List<VariableDeclarator>();
+        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>()?? [];
         var vars = variableDeclarators
                    .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
                    .ToArray();
@@ -31,6 +29,6 @@ public class ForEachStatementVisitor : StatementVisitor<ForEachStmt>
         var body = foreachStmt.getBody();
         var bodySyntax = VisitStatement(context, body);
 
-        return bodySyntax == null ? null : SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
+        return bodySyntax is null ? null : SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
     }
 }

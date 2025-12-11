@@ -11,7 +11,7 @@ public class FieldAccessExpressionVisitor : ExpressionVisitor<FieldAccessExpr>
         var scope = fieldAccessExpr.getScope();
         ExpressionSyntax? scopeSyntax = null;
 
-        if (scope != null)
+        if (scope is not null)
         {
             scopeSyntax = VisitExpression(context, scope);
 

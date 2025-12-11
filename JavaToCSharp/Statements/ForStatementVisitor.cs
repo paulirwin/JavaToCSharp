@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser.ast.body;
+﻿using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
 using JavaToCSharp.Expressions;
@@ -18,7 +16,7 @@ public class ForStatementVisitor : StatementVisitor<ForStmt>
         var initSyntaxes = new List<ExpressionSyntax>();
         VariableDeclarationSyntax? varSyntax = null;
 
-        if (inits != null)
+        if (inits is not null)
         {
             foreach (var init in inits)
             {
@@ -26,7 +24,7 @@ public class ForStatementVisitor : StatementVisitor<ForStmt>
                 {
                     var type = TypeHelper.ConvertType(varExpr.getCommonType());
 
-                    var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? new List<VariableDeclarator>();
+                    var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? [];
                     var vars = variableDeclarators
                                .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
                                .ToArray();
@@ -50,17 +48,19 @@ public class ForStatementVisitor : StatementVisitor<ForStmt>
         var increments = forStmt.getUpdate().ToList<Expression>();
         var incrementSyntaxes = new List<ExpressionSyntax>();
 
-        if (increments != null)
+        if (increments is not null)
         {
             var expressionSyntaxes = increments.Select(increment => ExpressionVisitor.VisitExpression(context, increment));
-            incrementSyntaxes.AddRange(expressionSyntaxes.Where(expressionSyntax => expressionSyntax != null)!);
+            incrementSyntaxes.AddRange(expressionSyntaxes.OfType<ExpressionSyntax>());
         }
 
         var body = forStmt.getBody();
         var bodySyntax = VisitStatement(context, body);
 
-        if (bodySyntax == null)
+        if (bodySyntax is null)
+        {
             return null;
+        }
 
         return SyntaxFactory.ForStatement(bodySyntax)
             .WithDeclaration(varSyntax)

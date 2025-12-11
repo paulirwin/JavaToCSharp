@@ -25,7 +25,7 @@ public static class UsingsHelper
             var nameSpace = TypeHelper.Capitalize(importNameWithoutClassName);
 
             // Override namespace if a non empty mapping is found (mapping to empty string removes the import)
-            if (options != null && options.SyntaxMappings.ImportMappings.TryGetValue(importName, out var mappedNamespace))
+            if (options is not null && options.SyntaxMappings.ImportMappings.TryGetValue(importName, out var mappedNamespace))
             {
                 if (string.IsNullOrEmpty(mappedNamespace))
                 {
@@ -51,7 +51,7 @@ public static class UsingsHelper
                 .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns)).NormalizeWhitespace().WithTrailingNewLines()));
         }
 
-        if (namespaceNameSyntax != null)
+        if (namespaceNameSyntax is not null)
         {
             foreach (var staticUsing in options?.StaticUsingEnumNames ?? [])
             {
@@ -90,7 +90,5 @@ public class UsingDirectiveSyntaxComparer : IEqualityComparer<UsingDirectiveSynt
     }
 
     public int GetHashCode(UsingDirectiveSyntax obj)
-    {
-        return HashCode.Combine(obj.Alias?.ToString() ?? "", obj.Name?.ToString() ?? "");
-    }
+        => HashCode.Combine(obj.Alias?.ToString() ?? "", obj.Name?.ToString() ?? "");
 }

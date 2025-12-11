@@ -15,7 +15,9 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
 
         // handle special case where AST is different
         if (expression is VariableDeclarationExpr expr)
+        {
             return VisitVariableDeclarationStatement(context, expr);
+        }
 
         var expressionSyntax = ExpressionVisitor.VisitExpression(context, expression);
 
@@ -55,7 +57,7 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
 
             var initExpr = item.getInitializer().FromOptional<Expression>();
 
-            if (initExpr != null)
+            if (initExpr is not null)
             {
                 var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
                 if (initSyntax is not null)
@@ -65,7 +67,9 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
                 }
             }
             else
+            {
                 variables.Add(SyntaxFactory.VariableDeclarator(name));
+            }
         }
 
         var typeSyntax = TypeHelper.ConvertTypeSyntax(commonType, arrayRank ?? 0);

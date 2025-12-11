@@ -55,7 +55,7 @@ public abstract class ExpressionVisitor
 
     public static ExpressionSyntax? VisitExpression(ConversionContext context, Expression? expr)
     {
-        if (expr == null)
+        if (expr is null)
         {
             return null;
         }
@@ -63,12 +63,12 @@ public abstract class ExpressionVisitor
         ExpressionVisitor? visitor = null;
         var t = expr.GetType();
 
-        while (t != null && !_visitors.TryGetValue(t, out visitor))
+        while (t is not null && !_visitors.TryGetValue(t, out visitor))
         {
             t = t.BaseType;
         }
 
-        if (visitor != null)
+        if (visitor is not null)
         {
             return visitor.Visit(context, expr);
         }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using com.github.javaparser;
+﻿using com.github.javaparser;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.type;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

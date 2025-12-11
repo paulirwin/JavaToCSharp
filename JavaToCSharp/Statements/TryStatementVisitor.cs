@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using com.github.javaparser;
+﻿using com.github.javaparser;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
@@ -15,7 +12,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
 {
     public override StatementSyntax Visit(ConversionContext context, TryStmt tryStmt)
     {
-        var resources = tryStmt.getResources().ToList<Expression>() ?? new List<Expression>();
+        var resources = tryStmt.getResources().ToList<Expression>() ?? [];
 
         var tryBlock = tryStmt.getTryBlock();
         var tryStatements = tryBlock.getStatements().ToList<Statement>();
@@ -57,19 +54,18 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
 
                 var variable = varDecl.getVariable(0);
                 var variableInit = variable.getInitializer().FromRequiredOptional<Expression>();
-                
+
                 var initSyntax = ExpressionVisitor.VisitExpression(context, variableInit)
                                  ?? throw new InvalidOperationException("Unable to parse try-with-resources variable initializer");
-                
+
                 result = SyntaxFactory.UsingStatement(result)
                     .WithDeclaration(
                         SyntaxFactory.VariableDeclaration(
                             SyntaxFactory.ParseTypeName(TypeHelper.ConvertType(variable.getType())),
-                            SyntaxFactory.SeparatedList(new[]
-                            {
+                            SyntaxFactory.SeparatedList([
                                 SyntaxFactory.VariableDeclarator(variable.getNameAsString())
                                     .WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax))
-                            })
+                            ])
                         ));
             }
             else
@@ -81,13 +77,13 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
 
         if (tryStmt.getFinallyBlock().isPresent() || tryStmt.getCatchClauses().ToList<CatchClause>()?.Count > 0)
         {
-            result = TransformTryBlock(context, tryStmt, new[] { result });
+            result = TransformTryBlock(context, tryStmt, [result]);
         }
 
         return result;
     }
 
-    private static StatementSyntax TransformTryBlock(ConversionContext context, TryStmt tryStmt,
+    private static TryStatementSyntax TransformTryBlock(ConversionContext context, TryStmt tryStmt,
         IEnumerable<StatementSyntax> tryBlockStatements)
     {
         var catches = tryStmt.getCatchClauses().ToList<CatchClause>();
@@ -95,14 +91,14 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
         var trySyn = SyntaxFactory.TryStatement()
             .AddBlockStatements(tryBlockStatements.ToArray());
 
-        if (catches != null)
+        if (catches is not null)
         {
             foreach (var catchClause in catches)
             {
                 var paramType = catchClause.getParameter().getType();
                 if (paramType is UnionType)
                 {
-                    var nodes = paramType.getChildNodes()?.ToList<ReferenceType>() ?? new List<ReferenceType>();
+                    var nodes = paramType.getChildNodes()?.ToList<ReferenceType>() ?? [];
                     foreach (var node in nodes)
                     {
                         var referenceTypeName = node.getElementType().ToString();
@@ -119,8 +115,10 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
 
         var finallyBlock = tryStmt.getFinallyBlock().FromOptional<BlockStmt>();
 
-        if (finallyBlock == null)
+        if (finallyBlock is null)
+        {
             return trySyn;
+        }
 
         var finallyStatements = finallyBlock.getStatements().ToList<Statement>();
         var finallyConverted = VisitStatements(context, finallyStatements);

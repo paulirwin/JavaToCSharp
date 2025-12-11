@@ -11,7 +11,7 @@ internal class SanitizingSyntaxRewriter : CSharpSyntaxRewriter
 {
     public override SyntaxNode? Visit(SyntaxNode? node)
     {
-        if (node != null)
+        if (node is not null)
         {
             // We must do this after whitespace normalization!
             node = CommentsHelper.FixCommentsWhitespaces(node);

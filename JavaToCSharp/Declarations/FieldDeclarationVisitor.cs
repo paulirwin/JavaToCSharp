@@ -47,7 +47,7 @@ public class FieldDeclarationVisitor : BodyDeclarationVisitor<FieldDeclaration>
 
             var initExpr = item.getInitializer().FromOptional<Expression>();
 
-            if (initExpr != null)
+            if (initExpr is not null)
             {
                 var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
 

@@ -62,16 +62,7 @@ public static class TypeHelper
     }
 
     public static string ConvertType(string typeName)
-    {
-        return TypeNameParser.ParseTypeName(typeName, s =>
-        {
-            if (_typeNameConversions.TryGetValue(s, out string? converted))
-            {
-                return converted;
-            }
-            return s;
-        });
-    }
+        => TypeNameParser.ParseTypeName(typeName, s => _typeNameConversions.TryGetValue(s, out string? converted) ? converted : s);
 
     public static TypeSyntax ConvertTypeSyntax(Type type, int arrayRank)
     {
@@ -202,13 +193,17 @@ public static class TypeHelper
     public static IEnumerable<TypeParameterConstraintClauseSyntax> GetTypeParameterListConstraints(List<TypeParameter> typeParams)
     {
         var typeParameterConstraints = new List<TypeParameterConstraintClauseSyntax>();
+
         foreach (TypeParameter typeParam in typeParams)
         {
             if (typeParam.getTypeBound().size() > 0)
             {
                 var typeConstraintsSyntax = new SeparatedSyntaxList<TypeParameterConstraintSyntax>();
+
                 foreach (ClassOrInterfaceType bound in typeParam.getTypeBound())
+                {
                     typeConstraintsSyntax = typeConstraintsSyntax.Add(SyntaxFactory.TypeConstraint(SyntaxFactory.ParseTypeName(bound.asString())));
+                }
 
                 var typeIdentifier = SyntaxFactory.IdentifierName(typeParam.getName().asString());
                 var parameterConstraintClauseSyntax = SyntaxFactory.TypeParameterConstraintClause(typeIdentifier, typeConstraintsSyntax);
@@ -216,6 +211,7 @@ public static class TypeHelper
                 typeParameterConstraints.Add(parameterConstraintClauseSyntax);
             }
         }
+
         return typeParameterConstraints;
     }
 
@@ -237,16 +233,21 @@ public static class TypeHelper
             switch (methodName.getIdentifier())
             {
                 case "length" when args.size() == 0:
+                {
                     var scopeSyntaxLength = ExpressionVisitor.VisitExpression(context, scope);
                     transformedSyntax = ReplaceMethodByProperty(scopeSyntaxLength, "Length");
                     return true;
+                }
 
                 case "size" when args.size() == 0:
+                {
                     var scopeSyntaxSize = ExpressionVisitor.VisitExpression(context, scope);
                     transformedSyntax = ReplaceMethodByProperty(scopeSyntaxSize, "Count");
                     return true;
+                }
 
                 case "get" when args.size() == 1:
+                {
                     var scopeSyntaxGet = ExpressionVisitor.VisitExpression(context, scope);
                     if (scopeSyntaxGet is null)
                     {
@@ -256,8 +257,10 @@ public static class TypeHelper
 
                     transformedSyntax = ReplaceGetByIndexAccess(context, scopeSyntaxGet, args);
                     return true;
+                }
 
                 case "set" when args.size() == 2:
+                {
                     var scopeSyntaxSet = ExpressionVisitor.VisitExpression(context, scope);
                     if (scopeSyntaxSet is null)
                     {
@@ -267,12 +270,12 @@ public static class TypeHelper
 
                     transformedSyntax = ReplaceSetByIndexAccess(context, scopeSyntaxSet, args);
                     return true;
+                }
             }
         }
 
         transformedSyntax = null;
         return false;
-
 
         static MemberAccessExpressionSyntax? ReplaceMethodByProperty(ExpressionSyntax? scopeSyntax, string identifier)
         {
@@ -304,7 +307,7 @@ public static class TypeHelper
             java.util.List args)
         {
             // Replace   expr.Set(i,v)   by   expr[i] = v
-            var argsList = args.ToList<Expression>() ?? new List<Expression>();
+            var argsList = args.ToList<Expression>() ?? [];
             var left = SyntaxFactory.ElementAccessExpression(
                  scopeSyntax,
                  SyntaxFactory.BracketedArgumentList(GetSeparatedListFromArguments(context, argsList.Take(1)))

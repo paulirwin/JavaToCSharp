@@ -12,8 +12,10 @@ public class ReturnStatementVisitor : StatementVisitor<ReturnStmt>
     {
         var expr = returnStmt.getExpression().FromOptional<Expression>();
 
-        if (expr == null)
+        if (expr is null)
+        {
             return SyntaxFactory.ReturnStatement(); // i.e. "return" in a void method
+        }
 
         var exprSyntax = ExpressionVisitor.VisitExpression(context, expr);
 

@@ -11,6 +11,7 @@ public class WhileStatementVisitor : StatementVisitor<WhileStmt>
     {
         var expr = whileStmt.getCondition();
         var syntax = ExpressionVisitor.VisitExpression(context, expr);
+
         if (syntax is null)
         {
             return null;

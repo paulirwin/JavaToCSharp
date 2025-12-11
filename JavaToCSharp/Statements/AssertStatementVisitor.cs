@@ -11,7 +11,9 @@ public class AssertStatementVisitor : StatementVisitor<AssertStmt>
     public override StatementSyntax? Visit(ConversionContext context, AssertStmt assertStmt)
     {
         if (!context.Options.UseDebugAssertForAsserts)
+        {
             return null;
+        }
 
         var check = assertStmt.getCheck();
         var checkSyntax = ExpressionVisitor.VisitExpression(context, check);
@@ -22,14 +24,15 @@ public class AssertStatementVisitor : StatementVisitor<AssertStmt>
 
         var message = assertStmt.getMessage().FromOptional<Expression>();
 
-        if (message == null)
+        if (message is null)
+        {
             return SyntaxFactory.ExpressionStatement(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.IdentifierName("Debug.Assert"),
-                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[]
-                    {
+                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList([
                         SyntaxFactory.Argument(checkSyntax)
-                    }))));
+                    ]))));
+        }
 
         var messageSyntax = ExpressionVisitor.VisitExpression(context, message);
         if (messageSyntax is null)
@@ -40,6 +43,7 @@ public class AssertStatementVisitor : StatementVisitor<AssertStmt>
         return SyntaxFactory.ExpressionStatement(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.IdentifierName("Debug.Assert"),
-                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] { SyntaxFactory.Argument(checkSyntax), SyntaxFactory.Argument(messageSyntax) }, new[] { SyntaxFactory.Token(SyntaxKind.CommaToken) }))));
+                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList([SyntaxFactory.Argument(checkSyntax), SyntaxFactory.Argument(messageSyntax)
+                    ], [SyntaxFactory.Token(SyntaxKind.CommaToken)]))));
     }
 }

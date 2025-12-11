@@ -14,7 +14,7 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
     {
         var anonBody = newExpr.getAnonymousClassBody().FromOptional<NodeList>().ToList<BodyDeclaration>();
 
-        if (anonBody is {Count: > 0})
+        if (anonBody is { Count: > 0 })
         {
             return VisitAnonymousClassCreationExpression(context, newExpr, anonBody);
         }
@@ -23,7 +23,7 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
         //var scope = newExpr.getScope();
         //ExpressionSyntax scopeSyntax = null;
 
-        //if (scope != null) {
+        //if (scope is not null) {
         //    scopeSyntax = ExpressionVisitor.VisitExpression(context, scope);
         //}
 
@@ -33,7 +33,7 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
 
         var args = newExpr.getArguments();
 
-        if (args == null || args.size() == 0)
+        if (args is null || args.size() == 0)
         {
             return SyntaxFactory.ObjectCreationExpression(typeSyntax).WithArgumentList(SyntaxFactory.ArgumentList());
         }
@@ -89,16 +89,16 @@ public class ObjectCreationExpressionVisitor : ExpressionVisitor<ObjectCreationE
         // TODO.PI: do we need to pass extends/implements here?
         foreach (var memberSyntax in anonBody
                      .Select(member => BodyDeclarationVisitor.VisitBodyDeclarationForClass(context, classSyntax, member, new List<ClassOrInterfaceType>(), new List<ClassOrInterfaceType>()))
-                     .Where(memberSyntax => memberSyntax != null))
+                     .OfType<MemberDeclarationSyntax>())
         {
-            classSyntax = classSyntax.AddMembers(memberSyntax!);
+            classSyntax = classSyntax.AddMembers(memberSyntax);
         }
 
         context.PendingAnonymousTypes.Enqueue(classSyntax);
 
         var args = newExpr.getArguments();
 
-        if (args == null || args.size() == 0)
+        if (args is null || args.size() == 0)
         {
             return SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(anonTypeName))
                 .AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.ThisExpression()));

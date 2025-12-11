@@ -5,19 +5,12 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 
 /// <inheritdoc cref="IUIDispatcher" />
-public class UIDispatcher : IUIDispatcher
+public class UIDispatcher(IDispatcher dispatcher) : IUIDispatcher
 {
-    private readonly IDispatcher _dispatcher;
-
-    public UIDispatcher(IDispatcher dispatcher)
-    {
-        _dispatcher = dispatcher;
-    }
-
     /// <inheritdoc/>
     public async Task InvokeAsync(Action callback, DispatcherPriority priority)
     {
-        if (_dispatcher is Dispatcher avaloniaDispatcher)
+        if (dispatcher is Dispatcher avaloniaDispatcher)
         {
             await avaloniaDispatcher.InvokeAsync(callback, priority);
         }

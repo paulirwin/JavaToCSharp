@@ -22,9 +22,9 @@ public class ArrayAccessExpressionVisitor : ExpressionVisitor<ArrayAccessExpr>
             return null;
         }
 
-        return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(new[]
-        {
+        return SyntaxFactory.ElementAccessExpression(nameSyntax, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList(
+        [
             SyntaxFactory.Argument(indexSyntax)
-        })));
+        ])));
     }
 }

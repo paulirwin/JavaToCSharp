@@ -188,6 +188,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 foreach (var jFile in FolderInputFiles.Where(static x => x.Directory is not null))
                 {
+                    // ! null checked above
                     string jPath = jFile.Directory!.FullName;
                     string jOutPath = $"{outDirFullName}{jPath[subStartIndex..]}";
                     string jOutFileName = Path.GetFileNameWithoutExtension(jFile.Name) + ".cs";
@@ -416,7 +417,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             IStorageFolder? startLocation = null;
 
-            if (Path.GetDirectoryName(OpenPath) is string dir)
+            if (Path.GetDirectoryName(OpenPath) is { } dir)
             {
                 startLocation = await _storageProvider.TryGetFolderFromPathAsync(dir);
             }

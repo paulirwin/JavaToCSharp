@@ -26,30 +26,34 @@ public class ArrayCreationExpressionVisitor : ExpressionVisitor<ArrayCreationExp
 
         var rankSyntaxes = new List<ExpressionSyntax>();
 
-        if (rankDimensions != null)
+        if (rankDimensions is not null)
         {
-            var expressionSyntaxes = rankDimensions.Select(dimension =>
-                    VisitExpression(context, dimension.getDimension().FromOptional<Expression>()))
-                .Where(syntax => syntax != null);
-            rankSyntaxes.AddRange(expressionSyntaxes!);
+            var expressionSyntaxes = rankDimensions
+                .Select(dimension => VisitExpression(context, dimension.getDimension().FromOptional<Expression>()))
+                .OfType<ExpressionSyntax>(); // filter out nulls
+            rankSyntaxes.AddRange(expressionSyntaxes);
         }
 
         var rankSpecifier = rankDimensions?.Count > 0 && rankSyntaxes.Count == 0
                 ? SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(SyntaxFactory.OmittedArraySizeExpression()))
                 : SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SeparatedList(rankSyntaxes, Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), rankSyntaxes.Count - 1)));
 
-        if (initializer == null)
+        if (initializer is null)
+        {
             return SyntaxFactory.ArrayCreationExpression(arrayTypeSyntax)
                 .AddTypeRankSpecifiers(rankSpecifier);
+        }
 
         // todo: support multi-dimensional and jagged arrays
 
-        var values = initializer.getValues()?.ToList<Expression>() ?? new List<Expression>();
+        var values = initializer.getValues()?.ToList<Expression>() ?? [];
+
         var syntaxes = values.Select(value => VisitExpression(context, value))
-            .Where(syntax => syntax != null)!
-            .ToList<ExpressionSyntax>();
+            .OfType<ExpressionSyntax>() // filter out nulls
+            .ToList();
+
         var initSyntax =
-            syntaxes.Any()
+            syntaxes.Count != 0
                 ? SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression,
                     SyntaxFactory.SeparatedList(syntaxes,
                         Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken), syntaxes.Count - 1)))

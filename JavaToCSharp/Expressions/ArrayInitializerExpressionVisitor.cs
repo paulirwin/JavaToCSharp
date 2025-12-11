@@ -8,10 +8,10 @@ public class ArrayInitializerExpressionVisitor : ExpressionVisitor<ArrayInitiali
 {
     protected override ExpressionSyntax Visit(ConversionContext context, ArrayInitializerExpr expr)
     {
-        var expressions = expr.getValues()?.ToList<Expression>() ?? new List<Expression>();
+        var expressions = expr.getValues()?.ToList<Expression>() ?? [];
         var syntaxes = expressions.Select(valueExpression => VisitExpression(context, valueExpression))
-                                  .Where(syntax => syntax != null)!
-                                  .ToList<ExpressionSyntax>();
+                                  .OfType<ExpressionSyntax>() // filter out nulls
+                                  .ToList();
 
         return SyntaxFactory.ImplicitArrayCreationExpression(
             SyntaxFactory.InitializerExpression(

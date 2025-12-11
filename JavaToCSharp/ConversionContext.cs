@@ -1,22 +1,14 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace JavaToCSharp;
 
-public class ConversionContext
+public class ConversionContext(JavaConversionOptions options)
 {
-    public ConversionContext(JavaConversionOptions options)
-    {
-        PendingAnonymousTypes = new Queue<ClassDeclarationSyntax>();
-        UsedAnonymousTypeNames = new HashSet<string>();
-        Options = options;
-    }
+    public Queue<ClassDeclarationSyntax> PendingAnonymousTypes { get; } = new();
 
-    public Queue<ClassDeclarationSyntax> PendingAnonymousTypes { get; }
+    public ISet<string> UsedAnonymousTypeNames { get; } = new HashSet<string>();
 
-    public ISet<string> UsedAnonymousTypeNames { get; }
-
-    public JavaConversionOptions Options { get; }
+    public JavaConversionOptions Options { get; } = options;
 
     public string? RootTypeName { get; set; }
 

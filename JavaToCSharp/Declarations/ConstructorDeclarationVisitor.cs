@@ -72,7 +72,7 @@ public class ConstructorDeclarationVisitor : BodyDeclarationVisitor<ConstructorD
             ArgumentListSyntax? argsSyntax = null;
 
             var initArgs = ctorInvStmt.getArguments();
-            if (initArgs != null && initArgs.size() > 0)
+            if (initArgs is not null && initArgs.size() > 0)
             {
                 argsSyntax = TypeHelper.GetSyntaxFromArguments(context, initArgs);
             }

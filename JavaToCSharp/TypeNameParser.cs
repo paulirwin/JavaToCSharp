@@ -1,10 +1,9 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace JavaToCSharp;
 
-public static class TypeNameParser
+public static partial class TypeNameParser
 {
     private enum TokenType
     {
@@ -20,7 +19,8 @@ public static class TypeNameParser
         QuestionMark
     }
 
-    private static readonly Regex _tokenizePattern = new(@"\w+|\[|\]|<|>|,|\?", RegexOptions.Compiled);
+    [GeneratedRegex(@"\w+|\[|\]|<|>|,|\?", RegexOptions.Compiled)]
+    private static partial Regex TokenizePattern { get; }
 
     private static (string, TokenType)[]? _tokens;
     private static (string text, TokenType type) _token;
@@ -53,7 +53,7 @@ public static class TypeNameParser
 
     private static (string, TokenType)[] Tokenize(string typeName)
     {
-        var matches = _tokenizePattern.Matches(typeName);
+        var matches = TokenizePattern.Matches(typeName);
         var tokens = new (string, TokenType)[matches.Count];
         for (int i = 0; i < matches.Count; i++)
         {

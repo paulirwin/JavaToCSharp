@@ -55,7 +55,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         {
             var paramSyntax = parameters.Select(i =>
                 SyntaxFactory.Parameter(
-                    attributeLists: new SyntaxList<AttributeListSyntax>(),
+                    attributeLists: [],
                     modifiers: SyntaxFactory.TokenList(),
                     type: SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(i)),
                     identifier: SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getNameAsString())),
@@ -110,7 +110,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         bool isOverride = false;
 
         // TODO: figure out how to check for a non-interface base type
-        if (annotations is {Count: > 0})
+        if (annotations is { Count: > 0 })
         {
             foreach (var annotation in annotations)
             {
@@ -124,7 +124,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
                     isOverride = true;
                 }
                 // add annotation if a mapping is found
-                else if (context.Options != null && context.Options.SyntaxMappings.AnnotationMappings.TryGetValue(name, out var mappedAnnotation))
+                else if (context.Options is not null && context.Options.SyntaxMappings.AnnotationMappings.TryGetValue(name, out var mappedAnnotation))
                 {
                     var attributeList = SyntaxFactory.AttributeList(
                         SyntaxFactory.SingletonSeparatedList(
@@ -180,7 +180,7 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
 
         var block = methodDecl.getBody().FromOptional<BlockStmt>();
 
-        if (block == null)
+        if (block is null)
         {
             // i.e. abstract method
             methodSyntax = methodSyntax.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
@@ -196,20 +196,11 @@ public class MethodDeclarationVisitor : BodyDeclarationVisitor<MethodDeclaration
         {
             var lockBlock = SyntaxFactory.Block(statementSyntax);
 
-            LockStatementSyntax? lockSyntax = null;
-            if (mods.Contains(Modifier.Keyword.STATIC))
-            {
-                lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(typeIdentifier)), lockBlock);
-            }
-            else
-            {
-                lockSyntax = SyntaxFactory.LockStatement(SyntaxFactory.ThisExpression(), lockBlock);
-            }
+            var lockSyntax = mods.Contains(Modifier.Keyword.STATIC)
+                ? SyntaxFactory.LockStatement(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(typeIdentifier)), lockBlock)
+                : SyntaxFactory.LockStatement(SyntaxFactory.ThisExpression(), lockBlock);
 
-            if (lockSyntax is not null)
-            {
-                methodSyntax = methodSyntax.AddBodyStatements(lockSyntax);
-            }
+            methodSyntax = methodSyntax.AddBodyStatements(lockSyntax);
         }
         else
         {
