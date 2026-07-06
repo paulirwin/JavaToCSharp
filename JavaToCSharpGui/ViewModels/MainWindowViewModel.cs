@@ -184,7 +184,7 @@ public partial class MainWindowViewModel : ViewModelBase
                     outDir.Create();
 
                 string outDirFullName = outDir.FullName;
-                int subStartIndex = dir.FullName.Length;
+                int subStartIndex = dir.FullName.Length - 1;
 
                 foreach (var jFile in FolderInputFiles.Where(static x => x.Directory is not null))
                 {

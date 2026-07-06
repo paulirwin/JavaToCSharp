@@ -29,6 +29,7 @@
     <PackageReference Include="Semi.Avalonia" Version="11.3.7.1" />
     <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
     <PackageReference Include="TextMateSharp.Grammars" Version="1.0.70" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.94.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
