@@ -142,6 +142,160 @@ public class EscapeIdentifierTests
     }
 
     /// <summary>
+    /// Regression test for #133: the declaration of a local variable named after a C# keyword
+    /// was left unescaped even though its usages were escaped.
+    /// </summary>
+    [Fact]
+    public void ConvertText_GivenLocalVariableNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        InputStream in = openStream();
+                                        init(in);
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("InputStream @in = OpenStream();", parsed);
+        Assert.Contains("Init(@in);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenTryWithResourcesNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar(File dictionaryFile) {
+                                        try (InputStream in = new FileInputStream(dictionaryFile)) {
+                                            init(in);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("using (InputStream @in = new FileInputStream(dictionaryFile))", parsed);
+        Assert.Contains("Init(@in);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenFieldNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    private int base = 1;
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("@base", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenForEachVariableNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar(List<String> items) {
+                                        for (String object : items) {
+                                            print(object);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("foreach (string @object in items)", parsed);
+        Assert.Contains("Print(@object);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenForLoopVariableNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        for (int base = 0; base < 10; base++) {
+                                            print(base);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("for (int @base = 0; @base < 10; @base++)", parsed);
+        Assert.Contains("Print(@base);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenForLoopWithMultipleVariables_ShouldEscapeOnlyKeywords()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        for (int base = 0, i = 1; base < 10; base++) {
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("int @base = 0, i = 1;", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenCatchParameterNamedAfterKeyword_ShouldEscapeParameter()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        try {
+                                            baz();
+                                        } catch (Exception event) {
+                                            handle(event);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("catch (Exception @event)", parsed);
+        Assert.Contains("Handle(@event);", parsed);
+    }
+
+    /// <summary>
+    /// Java 9+ allows an already-declared effectively-final variable as a try-with-resources
+    /// resource. That is a reference, not a declaration, but it still needs escaping.
+    /// </summary>
+    [Fact]
+    public void ConvertText_GivenTryWithResourcesNameExpressionNamedAfterKeyword_ShouldEscapeReference()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() throws Exception {
+                                        InputStream in = openStream();
+                                        try (in) {
+                                            init(in);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("using (@in)", parsed);
+    }
+
+    /// <summary>
     /// Escaped identifiers must survive a round trip through the C# parser without producing
     /// diagnostics, which is what the original crash was really about.
     /// </summary>

@@ -62,13 +62,13 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
                 var initSyntax = ExpressionVisitor.VisitExpression(context, initExpr);
                 if (initSyntax is not null)
                 {
-                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(name).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
+                    var varDeclarationSyntax = SyntaxFactory.VariableDeclarator(TypeHelper.EscapeIdentifier(name)).WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax));
                     variables.Add(varDeclarationSyntax);
                 }
             }
             else
             {
-                variables.Add(SyntaxFactory.VariableDeclarator(name));
+                variables.Add(SyntaxFactory.VariableDeclarator(TypeHelper.EscapeIdentifier(name)));
             }
         }
 
