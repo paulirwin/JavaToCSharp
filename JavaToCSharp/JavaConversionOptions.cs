@@ -35,8 +35,6 @@ public class JavaConversionOptions
 
     public SyntaxMapping SyntaxMappings { get; set; } = new SyntaxMapping();
 
-    public ConversionState ConversionState { get; set; }
-
     public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
     {
         PackageReplacements.Add(new Replacement(pattern, replacement, options));
@@ -73,9 +71,5 @@ public class JavaConversionOptions
     internal void Warning(string message, int javaLineNumber) => WarningEncountered?.Invoke(this, new ConversionWarningEventArgs(message, javaLineNumber));
 
     internal void ConversionStateChanged(ConversionState newState)
-    {
-        ConversionState = newState;
-
-        StateChanged?.Invoke(this, new ConversionStateChangedEventArgs(newState));
-    }
+        => StateChanged?.Invoke(this, new ConversionStateChangedEventArgs(newState));
 }

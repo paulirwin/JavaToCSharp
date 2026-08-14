@@ -62,7 +62,56 @@ public class ConvertEnumTests
     }
 
     [Fact]
-    public void Repeated_Enum_Name_Emits_Single_Static_Using()
+    public void Nested_Enum_Static_Using_Includes_Declaring_Type()
+    {
+        const string javaCode = """
+                                package com.example;
+                                public class Holder {
+                                    public enum Inner { A, B }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        // The C# type is Com.Example.Holder.Inner; a using naming only the enum
+        // would not resolve.
+        Assert.Contains("using static Com.Example.Holder.Inner;", parsed);
+    }
+
+    [Fact]
+    public void Deeply_Nested_Enum_Static_Using_Includes_Full_Path()
+    {
+        const string javaCode = """
+                                package com.example;
+                                public class Outer {
+                                    public static class Middle {
+                                        public enum Deep { A }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("using static Com.Example.Outer.Middle.Deep;", parsed);
+    }
+
+    [Fact]
+    public void Enum_Nested_In_Interface_Static_Using_Includes_Declaring_Type()
+    {
+        const string javaCode = """
+                                package com.example;
+                                public interface Contract {
+                                    enum Kind { A, B }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("using static Com.Example.Contract.Kind;", parsed);
+    }
+
+    [Fact]
+    public void Same_Enum_Name_At_Different_Scopes_Emits_Distinct_Static_Usings()
     {
         const string javaCode = """
                                 package com.example;
@@ -70,6 +119,21 @@ public class ConvertEnumTests
                                 public class Holder {
                                     public enum Color { GREEN }
                                 }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        // These are two different C# types and each needs its own static using.
+        Assert.Contains("using static Com.Example.Color;", parsed);
+        Assert.Contains("using static Com.Example.Holder.Color;", parsed);
+    }
+
+    [Fact]
+    public void Static_Using_Is_Not_Duplicated_For_A_Single_Enum()
+    {
+        const string javaCode = """
+                                package com.example;
+                                public enum Color { RED, GREEN }
                                 """;
 
         var parsed = Convert(javaCode);

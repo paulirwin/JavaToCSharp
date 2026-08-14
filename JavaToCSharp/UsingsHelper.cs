@@ -9,9 +9,9 @@ public static class UsingsHelper
 {
     public static IEnumerable<UsingDirectiveSyntax> GetUsings(ConversionContext context,
         IEnumerable<ImportDeclaration> imports,
-        JavaConversionOptions? options,
         NameSyntax? namespaceNameSyntax)
     {
+        var options = context.Options;
         var usings = new List<UsingDirectiveSyntax>();
 
         foreach (var import in imports)
@@ -25,7 +25,7 @@ public static class UsingsHelper
             var nameSpace = TypeHelper.Capitalize(importNameWithoutClassName);
 
             // Override namespace if a non empty mapping is found (mapping to empty string removes the import)
-            if (options is not null && options.SyntaxMappings.ImportMappings.TryGetValue(importName, out var mappedNamespace))
+            if (options.SyntaxMappings.ImportMappings.TryGetValue(importName, out var mappedNamespace))
             {
                 if (string.IsNullOrEmpty(mappedNamespace))
                 {
@@ -44,7 +44,7 @@ public static class UsingsHelper
             usings.Add(usingSyntax.NormalizeWhitespace().WithTrailingNewLines());
         }
 
-        if (options?.IncludeUsings == true)
+        if (options.IncludeUsings)
         {
             usings.AddRange(options.Usings
                 .Where(x => !string.IsNullOrWhiteSpace(x))

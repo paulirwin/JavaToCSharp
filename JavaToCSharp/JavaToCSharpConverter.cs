@@ -16,16 +16,16 @@ public static class JavaToCSharpConverter
     {
         options ??= new JavaConversionOptions();
 
-        options.ConversionStateChanged(ConversionState.Starting);
-
         var context = new ConversionContext(options);
+
+        context.ConversionStateChanged(ConversionState.Starting);
 
         var textBytes = Encoding.UTF8.GetBytes(javaText ?? string.Empty);
 
         using var memoryStream = new MemoryStream(textBytes);
         using var wrapper = new InputStreamWrapper(memoryStream);
 
-        options.ConversionStateChanged(ConversionState.ParsingJavaAst);
+        context.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
         var parser = new JavaParser();
         parser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
@@ -47,7 +47,7 @@ public static class JavaToCSharpConverter
 
         var result = parsed.getResult().FromRequiredOptional<CompilationUnit>();
 
-        options.ConversionStateChanged(ConversionState.BuildingCSharpAst);
+        context.ConversionStateChanged(ConversionState.BuildingCSharpAst);
 
         var types = result.getTypes().ToList<TypeDeclaration>() ?? [];
         var imports = result.getImports()?.ToList<ImportDeclaration>() ?? [];
@@ -127,7 +127,7 @@ public static class JavaToCSharpConverter
 
         var root = SyntaxFactory.CompilationUnit(
                 externs: [],
-                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, options, namespaceNameSyntax)),
+                usings: SyntaxFactory.List(UsingsHelper.GetUsings(context, imports, namespaceNameSyntax)),
                 attributeLists: [],
                 members: SyntaxFactory.List(rootMembers)
             );
@@ -144,7 +144,7 @@ public static class JavaToCSharpConverter
 
         var tree = SyntaxFactory.SyntaxTree(sanitizedRoot);
 
-        options.ConversionStateChanged(ConversionState.Done);
+        context.ConversionStateChanged(ConversionState.Done);
 
         return tree.GetText().ToString();
     }
