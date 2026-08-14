@@ -8,6 +8,8 @@ public class ConversionContext(JavaConversionOptions options)
 
     public ISet<string> UsedAnonymousTypeNames { get; } = new HashSet<string>();
 
+    public ISet<string> StaticUsingEnumNames { get; } = new HashSet<string>();
+
     public JavaConversionOptions Options { get; } = options;
 
     public string? RootTypeName { get; set; }

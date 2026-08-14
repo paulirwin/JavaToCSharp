@@ -97,7 +97,7 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
         if (mods.Contains(Modifier.Keyword.PUBLIC))
             enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
-        context.Options.StaticUsingEnumNames.Add(name);
+        context.StaticUsingEnumNames.Add(name);
 
         return enumSyntax.WithJavaComments(context, enumDecl);
 

@@ -53,7 +53,7 @@ public static class UsingsHelper
 
         if (namespaceNameSyntax is not null)
         {
-            foreach (var staticUsing in options?.StaticUsingEnumNames ?? [])
+            foreach (var staticUsing in context.StaticUsingEnumNames)
             {
                 var usingSyntax = SyntaxFactory
                     .UsingDirective(SyntaxFactory.ParseName($"{namespaceNameSyntax}.{staticUsing}"))

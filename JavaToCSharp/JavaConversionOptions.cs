@@ -12,8 +12,6 @@ public class JavaConversionOptions
 
     public IList<string> Usings { get; } = new List<string>();
 
-    public IList<string> StaticUsingEnumNames { get; } = new List<string>();
-
     public bool IncludeSubdirectories { get; set; } = true;
 
     public bool IncludeUsings { get; set; } = true;
