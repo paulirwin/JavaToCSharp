@@ -10,7 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <AvaloniaVersion>11.3.8</AvaloniaVersion>
+    <AvaloniaVersion>12.1.1</AvaloniaVersion>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
@@ -21,14 +21,14 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-	<PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
-	<PackageReference Include="AvaloniaEdit.TextMate" Version="11.3.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.6.2" />
-    <PackageReference Include="Semi.Avalonia" Version="11.3.7.1" />
-    <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
-    <PackageReference Include="TextMateSharp.Grammars" Version="1.0.70" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.20" />
+	<PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
+	<PackageReference Include="AvaloniaEdit.TextMate" Version="12.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Optris.Icons.Avalonia.FontAwesome7" Version="12.0.7" />
+    <PackageReference Include="Semi.Avalonia" Version="12.1.0.1" />
+    <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="12.0.0" />
+    <PackageReference Include="TextMateSharp.Grammars" Version="2.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JavaToCSharp\JavaToCSharp.csproj" />
