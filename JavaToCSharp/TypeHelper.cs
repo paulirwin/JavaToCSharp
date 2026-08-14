@@ -1,4 +1,5 @@
-﻿using com.github.javaparser.ast.expr;
+﻿using System.Collections.Concurrent;
+using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.type;
 using JavaToCSharp.Expressions;
 using Microsoft.CodeAnalysis;
@@ -11,7 +12,10 @@ namespace JavaToCSharp;
 
 public static class TypeHelper
 {
-    private static readonly Dictionary<string, string> _typeNameConversions = new()
+    // Mutated at conversion time via AddOrUpdateTypeNameConversions (e.g. to register interface
+    // renames when StartInterfaceNamesWithI is set) while other threads read it in ConvertType,
+    // so this must be a concurrent collection to keep parallel conversions safe.
+    private static readonly ConcurrentDictionary<string, string> _typeNameConversions = new()
     {
         // Simple types
         ["boolean"] = "bool",

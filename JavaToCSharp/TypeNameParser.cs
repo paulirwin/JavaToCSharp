@@ -1,9 +1,16 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace JavaToCSharp;
 
-public static partial class TypeNameParser
+/// <summary>
+/// Parses and translates Java type names into their C# equivalents.
+/// </summary>
+/// <remarks>
+/// All parse state is held in instance fields, and a fresh instance is created per
+/// <see cref="ParseTypeName"/> call, so concurrent conversions cannot corrupt each other.
+/// </remarks>
+public sealed partial class TypeNameParser
 {
     private enum TokenType
     {
@@ -22,11 +29,19 @@ public static partial class TypeNameParser
     [GeneratedRegex(@"\w+|\[|\]|<|>|,|\?", RegexOptions.Compiled)]
     private static partial Regex TokenizePattern { get; }
 
-    private static (string, TokenType)[]? _tokens;
-    private static (string text, TokenType type) _token;
-    private static int _currentIndex;
-    private static readonly StringBuilder _sb = new();
-    private static Func<string, string>? _translate;
+    private readonly (string, TokenType)[] _tokens;
+    private readonly StringBuilder _sb = new();
+    private readonly Func<string, string> _translate;
+    private (string text, TokenType type) _token;
+    private int _currentIndex;
+
+    private TypeNameParser(string typename, Func<string, string> translateIdentifier)
+    {
+        _translate = translateIdentifier;
+        _tokens = Tokenize(typename);
+        _currentIndex = -1;
+        NextToken();
+    }
 
     internal static string ParseTypeName(string typename, Func<string, string> translateIdentifier)
     {
@@ -36,16 +51,12 @@ public static partial class TypeNameParser
         // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ] { "[" "]" }.
         // TypeArgument = [ "?" [ "extends" | "super" ] ] TypeName.
 
-        _translate = translateIdentifier;
-        _tokens = Tokenize(typename);
-        _currentIndex = -1;
-        NextToken();
-        _sb.Clear();
+        var parser = new TypeNameParser(typename, translateIdentifier);
 
-        if (TypeName() && _token.type is TokenType.EndOfString)
+        if (parser.TypeName() && parser._token.type is TokenType.EndOfString)
         {
             // Otherwise we have extra tokens.
-            return _sb.ToString();
+            return parser._sb.ToString();
         }
 
         return typename;
@@ -75,13 +86,13 @@ public static partial class TypeNameParser
         return tokens;
     }
 
-    private static void NextToken()
+    private void NextToken()
     {
         _currentIndex++;
-        _token = _tokens is not null && _currentIndex < _tokens.Length ? _tokens[_currentIndex] : default;
+        _token = _currentIndex < _tokens.Length ? _tokens[_currentIndex] : default;
     }
 
-    private static bool TypeName()
+    private bool TypeName()
     {
         // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ] { "[" "]" }.
         if (_token.type is not TokenType.Identifier)
@@ -89,7 +100,7 @@ public static partial class TypeNameParser
             return false;
         }
 
-        _sb.Append(_translate?.Invoke(_token.text));
+        _sb.Append(_translate(_token.text));
         NextToken();
 
         if (_token.type is TokenType.LeftAngleBracket)
@@ -114,7 +125,7 @@ public static partial class TypeNameParser
         return ArraySuffix();
     }
 
-    private static bool ArraySuffix()
+    private bool ArraySuffix()
     {
         while (_token.type is TokenType.LeftSquareBracket)
         {
@@ -128,7 +139,7 @@ public static partial class TypeNameParser
         return true;
     }
 
-    private static bool TypeArgument()
+    private bool TypeArgument()
     {
         // TypeArgument = [ "?" [ "extends" | "super" ] ] TypeName.
         if (_token.type is TokenType.QuestionMark)
