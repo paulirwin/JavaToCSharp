@@ -42,9 +42,7 @@ public static partial class CommentsHelper
 
         foreach (var (comment, _) in comments)
         {
-            var (kind, pre, post) = GetCommentInfo(comment);
-            var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post);
-            leadingTriviaList.Add(commentTrivia);
+            leadingTriviaList.Add(CreateNonMemberCommentTrivia(comment));
         }
 
         return syntax.WithUsingKeyword(SyntaxFactory.Token(SyntaxKind.UsingKeyword).WithLeadingTrivia(leadingTriviaList));
@@ -59,9 +57,7 @@ public static partial class CommentsHelper
 
         if (compilationUnit.getComment().FromOptional<JavaComments.Comment>() is { } compilationUnitComment)
         {
-            var (kind, pre, post) = GetCommentInfo(compilationUnitComment);
-            var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + compilationUnitComment.getContent() + post + Environment.NewLine);
-            leadingTriviaList.Add(commentTrivia);
+            leadingTriviaList.Add(CreateNonMemberCommentTrivia(compilationUnitComment, Environment.NewLine));
         }
 
         if (packageDeclaration is not null)
@@ -72,9 +68,7 @@ public static partial class CommentsHelper
             {
                 foreach (var (comment, _) in packageComments)
                 {
-                    var (kind, pre, post) = GetCommentInfo(comment);
-                    var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post + Environment.NewLine);
-                    leadingTriviaList.Add(commentTrivia);
+                    leadingTriviaList.Add(CreateNonMemberCommentTrivia(comment, Environment.NewLine));
                 }
             }
         }
@@ -126,6 +120,47 @@ public static partial class CommentsHelper
         }
 
         return syntax;
+    }
+
+    /// <summary>
+    /// Builds comment trivia for positions that cannot carry XML doc comments, such as file-level
+    /// and using directive comments. Javadoc is rendered as a block comment instead.
+    /// </summary>
+    private static SyntaxTrivia CreateNonMemberCommentTrivia(JavaComments.Comment comment, string suffix = "")
+    {
+        var (kind, pre, post) = GetCommentInfo(comment);
+
+        if (kind == SyntaxKind.XmlComment)
+        {
+            return SyntaxFactory.SyntaxTrivia(SyntaxKind.MultiLineCommentTrivia,
+                FormatAsBlockComment(comment.getContent()) + suffix);
+        }
+
+        return SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post + suffix);
+    }
+
+    private static string FormatAsBlockComment(string content)
+    {
+        var lines = content.ReplaceLineEndings("\n")
+            .Split('\n')
+            .Select(line => line.TrimStart().TrimStart('*').Trim())
+            .ToList();
+
+        TrimTrailingEmptyLines(lines);
+
+        while (lines.Count > 0 && lines[0].Length == 0)
+        {
+            lines.RemoveAt(0);
+        }
+
+        var builder = new System.Text.StringBuilder("/*");
+
+        foreach (var line in lines)
+        {
+            builder.Append(Environment.NewLine).Append(line.Length == 0 ? " *" : " * " + line);
+        }
+
+        return builder.Append(Environment.NewLine).Append(" */").ToString();
     }
 
     private static (SyntaxKind kind, string? pre, string? post) GetCommentInfo(
