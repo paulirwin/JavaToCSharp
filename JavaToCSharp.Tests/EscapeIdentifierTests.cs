@@ -215,6 +215,63 @@ public class EscapeIdentifierTests
         Assert.Contains("Print(@object);", parsed);
     }
 
+    [Fact]
+    public void ConvertText_GivenForLoopVariableNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        for (int base = 0; base < 10; base++) {
+                                            print(base);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("for (int @base = 0; @base < 10; @base++)", parsed);
+        Assert.Contains("Print(@base);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenForLoopWithMultipleVariables_ShouldEscapeOnlyKeywords()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        for (int base = 0, i = 1; base < 10; base++) {
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("int @base = 0, i = 1;", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenCatchParameterNamedAfterKeyword_ShouldEscapeParameter()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        try {
+                                            baz();
+                                        } catch (Exception event) {
+                                            handle(event);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("catch (Exception @event)", parsed);
+        Assert.Contains("Handle(@event);", parsed);
+    }
+
     /// <summary>
     /// Escaped identifiers must survive a round trip through the C# parser without producing
     /// diagnostics, which is what the original crash was really about.

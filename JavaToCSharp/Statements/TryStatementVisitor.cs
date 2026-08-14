@@ -143,7 +143,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             SyntaxFactory.CatchClause(
                 SyntaxFactory.CatchDeclaration(
                     SyntaxFactory.ParseTypeName(type),
-                    SyntaxFactory.ParseToken(ctch.getParameter().getNameAsString())
+                    SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(ctch.getParameter().getNameAsString()))
                 ),
                 filter: null,
                 block: catchBlockSyntax
