@@ -28,6 +28,36 @@ public class ConvertTypeTests
         Assert.Equal("int[]", TypeHelper.ConvertType("int[]"));
     }
 
+    [Theory]
+    [InlineData("String[]", "string[]")]
+    [InlineData("Integer[]", "int[]")]
+    [InlineData("String[][]", "string[][]")]
+    [InlineData("MyType<String>[]", "MyType<string>[]")]
+    [InlineData("List<String[]>", "IList<string[]>")]
+    [InlineData("MyType[]", "MyType[]")]
+    public void ConvertType_Arrays(string javaType, string expected)
+    {
+        Assert.Equal(expected, TypeHelper.ConvertType(javaType));
+    }
+
+    [Fact]
+    public void ConvertType_ArrayMethodSignature()
+    {
+        const string javaCode = """
+                                public interface Lemmatizer {
+                                    String[] lemmatize(String[] toks, String[] tags);
+                                }
+                                """;
+        var options = new JavaConversionOptions
+        {
+            IncludeUsings = false,
+            IncludeNamespace = false,
+        };
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        Assert.Contains("string[] Lemmatize(string[] toks, string[] tags);", parsed);
+    }
+
     [Fact]
     public void ConvertType_GenericSingleParameter()
     {
