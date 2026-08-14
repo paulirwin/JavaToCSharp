@@ -165,4 +165,80 @@ public class CommentTests(ITestOutputHelper testOutputHelper)
 
         Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
     }
+
+    [Fact]
+    public void JavadocBeforePackage_ShouldNotCrash()
+    {
+        const string javaCode = """
+                                /**
+                                 * Some comments
+                                 */
+                                package foo;
+
+                                import java.util.List;
+
+                                public class Foo {
+                                }
+                                """;
+        var options = new JavaConversionOptions();
+        options.Usings.Clear();
+
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        testOutputHelper.WriteLine(parsed);
+
+        const string expected = """
+                                /*
+                                 * Some comments
+                                 */
+                                using Java.Util;
+
+                                namespace Foo
+                                {
+                                    public class Foo
+                                    {
+                                    }
+                                }
+                                """;
+
+        Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
+    }
+
+    [Fact]
+    public void JavadocBeforeImport_ShouldNotCrash()
+    {
+        const string javaCode = """
+                                package foo;
+
+                                /**
+                                 * Import comment
+                                 */
+                                import java.util.List;
+
+                                public class Foo {
+                                }
+                                """;
+        var options = new JavaConversionOptions();
+        options.Usings.Clear();
+
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        testOutputHelper.WriteLine(parsed);
+
+        const string expected = """
+                                /*
+                                 * Import comment
+                                 */
+                                using Java.Util;
+
+                                namespace Foo
+                                {
+                                    public class Foo
+                                    {
+                                    }
+                                }
+                                """;
+
+        Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
+    }
 }
