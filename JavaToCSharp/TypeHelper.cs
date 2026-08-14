@@ -118,91 +118,26 @@ public static class TypeHelper
     public static string EscapeIdentifier(string name)
     {
         // @ (C# Reference): https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
-        //C# Keywords: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/
-        switch (name)
-        {
-            case "abstract":
-            case "as":
-            case "base":
-            case "bool":
-            case "break":
-            case "byte":
-            case "case":
-            case "catch":
-            case "char":
-            case "checked":
-            case "class":
-            case "const":
-            case "continue":
-            case "decimal":
-            case "default":
-            case "delegate":
-            case "do":
-            case "double":
-            case "else":
-            case "enum":
-            case "event":
-            case "explicit":
-            case "extern":
-            case "false":
-            case "finally":
-            case "fixed":
-            case "float":
-            case "for":
-            case "foreach":
-            case "goto":
-            case "if":
-            case "implicit":
-            case "in":
-            case "int":
-            case "interface":
-            case "internal":
-            case "is":
-            case "lock":
-            case "long":
-            case "namespace":
-            case "new":
-            case "null":
-            case "object":
-            case "operator":
-            case "out":
-            case "override":
-            case "params":
-            case "private":
-            case "protected":
-            case "public":
-            case "readonly":
-            case "ref":
-            case "return":
-            case "sbyte":
-            case "sealed":
-            case "short":
-            case "sizeof":
-            case "stackalloc":
-            case "static":
-            case "string":
-            case "struct":
-            case "switch":
-            case "this":
-            case "throw":
-            case "true":
-            case "try":
-            case "typeof":
-            case "uint":
-            case "ulong":
-            case "unchecked":
-            case "unsafe":
-            case "ushort":
-            case "using":
-            case "virtual":
-            case "void":
-            case "volatile":
-            case "while":
-                return "@" + name;
-
-            default:
-                return name;
-        }
+        // C# Keywords: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/
+        return name switch {
+            "abstract" or "as" or "base" or "bool" or "break" or
+            "byte" or "case" or "catch" or "char" or "checked" or
+            "class" or "const" or "continue" or "decimal" or "default" or
+            "delegate" or "do" or "double" or "else" or "enum" or
+            "event" or "explicit" or "extern" or "false" or "finally" or
+            "fixed" or "float" or "for" or "foreach" or "goto" or
+            "if" or "implicit" or "in" or "int" or "interface" or
+            "internal" or "is" or "lock" or "long" or "namespace" or
+            "new" or "null" or "object" or "operator" or "out" or
+            "override" or "params" or "private" or "protected" or "public" or
+            "readonly" or "ref" or "return" or "sbyte" or "sealed" or
+            "short" or "sizeof" or "stackalloc" or "static" or "string" or
+            "struct" or "switch" or "this" or "throw" or "true" or
+            "try" or "typeof" or "uint" or "ulong" or "unchecked" or
+            "unsafe" or "ushort" or "using" or "virtual" or "void" or
+            "volatile" or "while" => "@" + name,
+            _ => name,
+        };
     }
 
     public static string ReplaceCommonMethodNames(string name)
