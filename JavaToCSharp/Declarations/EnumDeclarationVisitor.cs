@@ -97,7 +97,7 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
         if (mods.Contains(Modifier.Keyword.PUBLIC))
             enumSyntax = enumSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
-        context.Options.StaticUsingEnumNames.Add(name);
+        context.StaticUsingEnumNames.Add(GetTypeNameWithinPackage(enumDecl, name));
 
         return enumSyntax.WithJavaComments(context, enumDecl);
 
@@ -117,5 +117,27 @@ public class EnumDeclarationVisitor : BodyDeclarationVisitor<EnumDeclaration>
 
             return lastMemberDecl;
         }
+    }
+
+    /// <summary>
+    /// Builds the enum's name qualified by any types it is nested within, excluding the package
+    /// (e.g. "Holder.Inner" for an enum "Inner" declared inside class "Holder"). A static using
+    /// must name the enum's declaring type, not just the enum itself, to resolve.
+    /// </summary>
+    private static string GetTypeNameWithinPackage(EnumDeclaration enumDecl, string name)
+    {
+        var parts = new List<string> { name };
+
+        for (var parent = enumDecl.getParentNode().FromOptional<Node>();
+             parent is not null;
+             parent = parent.getParentNode().FromOptional<Node>())
+        {
+            if (parent is TypeDeclaration typeDecl)
+            {
+                parts.Insert(0, typeDecl.getNameAsString());
+            }
+        }
+
+        return string.Join(".", parts);
     }
 }

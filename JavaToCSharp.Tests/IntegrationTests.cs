@@ -72,6 +72,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/DeprecatedAnnotation.java")]
     [InlineData("Resources/BooleanArrays.java")]
     [InlineData("Resources/BinaryLiterals.java")]
+    [InlineData("Resources/NestedEnumStaticUsing.java")]
     public void FullIntegrationTests(string filePath)
     {
         var options = new JavaConversionOptions
