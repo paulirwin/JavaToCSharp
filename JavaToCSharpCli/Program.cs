@@ -273,7 +273,24 @@ public class Program
             {
                 string javaText = File.ReadAllText(inputFile.FullName);
 
-                void warningEncountered(object? sender, ConversionWarningEventArgs eventArgs)
+                options.WarningEncountered += WarningEncountered;
+
+                try
+                {
+                    string? parsed = JavaToCSharpConverter.ConvertText(javaText, options);
+                    OutputFileOrPrint(outputFile?.FullName, parsed ?? string.Empty);
+                }
+                finally
+                {
+                    options.WarningEncountered -= WarningEncountered;
+                }
+
+                if (outputFile != null)
+                {
+                    _logger.LogInformation("{filePath} converted!", inputFile.Name);
+                }
+
+                void WarningEncountered(object? sender, ConversionWarningEventArgs eventArgs)
                 {
                     if (outputFile != null)
                     {
@@ -283,23 +300,6 @@ public class Program
 
                     OutputFileOrPrint(outputFile != null ? Path.ChangeExtension(outputFile.FullName, ".warning") : null,
                         eventArgs.Message + Environment.NewLine);
-                }
-
-                options.WarningEncountered += warningEncountered;
-
-                try
-                {
-                    string? parsed = JavaToCSharpConverter.ConvertText(javaText, options);
-                    OutputFileOrPrint(outputFile?.FullName, parsed ?? string.Empty);
-                }
-                finally
-                {
-                    options.WarningEncountered -= warningEncountered;
-                }
-
-                if (outputFile != null)
-                {
-                    _logger.LogInformation("{filePath} converted!", inputFile.Name);
                 }
             }
             catch (Exception ex)
