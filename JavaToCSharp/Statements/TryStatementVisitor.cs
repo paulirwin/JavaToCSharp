@@ -40,7 +40,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             {
                 result = SyntaxFactory.UsingStatement(result)
                     .WithExpression(
-                        SyntaxFactory.IdentifierName(resource.asNameExpr().getNameAsString()));
+                        SyntaxFactory.IdentifierName(TypeHelper.EscapeIdentifier(resource.asNameExpr().getNameAsString())));
             }
             else if (resource.isVariableDeclarationExpr())
             {

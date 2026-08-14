@@ -273,6 +273,29 @@ public class EscapeIdentifierTests
     }
 
     /// <summary>
+    /// Java 9+ allows an already-declared effectively-final variable as a try-with-resources
+    /// resource. That is a reference, not a declaration, but it still needs escaping.
+    /// </summary>
+    [Fact]
+    public void ConvertText_GivenTryWithResourcesNameExpressionNamedAfterKeyword_ShouldEscapeReference()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() throws Exception {
+                                        InputStream in = openStream();
+                                        try (in) {
+                                            init(in);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("using (@in)", parsed);
+    }
+
+    /// <summary>
     /// Escaped identifiers must survive a round trip through the C# parser without producing
     /// diagnostics, which is what the original crash was really about.
     /// </summary>
