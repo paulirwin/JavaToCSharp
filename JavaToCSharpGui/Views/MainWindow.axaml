@@ -34,21 +34,21 @@
                             AutomationProperties.Name="Toggle Dark/Light Mode"
                             Theme="{DynamicResource ButtonToggleSwitch}">
                             <ToggleSwitch.OnContent>
-                                <i:Icon Value="fa-moon" />
+                                <i:Icon Value="fa7-moon" />
                             </ToggleSwitch.OnContent>
                             <ToggleSwitch.OffContent>
-                                <i:Icon Value="fa-sun" />
+                                <i:Icon Value="fa7-sun" />
                             </ToggleSwitch.OffContent>
                         </ToggleSwitch>
-                        <Button i:Attached.Icon="fa-info"
+                        <Button i:Attached.Icon="fa7-info"
                                 ToolTip.Tip="About"
                                 AutomationProperties.Name="About"
                                 Command="{CompiledBinding OpenAboutCommand}" />
-                        <Button i:Attached.Icon="fa-brands fa-github"
+                        <Button i:Attached.Icon="fa7-brands fa7-github"
                                 ToolTip.Tip="Fork me on GitHub"
                                 AutomationProperties.Name="Fork me on GitHub"
                                 Command="{CompiledBinding ForkMeOnGitHubCommand}" />
-                        <Button i:Attached.Icon="fa-gear"
+                        <Button i:Attached.Icon="fa7-gear"
                                 ToolTip.Tip="Settings"
                                 AutomationProperties.Name="Settings"
                                 Command="{CompiledBinding OpenSettingsCommand}" />
@@ -65,7 +65,7 @@
                                             AutomationProperties.Name="Paste from Clipboard"
                                             Command="{CompiledBinding PasteJavaCodeCommand}"
                                             Name="PasteJavaCode">
-                                        <i:Icon Value="fa-paste" />
+                                        <i:Icon Value="fa7-paste" />
                                     </Button>
                                     <TextBlock Grid.Column="1" Margin="10,5,10,5" VerticalAlignment="Center">File:</TextBlock>
                                     <TextBox Name="OpenPath"
@@ -78,7 +78,7 @@
                                             ToolTip.Tip="Open File"
                                             Command="{CompiledBinding OpenFileDialogCommand}"
                                             Name="OpenFileDialog">
-                                        <i:Icon Value="fa-folder-open" />
+                                        <i:Icon Value="fa7-folder-open" />
                                     </Button>
                                 </Grid>
                                 <AvaloniaEdit:TextEditor
@@ -112,13 +112,13 @@
                                             ToolTip.Tip="Copy to Clipboard"
                                             AutomationProperties.Name="Copy to Clipboard"
                                             Command="{CompiledBinding CopyOutputCommand}">
-                                        <i:Icon Value="fa-copy" />
+                                        <i:Icon Value="fa7-copy" />
                                     </Button>
                                     <Button Name="SaveOutput"
                                             ToolTip.Tip="Save to File"
                                             AutomationProperties.Name="Save to File"
                                             Command="{CompiledBinding SaveOutputCommand}">
-                                        <i:Icon Value="fa-save" />
+                                        <i:Icon Value="fa7-floppy-disk" />
                                     </Button>
                                 </StackPanel>
                                 <AvaloniaEdit:TextEditor
@@ -149,7 +149,7 @@
                                             ToolTip.Tip="Open Folder"
                                             Command="{CompiledBinding OpenFolderDialogCommand}"
                                             Name="OpenFolderDialog">
-                                        <i:Icon Value="fa-folder-open" />
+                                        <i:Icon Value="fa7-folder-open" />
                                     </Button>
                                 </Grid>
                                 <ListBox Name="JavaFiles"
