@@ -142,6 +142,80 @@ public class EscapeIdentifierTests
     }
 
     /// <summary>
+    /// Regression test for #133: the declaration of a local variable named after a C# keyword
+    /// was left unescaped even though its usages were escaped.
+    /// </summary>
+    [Fact]
+    public void ConvertText_GivenLocalVariableNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar() {
+                                        InputStream in = openStream();
+                                        init(in);
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("InputStream @in = OpenStream();", parsed);
+        Assert.Contains("Init(@in);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenTryWithResourcesNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar(File dictionaryFile) {
+                                        try (InputStream in = new FileInputStream(dictionaryFile)) {
+                                            init(in);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("using (InputStream @in = new FileInputStream(dictionaryFile))", parsed);
+        Assert.Contains("Init(@in);", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenFieldNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    private int base = 1;
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("@base", parsed);
+    }
+
+    [Fact]
+    public void ConvertText_GivenForEachVariableNamedAfterKeyword_ShouldEscapeDeclaration()
+    {
+        const string javaCode = """
+                                public class Foo {
+                                    public void bar(List<String> items) {
+                                        for (String object : items) {
+                                            print(object);
+                                        }
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        Assert.Contains("foreach (string @object in items)", parsed);
+        Assert.Contains("Print(@object);", parsed);
+    }
+
+    /// <summary>
     /// Escaped identifiers must survive a round trip through the C# parser without producing
     /// diagnostics, which is what the original crash was really about.
     /// </summary>
