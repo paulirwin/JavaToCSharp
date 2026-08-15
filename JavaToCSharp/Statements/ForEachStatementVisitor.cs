@@ -22,13 +22,11 @@ public class ForEachStatementVisitor : StatementVisitor<ForEachStmt>
         var type = TypeHelper.ConvertType(varType);
 
         var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>()?? [];
-        var vars = variableDeclarators
-                   .Select(i => SyntaxFactory.VariableDeclarator(i.toString()))
-                   .ToArray();
+        var identifier = SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(variableDeclarators[0].getNameAsString()));
 
         var body = foreachStmt.getBody();
         var bodySyntax = VisitStatement(context, body);
 
-        return bodySyntax is null ? null : SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), vars[0].Identifier.ValueText, iterableSyntax, bodySyntax);
+        return bodySyntax is null ? null : SyntaxFactory.ForEachStatement(SyntaxFactory.ParseTypeName(type), identifier, iterableSyntax, bodySyntax);
     }
 }

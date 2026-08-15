@@ -33,7 +33,7 @@ public static partial class TypeNameParser
         // Example: List<Pair<Integer, ? extends Person>>
         //
         // EBNF:
-        // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ].
+        // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ] { "[" "]" }.
         // TypeArgument = [ "?" [ "extends" | "super" ] ] TypeName.
 
         _translate = translateIdentifier;
@@ -83,37 +83,49 @@ public static partial class TypeNameParser
 
     private static bool TypeName()
     {
-        // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ].
-        if (_token.type is TokenType.Identifier)
+        // TypeName = identifier [ "<" TypeArgument { "," TypeArgument } ">" ] { "[" "]" }.
+        if (_token.type is not TokenType.Identifier)
         {
-            _sb.Append(_translate?.Invoke(_token.text));
-            NextToken();
-            if (_token.type is TokenType.LeftAngleBracket)
-            {
-                _sb.Append('<');
-                NextToken();
-                if (TypeArgument())
-                {
-                    while (_token.type is TokenType.Comma)
-                    {
-                        _sb.Append(", ");
-                        NextToken();
-                        if (!TypeArgument()) return false;
-                    }
-                    if (_token.type is TokenType.RightAngleBracket)
-                    {
-                        _sb.Append('>');
-                        NextToken();
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                return true;
-            }
+            return false;
         }
-        return false;
+
+        _sb.Append(_translate?.Invoke(_token.text));
+        NextToken();
+
+        if (_token.type is TokenType.LeftAngleBracket)
+        {
+            _sb.Append('<');
+            NextToken();
+            if (!TypeArgument()) return false;
+
+            while (_token.type is TokenType.Comma)
+            {
+                _sb.Append(", ");
+                NextToken();
+                if (!TypeArgument()) return false;
+            }
+
+            if (_token.type is not TokenType.RightAngleBracket) return false;
+
+            _sb.Append('>');
+            NextToken();
+        }
+
+        return ArraySuffix();
+    }
+
+    private static bool ArraySuffix()
+    {
+        while (_token.type is TokenType.LeftSquareBracket)
+        {
+            NextToken();
+            if (_token.type is not TokenType.RightSquareBracket) return false;
+
+            _sb.Append("[]");
+            NextToken();
+        }
+
+        return true;
     }
 
     private static bool TypeArgument()

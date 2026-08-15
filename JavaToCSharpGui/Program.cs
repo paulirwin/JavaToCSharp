@@ -1,6 +1,6 @@
 using Avalonia;
-using Projektanker.Icons.Avalonia;
-using Projektanker.Icons.Avalonia.FontAwesome;
+using Optris.Icons.Avalonia;
+using Optris.Icons.Avalonia.FontAwesome7;
 
 namespace JavaToCSharpGui;
 
@@ -17,7 +17,7 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
     {
         IconProvider.Current
-            .Register<FontAwesomeIconProvider>();
+            .Register<FontAwesome7IconProvider>();
 
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()

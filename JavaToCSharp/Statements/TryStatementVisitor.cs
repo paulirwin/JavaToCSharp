@@ -40,7 +40,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             {
                 result = SyntaxFactory.UsingStatement(result)
                     .WithExpression(
-                        SyntaxFactory.IdentifierName(resource.asNameExpr().getNameAsString()));
+                        SyntaxFactory.IdentifierName(TypeHelper.EscapeIdentifier(resource.asNameExpr().getNameAsString())));
             }
             else if (resource.isVariableDeclarationExpr())
             {
@@ -63,7 +63,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
                         SyntaxFactory.VariableDeclaration(
                             SyntaxFactory.ParseTypeName(TypeHelper.ConvertType(variable.getType())),
                             SyntaxFactory.SeparatedList([
-                                SyntaxFactory.VariableDeclarator(variable.getNameAsString())
+                                SyntaxFactory.VariableDeclarator(TypeHelper.EscapeIdentifier(variable.getNameAsString()))
                                     .WithInitializer(SyntaxFactory.EqualsValueClause(initSyntax))
                             ])
                         ));
@@ -143,7 +143,7 @@ public class TryStatementVisitor : StatementVisitor<TryStmt>
             SyntaxFactory.CatchClause(
                 SyntaxFactory.CatchDeclaration(
                     SyntaxFactory.ParseTypeName(type),
-                    SyntaxFactory.ParseToken(ctch.getParameter().getNameAsString())
+                    SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(ctch.getParameter().getNameAsString()))
                 ),
                 filter: null,
                 block: catchBlockSyntax
