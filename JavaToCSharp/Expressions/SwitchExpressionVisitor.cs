@@ -28,10 +28,19 @@ public class SwitchExpressionVisitor : ExpressionVisitor<SwitchExpr>
         var pattern = GetArmPatternSyntax(context, entry);
         var expr = GetArmExpressionSyntax(context, entry);
 
-        return SwitchExpressionArm(
+        var arm = SwitchExpressionArm(
             pattern,
             expr
         );
+
+        // Java 21 `case Foo f when cond ->` maps directly onto a C# `when` clause.
+        if (entry.getGuard().FromOptional<Expression>() is { } guard
+            && VisitExpression(context, guard) is { } guardSyntax)
+        {
+            arm = arm.WithWhenClause(WhenClause(guardSyntax));
+        }
+
+        return arm;
     }
 
     private static PatternSyntax GetArmPatternSyntax(ConversionContext context, SwitchEntry entry)
@@ -47,6 +56,16 @@ public class SwitchExpressionVisitor : ExpressionVisitor<SwitchExpr>
 
         foreach (var label in labels)
         {
+            // Java 21 pattern labels (`case Point(int x, int y)`) are already patterns; everything
+            // else is a constant label and needs wrapping.
+            if (label is PatternExpr patternLabel)
+            {
+                patterns.Add(PatternExpressionVisitor.ConvertPattern(context, patternLabel)
+                             ?? throw new InvalidOperationException(
+                                 $"Unsupported switch pattern label `{patternLabel}`"));
+                continue;
+            }
+
             if (VisitExpression(context, label) is not ExpressionSyntax labelExpr)
             {
                 throw new InvalidOperationException("Switch expression label must contain an expression");

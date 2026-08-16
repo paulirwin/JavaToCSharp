@@ -28,7 +28,7 @@ public static class JavaToCSharpConverter
         context.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
         var parser = new JavaParser();
-        parser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
+        parser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
 
         var parsed = parser.parse(wrapper);
 

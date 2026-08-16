@@ -73,6 +73,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java14SwitchExpressionsYieldAssign.java", true)]
     [InlineData("Resources/Java15TextBlocks.java")]
     [InlineData("Resources/Java16Records.java")]
+    [InlineData("Resources/Java21RecordPatterns.java")]
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
     [InlineData("Resources/DeprecatedAnnotation.java")]
