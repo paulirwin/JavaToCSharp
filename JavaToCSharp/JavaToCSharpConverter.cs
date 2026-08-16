@@ -95,6 +95,16 @@ public static class JavaToCSharpConverter
                 var enumSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
                 rootMembers.Add(enumSyntax.NormalizeWhitespace().WithTrailingNewLines());
             }
+            else if (type is RecordDeclaration recordType)
+            {
+                var recordSyntax = RecordDeclarationVisitor.VisitRecordDeclaration(context, recordType);
+                rootMembers.Add(recordSyntax.NormalizeWhitespace().WithTrailingNewLines());
+            }
+            else
+            {
+                options.Warning($"Unsupported type declaration `{type.getNameAsString()}` of type `{type.GetType()}` was not converted.",
+                    type.getBegin().FromRequiredOptional<Position>().line);
+            }
         }
 
         if (rootMembers.Count > 1)
