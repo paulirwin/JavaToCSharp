@@ -19,6 +19,26 @@ public class ConversionContext(JavaConversionOptions options)
     public string? LastTypeName { get; set; }
 
     /// <summary>
+    /// Statements that must be emitted immediately before the statement currently being visited.
+    /// Used to lower constructs that cannot be expressed as a single statement, such as multi-statement
+    /// switch expressions. Drained by <see cref="Statements.StatementVisitor.VisitStatements"/>.
+    /// </summary>
+    internal List<StatementSyntax> PendingStatements { get; } = [];
+
+    /// <summary>
+    /// The identifier that a Java <c>yield</c> statement should assign to, when a multi-statement
+    /// switch expression has been lowered into a switch statement. Null when not inside such a lowering.
+    /// </summary>
+    internal string? YieldTarget { get; set; }
+
+    private int _uniqueLocalCounter;
+
+    /// <summary>
+    /// Creates a local variable name that will not collide with other generated locals.
+    /// </summary>
+    internal string CreateUniqueLocalName(string prefix) => $"__{prefix}{_uniqueLocalCounter++}";
+
+    /// <summary>
     /// Records the new conversion state and raises <see cref="JavaConversionOptions.StateChanged"/>.
     /// </summary>
     internal void ConversionStateChanged(ConversionState newState)
