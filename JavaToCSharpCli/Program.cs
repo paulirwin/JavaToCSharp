@@ -66,6 +66,12 @@ public class Program
         DefaultValueFactory = _ => false,
     };
 
+    private static readonly Option<bool> _noClosedForSealedClassesOption = new("--no-closed-for-sealed-classes")
+    {
+        Description = "Do not use the C# 15 `closed` modifier when converting Java sealed classes",
+        DefaultValueFactory = _ => false,
+    };
+
     private static readonly Option<bool> _clearDefaultUsingsOption = new("--clear-usings")
     {
         Description = "Remove all default usings provided by this app",
@@ -109,6 +115,7 @@ public class Program
         rootCommand.Options.Add(_commentUnrecognizedCodeOption);
         rootCommand.Options.Add(_systemOutToConsoleOption);
         rootCommand.Options.Add(_fileScopedNamespacesOption);
+        rootCommand.Options.Add(_noClosedForSealedClassesOption);
         rootCommand.Options.Add(_clearDefaultUsingsOption);
         rootCommand.Options.Add(_addUsingsOption);
         rootCommand.Options.Add(_mappingsFileNameOption);
@@ -164,6 +171,7 @@ public class Program
             UseDebugAssertForAsserts = context.GetValue(_useDebugAssertOption),
             UseUnrecognizedCodeToComment = context.GetValue(_commentUnrecognizedCodeOption),
             UseFileScopedNamespaces = context.GetValue(_fileScopedNamespacesOption),
+            UseClosedForSealedClasses = !context.GetValue(_noClosedForSealedClassesOption),
         };
 
         if (context.GetValue(_clearDefaultUsingsOption))
