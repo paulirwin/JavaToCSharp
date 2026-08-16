@@ -17,12 +17,13 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="IKVM" Version="8.15.0"/>
+        <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" />
         <PackageReference Include="Nullable.Extended.Analyzer" Version="1.15.6581"/>
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.11" />
         <PackageReference Include="YamlDotNet" Version="18.1.0" />
     </ItemGroup>
     <ItemGroup>
-        <IkvmReference Include="../Lib/javaparser-core-3.25.4.jar"/>
+        <MavenReference Include="com.github.javaparser:javaparser-core" Version="3.27.0"/>
     </ItemGroup>
 </Project>
