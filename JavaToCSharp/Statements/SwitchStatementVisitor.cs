@@ -42,7 +42,10 @@ public class SwitchStatementVisitor : StatementVisitor<SwitchStmt>
                 AddImplicitBreak(syntaxes);
             }
 
-            if (labels is not { Count: > 0 })
+            // `case null, default` is modelled as a null label plus the default flag, so an entry
+            // can be the default while still having labels. C#'s `default` section already handles
+            // null, so the combined form collapses onto it.
+            if (labels is not { Count: > 0 } || cs.isDefault())
             {
                 // default case
                 if (cs.getType().Equals(SwitchEntry.Type.STATEMENT_GROUP))

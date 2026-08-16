@@ -47,7 +47,10 @@ public class SwitchExpressionVisitor : ExpressionVisitor<SwitchExpr>
     {
         var labels = entry.getLabels().ToList<Expression>() ?? [];
 
-        if (labels.Count == 0)
+        // `case null, default` is modelled as a null label plus the default flag, so an entry can be
+        // the default while still having labels. C#'s discard already matches null, which makes it
+        // the equivalent of the combined form as well as of a bare `default`.
+        if (labels.Count == 0 || entry.isDefault())
         {
             return DiscardPattern();
         }
