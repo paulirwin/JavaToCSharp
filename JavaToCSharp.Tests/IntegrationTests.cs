@@ -74,6 +74,8 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java15TextBlocks.java")]
     [InlineData("Resources/Java16Records.java")]
     [InlineData("Resources/Java21RecordPatterns.java")]
+    // Warnings are expected: the sealed interface has no C# equivalent.
+    [InlineData("Resources/Java21SwitchPatternMatching.java", true)]
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
     [InlineData("Resources/DeprecatedAnnotation.java")]
