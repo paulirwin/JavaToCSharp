@@ -5,7 +5,7 @@
 
 Java to C# converter. 
 Uses [JavaParser](https://github.com/javaparser/javaparser) to parse the Java source code text, 
-[IKVM.NET](https://github.com/ikvmnet/ikvm/) to convert the javaparser .jar into a .NET .dll, 
+[IKVM.NET](https://github.com/ikvmnet/ikvm/) to convert the javaparser .jar (resolved from Maven Central at build time) into a .NET .dll, 
 and [Roslyn](https://github.com/dotnet/roslyn) for C# AST generation. 
 
 Pull requests and issue submission welcome.

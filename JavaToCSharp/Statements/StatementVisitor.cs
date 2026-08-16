@@ -38,6 +38,7 @@ public abstract class StatementVisitor
             { typeof(ThrowStmt), new ThrowStatementVisitor() },
             { typeof(TryStmt), new TryStatementVisitor() },
             { typeof(WhileStmt), new WhileStatementVisitor() },
+            { typeof(YieldStmt), new YieldStatementVisitor() },
             { typeof(EmptyStmt), new EmptyStatementVisitor() },
             { typeof(LocalClassDeclarationStmt), new TypeDeclarationStatementVisitor() }
         };
@@ -46,11 +47,38 @@ public abstract class StatementVisitor
     protected abstract StatementSyntax? Visit(ConversionContext context, Statement statement);
 
     public static List<StatementSyntax> VisitStatements(ConversionContext context, IEnumerable<Statement>? statements)
-        => statements is null
-            ? []
-            : statements.Select(statement => VisitStatement(context, statement))
-                        .OfType<StatementSyntax>() // filter out nulls
-                        .ToList();
+    {
+        if (statements is null)
+        {
+            return [];
+        }
+
+        var results = new List<StatementSyntax>();
+
+        // Statements pending from an outer statement list must not be drained here; this list is
+        // only responsible for the statements its own children produce.
+        var outerPending = context.PendingStatements.Count;
+
+        foreach (var statement in statements)
+        {
+            var syntax = VisitStatement(context, statement);
+
+            // A visitor may have lowered part of this statement into statements that must precede it,
+            // for example a multi-statement switch expression becoming a switch statement.
+            if (context.PendingStatements.Count > outerPending)
+            {
+                results.AddRange(context.PendingStatements.Skip(outerPending));
+                context.PendingStatements.RemoveRange(outerPending, context.PendingStatements.Count - outerPending);
+            }
+
+            if (syntax is not null)
+            {
+                results.Add(syntax);
+            }
+        }
+
+        return results;
+    }
 
     public static StatementSyntax? VisitStatement(ConversionContext context, Statement statement)
     {

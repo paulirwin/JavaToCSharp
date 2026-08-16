@@ -48,6 +48,7 @@ public abstract class ExpressionVisitor
             { typeof(MethodReferenceExpr), new MethodReferenceExpressionVisitor() },
             { typeof(TypeExpr), new TypeExpressionVisitor() },
             { typeof(SwitchExpr), new SwitchExpressionVisitor() },
+            { typeof(TextBlockLiteralExpr), new TextBlockLiteralExpressionVisitor() },
         };
     }
 
