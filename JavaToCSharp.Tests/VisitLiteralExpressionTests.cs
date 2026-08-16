@@ -20,6 +20,23 @@ public class VisitLiteralExpressionTests
     }
 
     [Theory]
+    // The value is written as it appears in Java source, indented under the opening """.
+    [InlineData("    a\n    b\n    ", "a\nb\n")]
+    [InlineData("    <html>\n        <body>hi</body>\n    </html>\n    ", "<html>\n    <body>hi</body>\n</html>\n")]
+    // Escapes are resolved once: \t stays a tab and \\ collapses to a single backslash.
+    [InlineData("    tab\there \\\\ backslash\n    ", "tab\there \\ backslash\n")]
+    // Two adjacent quotes need a four-quote delimiter in the generated C#.
+    [InlineData("    he said \"\"quoted\"\" ok\n    ", "he said \"\"quoted\"\" ok\n")]
+    public void VisitLiteralExpression_TextBlock(string javaValue, string expected)
+    {
+        var expr = ExpressionVisitor.VisitExpression(
+            new ConversionContext(new JavaConversionOptions()),
+            new TextBlockLiteralExpr(javaValue));
+
+        Assert.Equal(expected, expr?.GetFirstToken().ValueText);
+    }
+
+    [Theory]
     [InlineData("0b10", 2)]
     [InlineData("0b100", 4)]
     [InlineData("0B1010", 10)]
