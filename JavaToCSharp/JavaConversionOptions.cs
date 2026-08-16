@@ -33,6 +33,12 @@ public class JavaConversionOptions
 
     public bool UseFileScopedNamespaces { get; set; }
 
+    /// <summary>
+    /// Translates Java sealed classes using the C# 15 <c>closed</c> modifier, which requires .NET 11 or later.
+    /// When disabled, sealed classes are emitted without a modifier and a warning is raised instead.
+    /// </summary>
+    public bool UseClosedForSealedClasses { get; set; } = true;
+
     public SyntaxMapping SyntaxMappings { get; set; } = new SyntaxMapping();
 
     public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)

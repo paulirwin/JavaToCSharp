@@ -21,6 +21,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     [InlineData("Resources/Java11LambdaInference.java")]
     [InlineData("Resources/MultidimensionalArrays.java", true)]
+    [InlineData("Resources/Java17SealedClasses.java", true)]
     public void GeneralSuccessfulConversionTest(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions

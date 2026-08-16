@@ -42,6 +42,10 @@
                               IsChecked="{CompiledBinding UseFileScopedNamespaces}">
                         Use file-scoped namespaces
                     </CheckBox>
+                    <CheckBox Margin="5" Name="UseClosedForSealedClasses"
+                              IsChecked="{CompiledBinding UseClosedForSealedClasses}">
+                        Use C# 15 `closed` for Java sealed classes
+                    </CheckBox>
                     <CheckBox Margin="5" Name="IncludeComments"
                               IsChecked="{CompiledBinding IncludeComments}">
                         Include comments in output

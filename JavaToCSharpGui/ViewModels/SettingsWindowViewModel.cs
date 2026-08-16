@@ -26,6 +26,8 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     [ObservableProperty] private bool _useFileScopedNamespaces = CurrentOptions.Options.UseFileScopedNamespaces;
 
+    [ObservableProperty] private bool _useClosedForSealedClasses = CurrentOptions.Options.UseClosedForSealedClasses;
+
     public event EventHandler? CloseRequested;
 
     [RelayCommand]
@@ -54,6 +56,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
         CurrentOptions.Options.UseUnrecognizedCodeToComment = UnrecognizedCodeToComment;
         CurrentOptions.Options.ConvertSystemOutToConsole = ConvertSystemOutToConsole;
         CurrentOptions.Options.UseFileScopedNamespaces = UseFileScopedNamespaces;
+        CurrentOptions.Options.UseClosedForSealedClasses = UseClosedForSealedClasses;
 
         CurrentOptions.Options.SetUsings(Usings);
 

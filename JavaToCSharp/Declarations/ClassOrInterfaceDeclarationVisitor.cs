@@ -1,7 +1,9 @@
-﻿using com.github.javaparser.ast;
+﻿using com.github.javaparser;
+using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
 using com.github.javaparser.ast.expr;
 using com.github.javaparser.ast.type;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9,6 +11,44 @@ namespace JavaToCSharp.Declarations;
 
 public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOrInterfaceDeclaration>
 {
+    /// <summary>
+    /// Builds the <c>// Java: sealed, permits ...</c> comment describing a sealed hierarchy that C# cannot
+    /// fully express, or <see langword="null"/> when the declaration is neither sealed nor non-sealed.
+    /// </summary>
+    private static string? GetSealedComment(ClassOrInterfaceDeclaration decl, ISet<Modifier.Keyword> mods)
+    {
+        bool isSealed = mods.Contains(Modifier.Keyword.SEALED);
+        bool isNonSealed = mods.Contains(Modifier.Keyword.NON_SEALED);
+
+        if (!isSealed && !isNonSealed)
+        {
+            return null;
+        }
+
+        string keyword = isSealed ? "sealed" : "non-sealed";
+
+        var permitted = decl.getPermittedTypes().ToList<ClassOrInterfaceType>() ?? [];
+
+        return permitted.Count > 0
+            ? $"// Java: {keyword}, permits {string.Join(", ", permitted.Select(i => i.getNameAsString()))}"
+            : $"// Java: {keyword}";
+    }
+
+    private static SyntaxTriviaList BuildSealedTrivia(SyntaxTriviaList existing, string comment)
+        => existing
+            .Add(SyntaxFactory.Comment(comment))
+            .Add(SyntaxFactory.ElasticCarriageReturnLineFeed);
+
+    private static ClassDeclarationSyntax WithSealedComment(ClassDeclarationSyntax syntax, string? comment)
+        => comment is null
+            ? syntax
+            : syntax.WithLeadingTrivia(BuildSealedTrivia(syntax.GetLeadingTrivia(), comment));
+
+    private static InterfaceDeclarationSyntax WithSealedComment(InterfaceDeclarationSyntax syntax, string? comment)
+        => comment is null
+            ? syntax
+            : syntax.WithLeadingTrivia(BuildSealedTrivia(syntax.GetLeadingTrivia(), comment));
+
     public override MemberDeclarationSyntax? VisitForClass(
         ConversionContext context,
         ClassDeclarationSyntax classSyntax,
@@ -67,6 +107,15 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         if (mods.Contains(Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
 
+        string? sealedComment = GetSealedComment(interfaceDecl, mods);
+
+        if (mods.Contains(Modifier.Keyword.SEALED))
+        {
+            context.Options.Warning(
+                $"Sealed interface {newTypeName} has no C# equivalent and was converted to a non-sealed interface. Check for correctness.",
+                interfaceDecl.getBegin().FromRequiredOptional<Position>().line);
+        }
+
         var extends = interfaceDecl.getExtendedTypes().ToList<ClassOrInterfaceType>();
 
         if (extends is not null)
@@ -103,7 +152,7 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             }
         }
 
-        return classSyntax.WithJavaComments(context, interfaceDecl);
+        return WithSealedComment(classSyntax.WithJavaComments(context, interfaceDecl), sealedComment);
     }
 
     public static ClassDeclarationSyntax VisitClassDeclaration(ConversionContext context,
@@ -141,6 +190,29 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.AbstractKeyword));
         if (mods.Contains(Modifier.Keyword.FINAL))
             classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.SealedKeyword));
+
+        string? sealedComment = GetSealedComment(classDecl, mods);
+
+        if (mods.Contains(Modifier.Keyword.SEALED))
+        {
+            if (context.Options.UseClosedForSealedClasses)
+            {
+                // Roslyn has no ClosedKeyword token, as `closed` is a C# 15 feature.
+                classSyntax = classSyntax.AddModifiers(SyntaxFactory.ParseToken("closed "));
+            }
+            else
+            {
+                context.Options.Warning(
+                    $"Sealed class {name} was converted without the C# 15 `closed` modifier. Check for correctness.",
+                    classDecl.getBegin().FromRequiredOptional<Position>().line);
+            }
+        }
+        else if (mods.Contains(Modifier.Keyword.NON_SEALED))
+        {
+            context.Options.Warning(
+                $"Non-sealed class {name} has no C# equivalent and was converted without a modifier. Check for correctness.",
+                classDecl.getBegin().FromRequiredOptional<Position>().line);
+        }
 
         var extends = classDecl.getExtendedTypes().ToList<ClassOrInterfaceType>() ?? [];
 
@@ -223,6 +295,6 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
             }
         }
 
-        return classSyntax.WithJavaComments(context, classDecl);
+        return WithSealedComment(classSyntax.WithJavaComments(context, classDecl), sealedComment);
     }
 }
