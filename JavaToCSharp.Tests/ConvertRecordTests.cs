@@ -105,7 +105,7 @@ public class ConvertRecordTests
     }
 
     [Fact]
-    public void Compact_Constructor_Warns_And_Is_Not_Ported()
+    public void Compact_Constructor_Is_Lowered_To_An_Explicit_Constructor()
     {
         const string javaCode = """
                                 package com.example;
@@ -117,13 +117,41 @@ public class ConvertRecordTests
                                 """;
 
         var warnings = new List<string>();
-        Convert(javaCode, NewOptions(warnings));
+        var parsed = Convert(javaCode, NewOptions(warnings));
 
-        Assert.Contains(warnings, w => w.Contains("Compact constructor"));
+        Assert.Empty(warnings);
+        // The record drops its positional parameter list in favor of explicit properties.
+        Assert.DoesNotContain("record Point(", parsed);
+        Assert.Contains("public int x { get; init; }", parsed);
+        Assert.Contains("public Point(int x, int y)", parsed);
+        Assert.Contains("throw new ArgumentException(\"neg\")", parsed);
     }
 
     [Fact]
-    public void Canonical_Constructor_Warns_Because_It_Conflicts_With_Primary_Constructor()
+    public void Compact_Constructor_Assigns_Components_After_Its_Body()
+    {
+        // Java runs the compact body against the parameters and assigns the fields afterwards, so
+        // a reassignment in the body must be reflected in the stored component value.
+        const string javaCode = """
+                                package com.example;
+                                public record Point(int x, int y) {
+                                    public Point {
+                                        y = y * 2;
+                                    }
+                                }
+                                """;
+
+        var parsed = Convert(javaCode);
+
+        var bodyIndex = parsed.IndexOf("y = y * 2;", StringComparison.Ordinal);
+        var assignIndex = parsed.IndexOf("this.y = y;", StringComparison.Ordinal);
+
+        Assert.True(bodyIndex >= 0, "compact constructor body should be emitted");
+        Assert.True(assignIndex > bodyIndex, "component assignment should follow the compact body");
+    }
+
+    [Fact]
+    public void Canonical_Constructor_Is_Ported_Using_Explicit_Properties()
     {
         const string javaCode = """
                                 package com.example;
@@ -135,10 +163,11 @@ public class ConvertRecordTests
         var warnings = new List<string>();
         var parsed = Convert(javaCode, NewOptions(warnings));
 
-        Assert.Contains(warnings, w => w.Contains("Canonical constructor"));
-        // Emitting it would duplicate the generated primary constructor (CS0111), so the record
-        // is left with no body at all.
-        Assert.Contains("public record Point(int x, int y);", parsed);
+        Assert.Empty(warnings);
+        // A positional record would reject a same-signature constructor (CS0111).
+        Assert.DoesNotContain("record Point(", parsed);
+        Assert.Contains("public int x { get; init; }", parsed);
+        Assert.Contains("public Point(int x, int y)", parsed);
     }
 
     [Fact]

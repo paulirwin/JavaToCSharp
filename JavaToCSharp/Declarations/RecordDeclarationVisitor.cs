@@ -1,7 +1,9 @@
 using com.github.javaparser;
 using com.github.javaparser.ast;
 using com.github.javaparser.ast.body;
+using com.github.javaparser.ast.stmt;
 using com.github.javaparser.ast.type;
+using JavaToCSharp.Statements;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -60,13 +62,29 @@ public class RecordDeclarationVisitor : BodyDeclarationVisitor<RecordDeclaration
         if (mods.Contains(Modifier.Keyword.PUBLIC))
             recordSyntax = recordSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
-        // Java record components become C# positional record parameters. Component names are kept
-        // verbatim rather than capitalized: bodies within the record refer to components directly
+        // Java record components become C# record properties. Component names are kept verbatim
+        // rather than capitalized: bodies within the record refer to components directly
         // (e.g. `x + y`), and those references are not rewritten, so renaming would break them.
         var components = recordDecl.getParameters().ToList<Parameter>() ?? [];
         var componentNames = components.Select(i => i.getNameAsString()).ToHashSet(StringComparer.Ordinal);
 
-        if (components.Count > 0)
+        // A compact constructor's body runs against the constructor parameters and may reassign
+        // them, with the component fields assigned from those parameters afterwards. A positional
+        // record cannot express that, so the record is emitted in non-positional form: explicit
+        // properties plus a constructor holding the compact body and the trailing assignments.
+        var compactConstructors = recordDecl.getCompactConstructors().ToList<CompactConstructorDeclaration>() ?? [];
+        var compactCtor = compactConstructors.FirstOrDefault();
+
+        // An explicit canonical constructor assigns the component fields itself, but it still
+        // cannot coexist with a generated primary constructor, so it needs the same treatment.
+        // Java forbids declaring both forms, so at most one of these is present.
+        var canonicalCtor = recordDecl.getMembers()?.ToList<BodyDeclaration>()?
+            .OfType<ConstructorDeclaration>()
+            .FirstOrDefault(i => IsCanonicalConstructor(i, components));
+
+        var isPositional = compactCtor is null && canonicalCtor is null;
+
+        if (isPositional && components.Count > 0)
         {
             var paramSyntaxes = components.Select(i =>
                 SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getNameAsString())))
@@ -90,20 +108,24 @@ public class RecordDeclarationVisitor : BodyDeclarationVisitor<RecordDeclaration
 
         var members = recordDecl.getMembers()?.ToList<BodyDeclaration>() ?? [];
 
-        var compactConstructors = recordDecl.getCompactConstructors().ToList<CompactConstructorDeclaration>() ?? [];
-
-        foreach (var compactCtor in compactConstructors)
+        if (!isPositional)
         {
-            context.Options.Warning(
-                $"Compact constructor in record {name} was not ported; its validation and normalization logic must be applied manually.",
-                compactCtor.getBegin().FromRequiredOptional<Position>().line);
+            foreach (var component in components)
+            {
+                recordSyntax = recordSyntax.AddMembers(BuildComponentProperty(component));
+            }
+
+            if (compactCtor is not null)
+            {
+                recordSyntax = recordSyntax.AddMembers(BuildLoweredCompactConstructor(context, name, compactCtor, components));
+            }
         }
 
         foreach (var member in members)
         {
             if (member is CompactConstructorDeclaration)
             {
-                // Warned about above; there is no C# equivalent of a compact constructor.
+                // Lowered into an explicit constructor above.
                 continue;
             }
 
@@ -121,16 +143,8 @@ public class RecordDeclarationVisitor : BodyDeclarationVisitor<RecordDeclaration
                 continue;
             }
 
-            // An explicit canonical constructor collides with the positional record's primary
-            // constructor (CS0111), and an explicit accessor collides with its property (CS0102).
-            if (member is ConstructorDeclaration ctorDecl && IsCanonicalConstructor(ctorDecl, components))
-            {
-                context.Options.Warning(
-                    $"Canonical constructor in record {name} was not ported because it conflicts with the generated primary constructor.",
-                    ctorDecl.getBegin().FromRequiredOptional<Position>().line);
-                continue;
-            }
-
+            // The component properties are emitted explicitly whenever the record is not
+            // positional, so an explicit accessor would be a duplicate member (CS0102).
             if (member is MethodDeclaration methodDecl && IsExplicitAccessor(methodDecl, componentNames))
             {
                 context.Options.Warning(
@@ -154,13 +168,77 @@ public class RecordDeclarationVisitor : BodyDeclarationVisitor<RecordDeclaration
             }
         }
 
-        // A positional record with no body needs a terminating semicolon rather than braces.
+        // A record with no members needs a terminating semicolon rather than an empty body.
         recordSyntax = recordSyntax.Members.Count == 0
             ? recordSyntax.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
             : recordSyntax.WithOpenBraceToken(SyntaxFactory.Token(SyntaxKind.OpenBraceToken))
                 .WithCloseBraceToken(SyntaxFactory.Token(SyntaxKind.CloseBraceToken));
 
         return recordSyntax.WithJavaComments(context, recordDecl);
+    }
+
+    /// <summary>
+    /// Builds the `public T name { get; init; }` property that stands in for a record component
+    /// when the record cannot be emitted in positional form.
+    /// </summary>
+    private static PropertyDeclarationSyntax BuildComponentProperty(Parameter component)
+        => SyntaxFactory.PropertyDeclaration(
+                SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(component)),
+                SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(component.getNameAsString())))
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+            .AddAccessorListAccessors(
+                SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                SyntaxFactory.AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
+                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+
+    /// <summary>
+    /// Lowers a Java compact constructor into an explicit C# constructor. The compact body runs
+    /// first, against the parameters, and the component properties are assigned from those
+    /// parameters afterwards, preserving any reassignment the body performed.
+    /// </summary>
+    private static ConstructorDeclarationSyntax BuildLoweredCompactConstructor(
+        ConversionContext context,
+        string name,
+        CompactConstructorDeclaration compactCtor,
+        IReadOnlyList<Parameter> components)
+    {
+        var ctorSyntax = SyntaxFactory.ConstructorDeclaration(name).WithLeadingNewLines();
+
+        var mods = compactCtor.getModifiers().ToModifierKeywordSet();
+
+        // A compact constructor is the canonical constructor, so it must be at least as accessible
+        // as the record itself; Java requires public when the record is public.
+        if (mods.Contains(Modifier.Keyword.PROTECTED))
+            ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword));
+        else if (mods.Contains(Modifier.Keyword.PRIVATE))
+            ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+        else
+            ctorSyntax = ctorSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+
+        ctorSyntax = ctorSyntax.AddParameterListParameters(components.Select(i =>
+                SyntaxFactory.Parameter(SyntaxFactory.ParseToken(TypeHelper.EscapeIdentifier(i.getNameAsString())))
+                    .WithType(SyntaxFactory.ParseTypeName(TypeHelper.ConvertTypeOf(i))))
+            .ToArray());
+
+        var bodyStatements = StatementVisitor.VisitStatements(context,
+            compactCtor.getBody().getStatements().ToList<Statement>());
+
+        var assignments = components.Select(i =>
+        {
+            var identifier = TypeHelper.EscapeIdentifier(i.getNameAsString());
+
+            return (StatementSyntax)SyntaxFactory.ExpressionStatement(
+                SyntaxFactory.AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        SyntaxFactory.ThisExpression(),
+                        SyntaxFactory.IdentifierName(identifier)),
+                    SyntaxFactory.IdentifierName(identifier)));
+        });
+
+        return ctorSyntax.AddBodyStatements([.. bodyStatements, .. assignments]);
     }
 
     /// <summary>

@@ -1,5 +1,5 @@
 /// Expect:
-/// - output: "1, 2\n3\nsame=True\ndiff=False\norigin=0\nCircle r=2\nlabel=P\n"
+/// - output: "1, 2\n3\nsame=True\ndiff=False\norigin=0\nCircle r=2\nlabel=P\nrange=1..50\ncaught=yes\n"
 package example;
 
 // https://docs.oracle.com/en/java/javase/16/language/records.html
@@ -28,6 +28,17 @@ public class Program {
     public record Labeled<T>(String label, T value) {
     }
 
+    // The compact constructor validates and normalizes the components. Its body runs against the
+    // parameters, and the components are assigned from them afterwards.
+    public record Range(int low, int high) {
+        public Range {
+            if (low > high) {
+                throw new IllegalArgumentException("low > high");
+            }
+            high = high * 10;
+        }
+    }
+
     public static void main(String[] args) {
         Point p = new Point(1, 2);
         System.out.println(p.x + ", " + p.y);
@@ -44,5 +55,15 @@ public class Program {
 
         Labeled<Integer> labeled = new Labeled<Integer>("P", 42);
         System.out.println("label=" + labeled.label);
+
+        Range r = new Range(1, 5);
+        System.out.println("range=" + r.low + ".." + r.high);
+
+        try {
+            new Range(9, 2);
+            System.out.println("caught=no");
+        } catch (IllegalArgumentException e) {
+            System.out.println("caught=yes");
+        }
     }
 }
