@@ -27,11 +27,44 @@ public class SwitchExpressionLoweringTests
     /// Arms with more than one statement cannot be represented as a C# switch expression arm.
     /// These are lowered by the statement visitors, so converting the expression alone throws.
     /// </summary>
-    [Theory]
-    [InlineData("switch (x) { case 1 -> { int a = 1; yield a; } default -> 20; }")]
-    public void MultiStatementArms_AreNotConvertibleAsExpression(string javaExpr)
+    /// <summary>
+    /// In positions where the statements cannot be hoisted out — nested inside a larger expression —
+    /// the arm is emitted as an immediately-invoked lambda instead. The return type cannot be
+    /// inferred without a symbol solver, so a placeholder is emitted for the user to replace.
+    /// </summary>
+    /// <remarks>
+    /// Parsed as a whole file rather than via parseExpression, which does not recognise `yield`
+    /// as a yield statement outside of statement context.
+    /// </remarks>
+    [Fact]
+    public void MultiStatementArms_NestedInExpression_ConvertToInvokedLambda()
     {
-        Assert.ThrowsAny<Exception>(() => Convert(javaExpr));
+        var warnings = new List<string>();
+        var options = new JavaConversionOptions { IncludeComments = false };
+        options.WarningEncountered += (_, e) => warnings.Add(e.Message);
+
+        var csharp = JavaToCSharpConverter.ConvertText(
+            """
+            package example;
+            public class Program {
+                static int foo(int v) { return v; }
+                public static void main(String[] args) {
+                    int x = 1;
+                    foo(switch (x) { case 1 -> { int a = 1; yield a; } default -> 20; });
+                }
+            }
+            """, options);
+
+        Assert.NotNull(csharp);
+        Assert.Contains("Func<SPECIFY_ME>", csharp);
+        // yield becomes return inside the lambda
+        Assert.Contains("return a;", csharp);
+        // the lambda must actually be invoked, not merely constructed
+        Assert.Contains("))()", csharp);
+        // arms that are already a single expression are left alone
+        Assert.Contains("_ => 20", csharp);
+
+        Assert.Contains(warnings, w => w.Contains("SPECIFY_ME"));
     }
 
     /// <summary>
@@ -46,11 +79,11 @@ public class SwitchExpressionLoweringTests
         Assert.Contains("=>", csharp);
     }
 
-    private static string? Convert(string javaExpr)
+    private static string? Convert(string javaExpr, JavaConversionOptions? options = null)
     {
         var parseResult = new JavaParser().parseExpression(javaExpr);
         var parsedExpr = parseResult.getResult().FromRequiredOptional<Expression>();
-        var context = new ConversionContext(new JavaConversionOptions());
+        var context = new ConversionContext(options ?? new JavaConversionOptions());
 
         return ExpressionVisitor.VisitExpression(context, parsedExpr)?.ToString();
     }

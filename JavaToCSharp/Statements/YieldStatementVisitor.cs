@@ -9,7 +9,9 @@ namespace JavaToCSharp.Statements;
 /// <summary>
 /// Converts a Java <c>yield</c> statement. Java's <c>yield</c> produces a value from a switch
 /// expression arm; the C# equivalent depends on how the enclosing switch expression was lowered,
-/// which is communicated via <see cref="ConversionContext.YieldTarget"/>.
+/// which is communicated via <see cref="ConversionContext.YieldTarget"/>. When a target is set the
+/// value is assigned to it within a switch statement; otherwise the arm became an invoked lambda
+/// and the value is returned.
 /// </summary>
 public class YieldStatementVisitor : StatementVisitor<YieldStmt>
 {
@@ -23,8 +25,8 @@ public class YieldStatementVisitor : StatementVisitor<YieldStmt>
 
         if (target is null)
         {
-            // Not inside a lowered switch expression; nothing sensible to translate to.
-            throw new InvalidOperationException("Yield statement encountered outside of a switch expression");
+            // Inside an invoked lambda, yielding a value is a return.
+            return SyntaxFactory.ReturnStatement(exprSyntax);
         }
 
         // Assign to the temporary that receives the switch expression's value, then leave the section.
