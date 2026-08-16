@@ -67,6 +67,9 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java9PrivateInterfaceMethods.java")]
     [InlineData("Resources/Java10TypeInference.java")]
     [InlineData("Resources/Java14SwitchExpressions.java")]
+    [InlineData("Resources/Java14SwitchExpressionsYield.java", true)]
+    [InlineData("Resources/Java14SwitchExpressionsYieldReturn.java", true)]
+    [InlineData("Resources/Java14SwitchExpressionsYieldAssign.java", true)]
     [InlineData("Resources/Java15TextBlocks.java")]
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
@@ -74,7 +77,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/BooleanArrays.java")]
     [InlineData("Resources/BinaryLiterals.java")]
     [InlineData("Resources/NestedEnumStaticUsing.java")]
-    public void FullIntegrationTests(string filePath)
+    public void FullIntegrationTests(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions
         {
@@ -84,8 +87,13 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
 
         options.AddUsing("System");
 
-        options.WarningEncountered += (_, eventArgs)
-            => throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
+        options.WarningEncountered += (_, eventArgs) =>
+        {
+            if (!allowWarnings)
+            {
+                throw new InvalidOperationException($"Encountered a warning in conversion: {eventArgs.Message}");
+            }
+        };
 
         var javaText = File.ReadAllText(filePath);
 

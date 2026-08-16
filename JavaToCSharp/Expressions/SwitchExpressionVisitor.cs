@@ -72,15 +72,23 @@ public class SwitchExpressionVisitor : ExpressionVisitor<SwitchExpr>
     {
         var statements = entry.getStatements().ToList<Statement>() ?? [];
 
-        if (statements.Count > 1)
+        if (statements.Count != 1)
         {
-            throw new InvalidOperationException("Switch expressions with multiple statements are not supported");
+            // Multi-statement arms are lowered into switch statements by the statement visitors,
+            // which is only possible when the switch expression is the whole initializer, assigned
+            // value, or returned value. Anywhere else there is nowhere to put the extra statements.
+            throw new InvalidOperationException(
+                "Switch expressions with multiple statements are only supported when directly assigned to a variable or returned");
         }
 
         var armExpr = statements[0] switch
         {
             ThrowStmt throwStmt => throwStmt.getExpression(),
             ExpressionStmt exprStmt => exprStmt.getExpression(),
+            // A yield or block here means the arm needs lowering, which is only possible when the
+            // switch expression is directly assigned or returned rather than nested in another expression.
+            YieldStmt or BlockStmt => throw new InvalidOperationException(
+                "Switch expressions with multiple statements are only supported when directly assigned to a variable or returned"),
             _ => throw new InvalidOperationException("Only throw and expression statements are supported in switch expressions")
         };
 
