@@ -67,6 +67,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java9PrivateInterfaceMethods.java")]
     [InlineData("Resources/Java10TypeInference.java")]
     [InlineData("Resources/Java14SwitchExpressions.java")]
+    [InlineData("Resources/Java15TextBlocks.java")]
     [InlineData("Resources/NewArrayLiteralBug.java")]
     [InlineData("Resources/OctalLiteralBug.java")]
     [InlineData("Resources/DeprecatedAnnotation.java")]
