@@ -273,6 +273,13 @@ public static class TypeHelper
                     return true;
                 }
 
+                case "getMessage" when args.size() == 0:
+                {
+                    var scopeSyntaxMessage = ExpressionVisitor.VisitExpression(context, scope);
+                    transformedSyntax = ReplaceMethodByProperty(scopeSyntaxMessage, "Message");
+                    return true;
+                }
+
                 case "get" when args.size() == 1:
                 {
                     var scopeSyntaxGet = ExpressionVisitor.VisitExpression(context, scope);
