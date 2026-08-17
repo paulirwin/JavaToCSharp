@@ -156,8 +156,6 @@ public static class JavaToCSharpConverter
 
         context.ConversionStateChanged(ConversionState.Done);
 
-        // C# 15 labeled jumps cannot be represented in a Roslyn tree, so they are emitted as placeholders
-        // and substituted into the final text here. See LabeledJumpHelper.
-        return Statements.LabeledJumpHelper.RewritePlaceholders(tree.GetText().ToString());
+        return tree.GetText().ToString();
     }
 }
