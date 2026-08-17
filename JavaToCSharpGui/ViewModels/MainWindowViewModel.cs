@@ -184,13 +184,13 @@ public partial class MainWindowViewModel : ViewModelBase
                     outDir.Create();
 
                 string outDirFullName = outDir.FullName;
-                int subStartIndex = dir.FullName.Length;
 
                 foreach (var jFile in FolderInputFiles.Where(static x => x.Directory is not null))
                 {
                     // ! null checked above
                     string jPath = jFile.Directory!.FullName;
-                    string jOutPath = $"{outDirFullName}{jPath[subStartIndex..]}";
+                    string relativePath = Path.GetRelativePath(dir.FullName, jPath);
+                    string jOutPath = Path.Combine(outDirFullName, relativePath);
                     string jOutFileName = Path.GetFileNameWithoutExtension(jFile.Name) + ".cs";
                     string jOutFileFullName = Path.Combine(jOutPath, jOutFileName);
 
