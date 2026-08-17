@@ -4,7 +4,11 @@ namespace JavaToCSharp;
 
 public class ConversionContext(JavaConversionOptions options)
 {
-    public Queue<ClassDeclarationSyntax> PendingAnonymousTypes { get; } = new();
+    /// <summary>
+    /// Types that must be hoisted to the enclosing type, because C# has no local equivalent of the
+    /// Java construct that declared them: anonymous class bodies and local records.
+    /// </summary>
+    public Queue<MemberDeclarationSyntax> PendingAnonymousTypes { get; } = new();
 
     public ISet<string> UsedAnonymousTypeNames { get; } = new HashSet<string>();
 
@@ -24,6 +28,13 @@ public class ConversionContext(JavaConversionOptions options)
     /// switch expressions. Drained by <see cref="Statements.StatementVisitor.VisitStatements"/>.
     /// </summary>
     internal List<StatementSyntax> PendingStatements { get; } = [];
+
+    /// <summary>
+    /// Instance initializer blocks collected while visiting the members of the class currently being
+    /// converted. Java runs these at the start of every constructor, so they are prepended to each
+    /// constructor body by <see cref="Declarations.ClassOrInterfaceDeclarationVisitor"/>.
+    /// </summary>
+    internal List<BlockSyntax> PendingInstanceInitializers { get; } = [];
 
     /// <summary>
     /// The identifier that a Java <c>yield</c> statement should assign to, when a multi-statement
