@@ -22,6 +22,8 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java11LambdaInference.java")]
     [InlineData("Resources/MultidimensionalArrays.java", true)]
     [InlineData("Resources/Java17SealedClasses.java", true)]
+    // Conversion-only: java.util.function has no BCL delegate mapping, so the output cannot be run.
+    [InlineData("Resources/Java8MethodReferences.java")]
     public void GeneralSuccessfulConversionTest(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions
@@ -82,6 +84,9 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/BooleanArrays.java")]
     [InlineData("Resources/BinaryLiterals.java")]
     [InlineData("Resources/NestedEnumStaticUsing.java")]
+    [InlineData("Resources/Java16LocalRecords.java")]
+    [InlineData("Resources/InstanceInitializers.java")]
+    [InlineData("Resources/StaticImports.java")]
     public void FullIntegrationTests(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions
