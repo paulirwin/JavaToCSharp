@@ -47,6 +47,7 @@ public abstract class BodyDeclarationVisitor
             { typeof(InitializerDeclaration), new InitializerDeclarationVisitor() },
             { typeof(ClassOrInterfaceDeclaration), new ClassOrInterfaceDeclarationVisitor() },
             { typeof(AnnotationDeclaration), new AnnotationDeclarationVisitor() },
+            { typeof(RecordDeclaration), new RecordDeclarationVisitor() },
         };
     }
 

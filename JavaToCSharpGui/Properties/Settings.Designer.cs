@@ -118,5 +118,17 @@ namespace JavaToCSharpGui.Properties {
                 this["UseFileScopedNamespaces"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseClosedForSealedClasses {
+            get {
+                return ((bool)(this["UseClosedForSealedClasses"]));
+            }
+            set {
+                this["UseClosedForSealedClasses"] = value;
+            }
+        }
     }
 }

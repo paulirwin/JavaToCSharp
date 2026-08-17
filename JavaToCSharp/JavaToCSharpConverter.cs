@@ -28,7 +28,7 @@ public static class JavaToCSharpConverter
         context.ConversionStateChanged(ConversionState.ParsingJavaAst);
 
         var parser = new JavaParser();
-        parser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
+        parser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
 
         var parsed = parser.parse(wrapper);
 
@@ -94,6 +94,16 @@ public static class JavaToCSharpConverter
             {
                 var enumSyntax = EnumDeclarationVisitor.VisitEnumDeclaration(context, enumType);
                 rootMembers.Add(enumSyntax.NormalizeWhitespace().WithTrailingNewLines());
+            }
+            else if (type is RecordDeclaration recordType)
+            {
+                var recordSyntax = RecordDeclarationVisitor.VisitRecordDeclaration(context, recordType);
+                rootMembers.Add(recordSyntax.NormalizeWhitespace().WithTrailingNewLines());
+            }
+            else
+            {
+                options.Warning($"Unsupported type declaration `{type.getNameAsString()}` of type `{type.GetType()}` was not converted.",
+                    type.getBegin().FromRequiredOptional<Position>().line);
             }
         }
 
