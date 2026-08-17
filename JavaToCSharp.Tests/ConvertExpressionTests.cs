@@ -12,6 +12,8 @@ public class ConvertExpressionTests
     [InlineData("lst.set(i, value)", "lst[i] = value")]
     [InlineData("str.length()", "str.Length")]
     [InlineData("arr.length", "arr.Length")]
+    [InlineData("e.getMessage()", "e.Message")]
+    [InlineData("obj.getMessage(i)", "obj.GetMessage(i)")]
 
     //Conversion not done if param number does not match the required
     [InlineData("obj.size(i)", "obj.Size(i)")]
