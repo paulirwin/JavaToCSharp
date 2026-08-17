@@ -171,6 +171,15 @@ public static class TypeHelper
             typeSyntax = SyntaxFactory.ParseTypeName(typeName);
         }
 
+        // Nested types (e.g. `Outer.Inner`) carry their declaring type as a scope, which
+        // getNameAsString() above does not include. Prepend it so the declaring type isn't lost.
+        if (type.getScope().FromOptional<ClassOrInterfaceType>() is { } scope
+            && typeSyntax is SimpleNameSyntax simpleName
+            && GetSyntaxFromType(scope) is NameSyntax scopeName)
+        {
+            return SyntaxFactory.QualifiedName(scopeName, simpleName);
+        }
+
         return typeSyntax;
     }
 
