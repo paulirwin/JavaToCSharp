@@ -42,6 +42,18 @@ public class ConversionContext(JavaConversionOptions options)
     /// </summary>
     internal string? YieldTarget { get; set; }
 
+    /// <summary>
+    /// Java labels targeted by a labeled <c>break</c> that was lowered to a <c>goto</c>. The labeled statement
+    /// visitor emits a matching target label after the loop for each one.
+    /// </summary>
+    internal ISet<string> LabelsNeedingBreakTarget { get; } = new HashSet<string>();
+
+    /// <summary>
+    /// Java labels targeted by a labeled <c>continue</c> that was lowered to a <c>goto</c>. The labeled
+    /// statement visitor emits a matching target label at the end of the loop body for each one.
+    /// </summary>
+    internal ISet<string> LabelsNeedingContinueTarget { get; } = new HashSet<string>();
+
     private int _uniqueLocalCounter;
 
     /// <summary>

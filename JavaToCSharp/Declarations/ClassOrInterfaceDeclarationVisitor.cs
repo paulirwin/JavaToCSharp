@@ -242,8 +242,10 @@ public class ClassOrInterfaceDeclarationVisitor : BodyDeclarationVisitor<ClassOr
         {
             if (context.Options.UseClosedForSealedClasses)
             {
-                // Roslyn has no ClosedKeyword token, as `closed` is a C# 15 feature.
-                classSyntax = classSyntax.AddModifiers(SyntaxFactory.ParseToken("closed "));
+                // The `closed` keyword is still marked experimental in Roslyn.
+#pragma warning disable RSEXPERIMENTAL006
+                classSyntax = classSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.ClosedKeyword));
+#pragma warning restore RSEXPERIMENTAL006
             }
             else
             {

@@ -72,6 +72,12 @@ public class Program
         DefaultValueFactory = _ => false,
     };
 
+    private static readonly Option<bool> _noLabeledBreakAndContinueOption = new("--no-labeled-break-and-continue")
+    {
+        Description = "Do not use C# 15 labeled break/continue; fall back to `goto` when converting Java labeled jumps",
+        DefaultValueFactory = _ => false,
+    };
+
     private static readonly Option<bool> _clearDefaultUsingsOption = new("--clear-usings")
     {
         Description = "Remove all default usings provided by this app",
@@ -116,6 +122,7 @@ public class Program
         rootCommand.Options.Add(_systemOutToConsoleOption);
         rootCommand.Options.Add(_fileScopedNamespacesOption);
         rootCommand.Options.Add(_noClosedForSealedClassesOption);
+        rootCommand.Options.Add(_noLabeledBreakAndContinueOption);
         rootCommand.Options.Add(_clearDefaultUsingsOption);
         rootCommand.Options.Add(_addUsingsOption);
         rootCommand.Options.Add(_mappingsFileNameOption);
@@ -172,6 +179,7 @@ public class Program
             UseUnrecognizedCodeToComment = context.GetValue(_commentUnrecognizedCodeOption),
             UseFileScopedNamespaces = context.GetValue(_fileScopedNamespacesOption),
             UseClosedForSealedClasses = !context.GetValue(_noClosedForSealedClassesOption),
+            UseLabeledBreakAndContinue = !context.GetValue(_noLabeledBreakAndContinueOption),
         };
 
         if (context.GetValue(_clearDefaultUsingsOption))

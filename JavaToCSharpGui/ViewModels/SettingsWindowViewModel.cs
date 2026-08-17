@@ -28,6 +28,8 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     [ObservableProperty] private bool _useClosedForSealedClasses = CurrentOptions.Options.UseClosedForSealedClasses;
 
+    [ObservableProperty] private bool _useLabeledBreakAndContinue = CurrentOptions.Options.UseLabeledBreakAndContinue;
+
     public event EventHandler? CloseRequested;
 
     [RelayCommand]
@@ -57,6 +59,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
         CurrentOptions.Options.ConvertSystemOutToConsole = ConvertSystemOutToConsole;
         CurrentOptions.Options.UseFileScopedNamespaces = UseFileScopedNamespaces;
         CurrentOptions.Options.UseClosedForSealedClasses = UseClosedForSealedClasses;
+        CurrentOptions.Options.UseLabeledBreakAndContinue = UseLabeledBreakAndContinue;
 
         CurrentOptions.Options.SetUsings(Usings);
 

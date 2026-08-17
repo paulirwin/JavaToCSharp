@@ -87,12 +87,26 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java16LocalRecords.java")]
     [InlineData("Resources/InstanceInitializers.java")]
     [InlineData("Resources/StaticImports.java")]
+    [InlineData("Resources/LabeledBreakContinue.java")]
     public void FullIntegrationTests(string filePath, bool allowWarnings = false)
+        => RunFullIntegrationTest(filePath, allowWarnings);
+
+    /// <summary>
+    /// Runs the labeled break/continue sample through the <c>goto</c> fallback, to confirm it behaves
+    /// identically to the C# 15 labeled jumps covered by <see cref="FullIntegrationTests"/>.
+    /// </summary>
+    [Theory]
+    [InlineData("Resources/LabeledBreakContinue.java")]
+    public void FullIntegrationTestsWithGotoFallback(string filePath)
+        => RunFullIntegrationTest(filePath, allowWarnings: false, useLabeledBreakAndContinue: false);
+
+    private void RunFullIntegrationTest(string filePath, bool allowWarnings, bool useLabeledBreakAndContinue = true)
     {
         var options = new JavaConversionOptions
         {
             ConvertSystemOutToConsole = true,
             IncludeComments = false,
+            UseLabeledBreakAndContinue = useLabeledBreakAndContinue,
         };
 
         options.AddUsing("System");
@@ -113,7 +127,10 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine(parsed);
 
-        var fileName = Path.GetFileNameWithoutExtension(filePath);
+        // The suffix keeps the two option variants in separate assemblies, because Assembly.LoadFile
+        // caches by path and would otherwise reuse the first variant's compiled output.
+        var fileName = Path.GetFileNameWithoutExtension(filePath)
+                       + (useLabeledBreakAndContinue ? "" : "_Goto");
         var assembly = CompileAssembly(fileName, parsed);
 
         var expectation = ParseExpectation(javaText);
@@ -168,7 +185,10 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
 
     private static Assembly CompileAssembly(string assemblyName, string cSharpLanguageText)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(cSharpLanguageText);
+        // Preview is required for the C# 15 features the converter emits, such as labeled break/continue.
+        var syntaxTree = CSharpSyntaxTree.ParseText(
+            cSharpLanguageText,
+            new CSharpParseOptions(LanguageVersion.Preview));
 
         var options = new CSharpCompilationOptions(OutputKind.ConsoleApplication)
             .WithOverflowChecks(true)

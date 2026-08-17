@@ -46,6 +46,10 @@
                               IsChecked="{CompiledBinding UseClosedForSealedClasses}">
                         Use C# 15 `closed` for Java sealed classes
                     </CheckBox>
+                    <CheckBox Margin="5" Name="UseLabeledBreakAndContinue"
+                              IsChecked="{CompiledBinding UseLabeledBreakAndContinue}">
+                        Use C# 15 labeled break/continue (otherwise goto)
+                    </CheckBox>
                     <CheckBox Margin="5" Name="IncludeComments"
                               IsChecked="{CompiledBinding IncludeComments}">
                         Include comments in output

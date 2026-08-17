@@ -130,5 +130,17 @@ namespace JavaToCSharpGui.Properties {
                 this["UseClosedForSealedClasses"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseLabeledBreakAndContinue {
+            get {
+                return ((bool)(this["UseLabeledBreakAndContinue"]));
+            }
+            set {
+                this["UseLabeledBreakAndContinue"] = value;
+            }
+        }
     }
 }
