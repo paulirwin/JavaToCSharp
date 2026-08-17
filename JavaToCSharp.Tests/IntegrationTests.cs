@@ -87,12 +87,15 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java16LocalRecords.java")]
     [InlineData("Resources/InstanceInitializers.java")]
     [InlineData("Resources/StaticImports.java")]
+    // Uses the `goto` fallback: the C# 15 labeled jump syntax cannot be compiled by the Roslyn version here.
+    [InlineData("Resources/LabeledBreakContinue.java")]
     public void FullIntegrationTests(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions
         {
             ConvertSystemOutToConsole = true,
             IncludeComments = false,
+            UseLabeledBreakAndContinue = false,
         };
 
         options.AddUsing("System");

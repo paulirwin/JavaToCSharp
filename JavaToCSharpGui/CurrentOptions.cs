@@ -15,6 +15,7 @@ public static class CurrentOptions
         Options.ConvertSystemOutToConsole = Settings.Default.ConvertSystemOutToConsole;
         Options.UseFileScopedNamespaces = Settings.Default.UseFileScopedNamespaces;
         Options.UseClosedForSealedClasses = Settings.Default.UseClosedForSealedClasses;
+        Options.UseLabeledBreakAndContinue = Settings.Default.UseLabeledBreakAndContinue;
 
         Options.SetUsings(Settings.Default.Usings.Split(';'));
     }
@@ -31,6 +32,7 @@ public static class CurrentOptions
         Settings.Default.ConvertSystemOutToConsole = Options.ConvertSystemOutToConsole;
         Settings.Default.UseFileScopedNamespaces = Options.UseFileScopedNamespaces;
         Settings.Default.UseClosedForSealedClasses = Options.UseClosedForSealedClasses;
+        Settings.Default.UseLabeledBreakAndContinue = Options.UseLabeledBreakAndContinue;
         Settings.Default.Usings = string.Join(";", Options.Usings);
 
         Settings.Default.Save();

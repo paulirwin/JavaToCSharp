@@ -39,6 +39,13 @@ public class JavaConversionOptions
     /// </summary>
     public bool UseClosedForSealedClasses { get; set; } = true;
 
+    /// <summary>
+    /// Translates Java labeled <c>break</c> and <c>continue</c> using the C# 15 labeled jump syntax
+    /// (<c>break outer;</c>), which requires .NET 11 or later.
+    /// When disabled, the jumps are lowered to an equivalent <c>goto</c> and generated target labels instead.
+    /// </summary>
+    public bool UseLabeledBreakAndContinue { get; set; } = true;
+
     public SyntaxMapping SyntaxMappings { get; set; } = new SyntaxMapping();
 
     public JavaConversionOptions AddPackageReplacement(string pattern, string replacement, RegexOptions options = RegexOptions.None)
