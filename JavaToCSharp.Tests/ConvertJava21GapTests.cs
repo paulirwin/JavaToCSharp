@@ -224,6 +224,31 @@ public class ConvertJava21GapTests
         Assert.Contains("static Shapes()", parsed);
     }
 
+    /// <summary>
+    /// Asserts on the converted form of every method reference kind in the integration resource.
+    /// That resource is conversion-only, since java.util.function has no BCL delegate mapping and
+    /// so its output cannot be compiled and run by the integration harness.
+    /// </summary>
+    [Fact]
+    public void Method_Reference_Resource_Converts_Every_Reference_Kind()
+    {
+        var parsed = Convert(File.ReadAllText("Resources/Java8MethodReferences.java"));
+
+        // Instance method of a type, and of a particular object.
+        Assert.Contains("return string.Length;", parsed);
+        Assert.Contains("return this.Upper;", parsed);
+
+        // Static method.
+        Assert.Contains("return Java8MethodReferences.Add;", parsed);
+
+        // Constructor reference, keeping the generic argument.
+        Assert.Contains("() => new List<string>()", parsed);
+
+        // No method reference may become an invocation.
+        Assert.DoesNotContain("string.Length()", parsed);
+        Assert.DoesNotContain("Java8MethodReferences.Add()", parsed);
+    }
+
     private static string Convert(string javaCode, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions { IncludeComments = false };

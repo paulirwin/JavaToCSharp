@@ -1,37 +1,36 @@
-package com.example;
+/// Expect:
+/// - output: "area=6\npair=1,2\nsame=True\nnested=9\n"
+package example;
 
-import java.util.ArrayList;
-import java.util.List;
+// Java 16 local records (JEP 395) may be declared in a method body. C# has no local record
+// declaration, so they are hoisted to the enclosing type.
+public class Program {
+    public static int scale(int value) {
+        // A local record in a second method, to verify each is hoisted independently.
+        record Factor(int amount) {
+        }
 
-/**
- * Java 16 local record declarations (JEP 395), which may be declared in a method body.
- */
-public class Java16LocalRecords {
-    public int sumAreas(List<int[]> pairs) {
+        Factor f = new Factor(3);
+        return value * f.amount;
+    }
+
+    public static void main(String[] args) {
         record Rect(int width, int height) {
         }
 
-        List<Rect> rects = new ArrayList<Rect>();
+        Rect r = new Rect(2, 3);
+        System.out.println("area=" + (r.width * r.height));
 
-        for (int[] pair : pairs) {
-            rects.add(new Rect(pair[0], pair[1]));
-        }
-
-        int total = 0;
-
-        for (Rect rect : rects) {
-            total += rect.width * rect.height;
-        }
-
-        return total;
-    }
-
-    public String describe(int a, int b) {
+        // A second local record in the same method, to verify both are hoisted.
         record Pair(int left, int right) {
         }
 
-        Pair pair = new Pair(a, b);
+        Pair p = new Pair(1, 2);
+        System.out.println("pair=" + p.left + "," + p.right);
 
-        return pair.left + "," + pair.right;
+        // Records have value equality in both languages.
+        System.out.println("same=" + p.equals(new Pair(1, 2)));
+
+        System.out.println("nested=" + scale(3));
     }
 }
