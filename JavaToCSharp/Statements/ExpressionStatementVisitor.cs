@@ -43,28 +43,54 @@ public class ExpressionStatementVisitor : StatementVisitor<ExpressionStmt>
         return expressionSyntax is null ? null : SyntaxFactory.ExpressionStatement(expressionSyntax);
     }
 
-    private static StatementSyntax VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
+    private static StatementSyntax? VisitVariableDeclarationStatement(ConversionContext context, VariableDeclarationExpr varExpr)
     {
-        var commonType = varExpr.getCommonType();
+        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? [];
+
+        // Java allows C-style array brackets on individual declarators, so a single declaration can mix
+        // ranks (`int multi[][] = ..., single[] = ...;`). C# has no equivalent, and asking JavaParser for
+        // a common type throws in that case, so emit one C# declaration per distinct array rank. The
+        // groups stay flat siblings rather than a nested block so the variables remain in the same scope.
+        var declaratorGroups = variableDeclarators
+            .GroupBy(item => item.getType().getArrayLevel())
+            .ToList();
+
+        if (declaratorGroups.Count > 1)
+        {
+            StatementSyntax? last = null;
+
+            foreach (var group in declaratorGroups)
+            {
+                if (last is not null)
+                {
+                    context.PendingStatements.Add(last);
+                }
+
+                last = VisitVariableDeclarationGroup(context, group.First().getType(), group.ToList());
+            }
+
+            return last;
+        }
+
+        return VisitVariableDeclarationGroup(context, varExpr.getCommonType(), variableDeclarators);
+    }
+
+    private static StatementSyntax? VisitVariableDeclarationGroup(
+        ConversionContext context,
+        com.github.javaparser.ast.type.Type commonType,
+        List<VariableDeclarator> variableDeclarators)
+    {
         int? arrayRank = null;
 
         var variables = new List<VariableDeclaratorSyntax>();
         var loweredSwitches = new List<StatementSyntax>();
 
-        var variableDeclarators = varExpr.getVariables()?.ToList<VariableDeclarator>() ?? [];
-
         foreach (var item in variableDeclarators)
         {
             var type = item.getType();
 
-            if (arrayRank is not null && type.getArrayLevel() != arrayRank)
-            {
-                throw new InvalidOperationException("Different array levels in the same field declaration are not yet supported");
-            }
-
             arrayRank ??= type.getArrayLevel();
 
-            var id = item.getType();
             string name = item.getNameAsString();
 
             if (type.getArrayLevel() > 0)

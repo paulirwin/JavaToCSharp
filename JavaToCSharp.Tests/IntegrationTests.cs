@@ -90,6 +90,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/LabeledBreakContinue.java")]
     [InlineData("Resources/ExceptionGetMessage.java")]
     [InlineData("Resources/LongLiterals.java")]
+    [InlineData("Resources/MixedArrayRankDeclarations.java")]
     public void FullIntegrationTests(string filePath, bool allowWarnings = false)
         => RunFullIntegrationTest(filePath, allowWarnings);
 
