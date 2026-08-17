@@ -102,7 +102,7 @@ public static partial class CommentsHelper
                 }
                 else
                 {
-                    var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post);
+                    var commentTrivia = SyntaxFactory.SyntaxTrivia(kind, pre + NormalizeLineEndings(comment.getContent()) + post);
                     if (pos == CommentPosition.Leading)
                     {
                         leadingTriviaList.Add(commentTrivia);
@@ -136,13 +136,25 @@ public static partial class CommentsHelper
                 FormatAsBlockComment(comment.getContent()) + suffix);
         }
 
-        return SyntaxFactory.SyntaxTrivia(kind, pre + comment.getContent() + post + suffix);
+        return SyntaxFactory.SyntaxTrivia(kind, pre + NormalizeLineEndings(comment.getContent()) + post + suffix);
     }
+
+    /// <summary>
+    /// Splits text that originated from the Java source into lines. The line endings of the parsed file are
+    /// preserved by JavaParser and are independent of the host OS, so splitting on <see cref="Environment.NewLine"/>
+    /// would fail whenever the two differ (see issue #97).
+    /// </summary>
+    private static string[] SplitLines(string text) => text.ReplaceLineEndings("\n").Split('\n');
+
+    /// <summary>
+    /// Rewrites line endings that came from the Java source to the ones used for the generated C# output, so that
+    /// multi-line comments do not introduce line endings foreign to the rest of the file.
+    /// </summary>
+    private static string NormalizeLineEndings(string text) => text.ReplaceLineEndings(Environment.NewLine);
 
     private static string FormatAsBlockComment(string content)
     {
-        var lines = content.ReplaceLineEndings("\n")
-            .Split('\n')
+        var lines = SplitLines(content)
             .Select(line => line.TrimStart().TrimStart('*').Trim())
             .ToList();
 
@@ -293,7 +305,7 @@ public static partial class CommentsHelper
         var outputs = new List<string>();
         foreach (var code in codes)
         {
-            string[] input = code.ToString().Split([Environment.NewLine], StringSplitOptions.None);
+            string[] input = SplitLines(code.ToString());
             outputs.AddRange(input);
         }
 
@@ -318,7 +330,7 @@ public static partial class CommentsHelper
 
     private static IEnumerable<SyntaxTrivia> ConvertDocComment(JavaComments.Comment comment, string? post)
     {
-        string[] input = comment.getContent().Split([Environment.NewLine], StringSplitOptions.None);
+        string[] input = SplitLines(comment.getContent());
         var output = new List<string>();
         var remarks = new List<string>(); // For Java tags unknown in C#
         var currentOutput = output;

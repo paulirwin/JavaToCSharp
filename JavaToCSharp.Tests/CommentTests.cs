@@ -241,4 +241,86 @@ public class CommentTests(ITestOutputHelper testOutputHelper)
 
         Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
     }
+
+    [Theory]
+    [InlineData("\n")]
+    [InlineData("\r\n")]
+    public void MultiLineJavadoc_ShouldConvertToXmlDoc_RegardlessOfLineEndings(string newLine)
+    {
+        // Issue #97: the Javadoc content was split on Environment.NewLine, so a Java file whose
+        // line endings differ from the host OS collapsed into a single unparsed line.
+        string javaCode = """
+                          package foo;
+
+                          public class Foo {
+                              /**
+                               * Really cool field that contains something.
+                               * Keep in mind that this field is cooler than awesomeField.
+                               */
+                              public int reallyAwesomeField;
+                          }
+                          """.ReplaceLineEndings(newLine);
+
+        var options = new JavaConversionOptions();
+        options.Usings.Clear();
+
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        testOutputHelper.WriteLine(parsed);
+
+        const string expected = """
+                                namespace Foo
+                                {
+                                    public class Foo
+                                    {
+                                        /// <summary>
+                                        /// Really cool field that contains something.
+                                        /// Keep in mind that this field is cooler than awesomeField.
+                                        /// </summary>
+                                        public int reallyAwesomeField;
+                                    }
+                                }
+                                """;
+
+        Assert.Equal(expected.ReplaceLineEndings(), parsed.ReplaceLineEndings());
+    }
+
+    [Theory]
+    [InlineData("\n")]
+    [InlineData("\r\n")]
+    public void MultiLineJavadocWithTags_ShouldConvertToXmlDoc_RegardlessOfLineEndings(string newLine)
+    {
+        string javaCode = """
+                          package foo;
+
+                          public class Foo {
+                              /**
+                               * Does something useful.
+                               * Second line of the summary.
+                               *
+                               * @param name the name to use
+                               * @return the computed value
+                               * @throws IllegalStateException if it breaks
+                               */
+                              public int doIt(String name) {
+                                  return 1;
+                              }
+                          }
+                          """.ReplaceLineEndings(newLine);
+
+        var options = new JavaConversionOptions();
+        options.Usings.Clear();
+
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        testOutputHelper.WriteLine(parsed);
+
+        Assert.Contains("/// <summary>", parsed);
+        Assert.Contains("/// Does something useful.", parsed);
+        Assert.Contains("/// Second line of the summary.", parsed);
+        Assert.Contains("/// </summary>", parsed);
+        Assert.Contains("""/// <param name="name">the name to use</param>""", parsed);
+        Assert.Contains("/// <returns>the computed value</returns>", parsed);
+        Assert.Contains("""/// <exception cref="IllegalStateException">if it breaks</exception>""", parsed);
+    }
 }
