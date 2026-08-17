@@ -22,6 +22,10 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java11LambdaInference.java")]
     [InlineData("Resources/MultidimensionalArrays.java", true)]
     [InlineData("Resources/Java17SealedClasses.java", true)]
+    [InlineData("Resources/Java16LocalRecords.java")]
+    [InlineData("Resources/Java8MethodReferences.java")]
+    [InlineData("Resources/InstanceInitializers.java")]
+    [InlineData("Resources/StaticImports.java")]
     public void GeneralSuccessfulConversionTest(string filePath, bool allowWarnings = false)
     {
         var options = new JavaConversionOptions

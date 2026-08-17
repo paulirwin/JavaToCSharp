@@ -22,7 +22,14 @@ public static class UsingsHelper
             var importNameWithoutClassName = lastPartStartIndex == -1 ?
                                                  importName :
                                                  importName[..lastPartStartIndex];
-            var nameSpace = TypeHelper.Capitalize(importNameWithoutClassName);
+
+            // A member-specific static import (`import static java.util.Arrays.asList`) ends in the
+            // member name, so stripping the last segment leaves the declaring type that `using
+            // static` needs. An on-demand static import (`import static java.util.Arrays.*`) already
+            // ends in the type, so it is used as-is.
+            var isStatic = import.isStatic();
+            var nameSpace = TypeHelper.Capitalize(
+                isStatic && import.isAsterisk() ? importName : importNameWithoutClassName);
 
             // Override namespace if a non empty mapping is found (mapping to empty string removes the import)
             if (options.SyntaxMappings.ImportMappings.TryGetValue(importName, out var mappedNamespace))
@@ -35,6 +42,11 @@ public static class UsingsHelper
             }
 
             var usingSyntax = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(nameSpace));
+
+            if (isStatic)
+            {
+                usingSyntax = usingSyntax.WithStaticKeyword(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
+            }
 
             if (context.Options.IncludeComments)
             {
