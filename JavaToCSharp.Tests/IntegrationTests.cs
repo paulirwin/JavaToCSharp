@@ -21,6 +21,9 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/Java9DiamondOperatorInnerClass.java")]
     [InlineData("Resources/Java11LambdaInference.java")]
     [InlineData("Resources/MultidimensionalArrays.java", true)]
+    // Warnings are expected: jagged arrays are still emitted as rectangular C# arrays, so this
+    // converts but cannot be compiled and run. See the note in the resource file.
+    [InlineData("Resources/MixedArrayRankMultidimensional.java", true)]
     [InlineData("Resources/Java17SealedClasses.java", true)]
     // Conversion-only: java.util.function has no BCL delegate mapping, so the output cannot be run.
     [InlineData("Resources/Java8MethodReferences.java")]
@@ -90,6 +93,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/LabeledBreakContinue.java")]
     [InlineData("Resources/ExceptionGetMessage.java")]
     [InlineData("Resources/LongLiterals.java")]
+    [InlineData("Resources/MixedArrayRankDeclarations.java")]
     public void FullIntegrationTests(string filePath, bool allowWarnings = false)
         => RunFullIntegrationTest(filePath, allowWarnings);
 
