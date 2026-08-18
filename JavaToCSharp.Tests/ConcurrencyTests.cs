@@ -23,9 +23,9 @@ public class ConcurrencyTests
             ("String", "string"),
             ("Integer", "int"),
             ("List<String>", "IList<string>"),
-            ("Map<String, Integer>", "Dictionary<string, int>"),
+            ("Map<String, Integer>", "IDictionary<string, int>"),
             ("int[]", "int[]"),
-            ("List<Map<String, Object>>", "IList<Dictionary<string, object>>"),
+            ("List<Map<String, Object>>", "IList<IDictionary<string, object>>"),
         ];
 
         var failures = new System.Collections.Concurrent.ConcurrentBag<string>();

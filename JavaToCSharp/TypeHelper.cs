@@ -17,37 +17,74 @@ public static class TypeHelper
     // so this must be a concurrent collection to keep parallel conversions safe.
     private static readonly ConcurrentDictionary<string, string> _typeNameConversions = new()
     {
-        // Simple types
+        // Primitives and their boxed counterparts. Java's boxed types are nullable references while
+        // the C# equivalents are value types, so a null-valued Java variable will need manual review.
         ["boolean"] = "bool",
         ["Boolean"] = "bool",
-        ["ICloseable"] = "IDisposable",
+        ["Byte"] = "sbyte", // java's byte is signed, unlike C#'s
+        ["Character"] = "char",
+        ["Double"] = "double",
+        ["Float"] = "float",
         ["Integer"] = "int",
         ["Long"] = "long",
-        ["Float"] = "float",
-        ["String"] = "string",
-        ["Object"] = "object",
-        ["AutoCloseable"] = "IDisposable",
+        ["Short"] = "short",
 
-        // Generic types
-        ["ArrayList"] = "List",
-        ["List"] = "IList",
-        ["Map"] = "Dictionary",
-        ["Set"] = "HashSet",
+        // Other simple types
+        ["AutoCloseable"] = "IDisposable",
+        ["BigDecimal"] = "decimal",
+        ["Closeable"] = "IDisposable",
+        ["ICloseable"] = "IDisposable",
+        ["Object"] = "object",
+        ["String"] = "string",
+        ["StringBuffer"] = "StringBuilder",
+
+        // Collection interfaces map to the .NET interfaces so that variables declared against an
+        // abstraction stay abstract; the concrete java implementations below supply the `new` types.
+        ["Collection"] = "ICollection",
+        ["Comparable"] = "IComparable",
+        ["Comparator"] = "IComparer",
+        ["Iterable"] = "IEnumerable",
         ["Iterator"] = "IEnumerator",
+        ["List"] = "IList",
+        ["Map"] = "IDictionary",
+        ["NavigableMap"] = "IDictionary",
+        ["NavigableSet"] = "ISet",
+        ["Set"] = "ISet",
+        ["SortedMap"] = "IDictionary",
+        ["SortedSet"] = "ISet",
+
+        // Concrete collection implementations. These are what `new Foo<>()` expressions resolve to,
+        // so they must name instantiable .NET types rather than interfaces.
+        ["ArrayList"] = "List",
+        ["HashMap"] = "Dictionary",
+        ["LinkedHashMap"] = "Dictionary",
+        ["LinkedHashSet"] = "HashSet",
+        ["TreeMap"] = "SortedDictionary",
+        ["TreeSet"] = "SortedSet",
 
         // Exceptions
+        ["AccessDeniedException"] = "UnauthorizedAccessException",
         ["AlreadyClosedException"] = "ObjectDisposedException",
+        ["ArrayIndexOutOfBoundsException"] = "IndexOutOfRangeException",
+        ["AssertionError"] = "InvalidOperationException",
+        ["ClassCastException"] = "InvalidCastException",
+        ["CloneNotSupportedException"] = "NotSupportedException",
+        ["EOFException"] = "EndOfStreamException",
         ["Error"] = "Exception",
         ["IllegalArgumentException"] = "ArgumentException",
         ["IllegalStateException"] = "InvalidOperationException",
-        ["UnsupportedOperationException"] = "NotSupportedException",
-        ["RuntimeException"] = "Exception",
-        ["AccessDeniedException"] = "UnauthorizedAccessException",
-        ["AssertionError"] = "InvalidOperationException",
-        ["NullPointerException"] = "NullReferenceException",
-        ["UncheckedIOException"] = "IOException",
-        ["EOFException"] = "EndOfStreamException",
+        ["IndexOutOfBoundsException"] = "IndexOutOfRangeException",
+        ["InterruptedException"] = "OperationCanceledException",
+        ["NoSuchElementException"] = "InvalidOperationException",
         ["NoSuchFileException"] = "FileNotFoundException",
+        ["NullPointerException"] = "NullReferenceException",
+        ["NumberFormatException"] = "FormatException",
+        ["OutOfMemoryError"] = "OutOfMemoryException",
+        ["RuntimeException"] = "Exception",
+        ["StackOverflowError"] = "StackOverflowException",
+        ["Throwable"] = "Exception",
+        ["UncheckedIOException"] = "IOException",
+        ["UnsupportedOperationException"] = "NotSupportedException",
     };
 
     public static void AddOrUpdateTypeNameConversions(string key, string value)
@@ -293,6 +330,9 @@ public static class TypeHelper
                     return true;
                 }
 
+                // Java's put returns the previous value, which an index assignment discards. That
+                // matches the existing handling of List.set, whose return value is dropped too.
+                case "put" when args.size() == 2:
                 case "set" when args.size() == 2:
                 {
                     var scopeSyntaxSet = ExpressionVisitor.VisitExpression(context, scope);
