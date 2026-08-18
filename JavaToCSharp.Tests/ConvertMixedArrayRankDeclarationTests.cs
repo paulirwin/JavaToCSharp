@@ -110,8 +110,11 @@ public class ConvertMixedArrayRankDeclarationTests
                              }
                              """, warnings);
 
-        Assert.Contains("multi", parsed);
-        Assert.Contains("single", parsed);
+        // The two ranks must land in separate declarations. Note the 2-D array is emitted as a
+        // rectangular `int[,]` rather than a jagged `int[][]`; that is a pre-existing limitation
+        // independent of the mixed-rank split under test here.
+        Assert.Contains("int[, ] multi = new int[2, 2];", parsed);
+        Assert.Contains("int[] single = new int[2];", parsed);
 
         // The only warning permitted here is the pre-existing multi-dimensional array caveat.
         Assert.All(warnings, w => Assert.Contains("Multi-dimensional arrays", w));
