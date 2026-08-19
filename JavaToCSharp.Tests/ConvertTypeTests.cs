@@ -58,6 +58,69 @@ public class ConvertTypeTests
         Assert.Contains("string[] Lemmatize(string[] toks, string[] tags);", parsed);
     }
 
+    [Theory]
+    // Collection interfaces keep their abstraction rather than binding to a concrete type (#134).
+    [InlineData("Map<String, Integer>", "IDictionary<string, int>")]
+    [InlineData("Set<String>", "ISet<string>")]
+    [InlineData("Collection<String>", "ICollection<string>")]
+    [InlineData("Iterable<String>", "IEnumerable<string>")]
+    [InlineData("SortedMap<String, Integer>", "IDictionary<string, int>")]
+    // ...while the concrete java implementations map to instantiable .NET types.
+    [InlineData("HashMap<String, Integer>", "Dictionary<string, int>")]
+    [InlineData("LinkedHashMap<String, Integer>", "Dictionary<string, int>")]
+    [InlineData("TreeMap<String, Integer>", "SortedDictionary<string, int>")]
+    [InlineData("TreeSet<String>", "SortedSet<string>")]
+    [InlineData("LinkedHashSet<String>", "HashSet<string>")]
+    public void ConvertType_Collections(string javaType, string expected)
+    {
+        Assert.Equal(expected, TypeHelper.ConvertType(javaType));
+    }
+
+    [Theory]
+    [InlineData("Character", "char")]
+    [InlineData("Double", "double")]
+    [InlineData("Short", "short")]
+    [InlineData("Byte", "sbyte")] // java's byte is signed
+    [InlineData("BigDecimal", "decimal")]
+    [InlineData("StringBuffer", "StringBuilder")]
+    public void ConvertType_SimpleTypes(string javaType, string expected)
+    {
+        Assert.Equal(expected, TypeHelper.ConvertType(javaType));
+    }
+
+    [Theory]
+    [InlineData("Throwable", "Exception")]
+    [InlineData("ClassCastException", "InvalidCastException")]
+    [InlineData("NumberFormatException", "FormatException")]
+    [InlineData("IndexOutOfBoundsException", "IndexOutOfRangeException")]
+    [InlineData("ArrayIndexOutOfBoundsException", "IndexOutOfRangeException")]
+    [InlineData("NoSuchElementException", "InvalidOperationException")]
+    [InlineData("OutOfMemoryError", "OutOfMemoryException")]
+    public void ConvertType_Exceptions(string javaType, string expected)
+    {
+        Assert.Equal(expected, TypeHelper.ConvertType(javaType));
+    }
+
+    [Fact]
+    public void ConvertType_MapDeclaration_AssignedFromHashMap()
+    {
+        const string javaCode = """
+                                import java.util.*;
+
+                                public class Holder {
+                                    private Map<String, Integer> counts = new HashMap<String, Integer>();
+                                }
+                                """;
+        var options = new JavaConversionOptions
+        {
+            IncludeUsings = false,
+            IncludeNamespace = false,
+        };
+        var parsed = JavaToCSharpConverter.ConvertText(javaCode, options) ?? "";
+
+        Assert.Contains("private IDictionary<string, int> counts = new Dictionary<string, int>();", parsed);
+    }
+
     [Fact]
     public void ConvertType_GenericSingleParameter()
     {

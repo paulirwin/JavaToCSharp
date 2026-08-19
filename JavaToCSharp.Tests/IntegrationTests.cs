@@ -94,6 +94,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
     [InlineData("Resources/ExceptionGetMessage.java")]
     [InlineData("Resources/LongLiterals.java")]
     [InlineData("Resources/MixedArrayRankDeclarations.java")]
+    [InlineData("Resources/CollectionTypeMappings.java")]
     public void FullIntegrationTests(string filePath, bool allowWarnings = false)
         => RunFullIntegrationTest(filePath, allowWarnings);
 
@@ -115,7 +116,11 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
             UseLabeledBreakAndContinue = useLabeledBreakAndContinue,
         };
 
+        // Mirror the CLI's default usings so the compiled sample sees what a real conversion would.
         options.AddUsing("System");
+        options.AddUsing("System.Collections.Generic");
+        options.AddUsing("System.Linq");
+        options.AddUsing("System.Text");
 
         options.WarningEncountered += (_, eventArgs) =>
         {
@@ -251,6 +256,7 @@ public class IntegrationTests(ITestOutputHelper testOutputHelper)
         {
             yield return MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Private.CoreLib.dll"));
             yield return MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Console.dll"));
+            yield return MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Collections.dll"));
             yield return MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Linq.dll"));
             yield return MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll"));
         }
