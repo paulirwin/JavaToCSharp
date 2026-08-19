@@ -7,8 +7,8 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <Authors>Paul Irwin</Authors>
         <Description>A Java to C# converter.</Description>
-        <Copyright>Copyright 2021-2025, Paul Irwin</Copyright>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright 2021-2026, Paul Irwin</Copyright>
+        <PackageLicenseExpression>AGPL-3.0</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/paulirwin/JavaToCSharp</RepositoryUrl>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
