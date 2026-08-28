@@ -16,7 +16,7 @@
         <None Include="..\.editorconfig" Link=".editorconfig"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.15.0"/>
+        <PackageReference Include="IKVM" Version="8.16.0"/>
         <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.0"/>
         <!--
           Microsoft.CodeAnalysis.CSharp 5.9.0 depends on an unpublished Microsoft.CodeAnalysis.Analyzers
